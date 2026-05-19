@@ -430,6 +430,11 @@ body {
   background: #c6efff;
 }
 
+.prestige-reset-button {
+  margin: 12px 0;
+  background: #ffe58f;
+}
+
 .upgrade-button:hover:not(:disabled) {
   background: #ffe08f;
   transform: translateY(-2px);
@@ -481,5 +486,127 @@ body {
   .upgrade-panel {
     width: min(94vw, 430px);
     padding: 16px;
+  }
+}
+
+.utility-button {
+  background: #d9ffe3;
+}
+
+.utility-button:hover:not(:disabled) {
+  background: #ecfff1;
+}
+
+.danger-button {
+  background: #ffd1c9;
+}
+
+.danger-button:hover:not(:disabled) {
+  background: #ffe1dc;
+}
+
+
+.hidden-card,
+.hidden {
+  display: none !important;
+}
+
+.secondary-score {
+  margin-right: 4px;
+  color: rgba(255, 246, 223, 0.62);
+  font-size: clamp(13px, 2.2vw, 18px);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.secondary-score span + span {
+  margin-left: 5px;
+}
+
+.score-area.prestige-main .score-label {
+  color: #dff6ff;
+}
+
+.score-area.prestige-main .score-value {
+  color: #dff6ff;
+  text-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.2),
+    0 0 20px rgba(198, 239, 255, 0.7);
+}
+
+.auto-basic-settings {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 8px;
+  padding: 12px;
+  border: 1px solid rgba(198, 239, 255, 0.42);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.auto-basic-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+}
+
+.auto-basic-row input {
+  width: 72px;
+  padding: 7px 8px;
+  border: none;
+  border-radius: 8px;
+  color: #3b2a1a;
+  background: #fff8e7;
+  font: inherit;
+  font-weight: 800;
+}
+
+.mini-button {
+  min-width: 56px;
+  padding: 8px 9px;
+  border: none;
+  border-radius: 8px;
+  color: #3b2a1a;
+  background: #ffd36f;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.mini-button.on {
+  background: #d9ffe3;
+}
+
+.big-bang-title {
+  background: #ead7ff;
+}
+
+.big-bang-card {
+  border-color: rgba(234, 215, 255, 0.82);
+  background: linear-gradient(180deg, rgba(105, 65, 155, 0.46), rgba(255, 255, 255, 0.1));
+}
+
+.big-bang-button {
+  background: #ead7ff;
+}
+
+.big-bang-button:hover:not(:disabled) {
+  background: #f4eaff;
+}
+
+@media (max-width: 520px) {
+  .auto-basic-row {
+    grid-template-columns: 1fr;
+  }
+
+  .secondary-score {
+    max-width: 34vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
