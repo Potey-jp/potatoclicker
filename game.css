@@ -1,0 +1,342 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+  color: #3b2a1a;
+  background: linear-gradient(180deg, #fff3d0 0%, #f4c96b 100%);
+  overflow-x: hidden;
+}
+
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 72px;
+  padding: 12px 20px;
+  background: rgba(98, 62, 27, 0.9);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+
+.menu-button,
+.close-button,
+.upgrade-button,
+.potato-button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.menu-button {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  color: #fff6df;
+  background: #d18a2f;
+  font-size: 28px;
+  line-height: 1;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.menu-button:hover {
+  background: #e59a3a;
+  transform: scale(1.05);
+}
+
+.score-area {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  color: #fff6df;
+}
+
+.score-label {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+.score-value {
+  font-size: clamp(32px, 6vw, 54px);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
+}
+
+.game-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 100px 24px 40px;
+  text-align: center;
+}
+
+.help-text {
+  margin: 0 0 28px;
+  font-size: clamp(22px, 4vw, 36px);
+  font-weight: 700;
+}
+
+.potato-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  border: none;
+  background: transparent;
+  padding: 0;
+  border-radius: 50%;
+  line-height: 0;
+  isolation: isolate;
+  filter: drop-shadow(0 20px 22px rgba(74, 42, 15, 0.32));
+  transition: transform 0.12s ease;
+}
+
+.potato-button:hover {
+  transform: translateY(-4px);
+}
+
+.bonus-glow-effect,
+.bonus-glow-image {
+  position: absolute;
+  pointer-events: none;
+}
+
+.bonus-glow-effect {
+  inset: -18%;
+  z-index: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 225, 0.62) 0%,
+    rgba(255, 237, 134, 0.42) 36%,
+    rgba(255, 210, 69, 0.18) 60%,
+    rgba(255, 210, 69, 0) 78%
+  );
+  filter: blur(12px);
+  opacity: 0;
+  transform: scale(0.82);
+  animation: bonus-glow-fade 1.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.bonus-glow-image {
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  animation: bonus-image-glow 1.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.potato-image {
+  position: relative;
+  z-index: 2;
+  width: min(58vw, 340px);
+  max-width: 100%;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform-origin: center;
+}
+
+.potato-image.pop {
+  animation: potato-pop 0.18s ease-out;
+}
+
+@keyframes potato-pop {
+  0% {
+    transform: scale(1, 1);
+  }
+  45% {
+    transform: scale(1.18, 0.82);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
+
+@keyframes bonus-glow-fade {
+  0% {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+  22% {
+    opacity: 0.82;
+    transform: scale(1.02);
+  }
+  58% {
+    opacity: 0.42;
+    transform: scale(1.12);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.28);
+  }
+}
+
+@keyframes bonus-image-glow {
+  0% {
+    opacity: 0;
+    filter: brightness(1) drop-shadow(0 0 0 rgba(255, 245, 170, 0));
+  }
+  24% {
+    opacity: 0.34;
+    filter:
+      brightness(1.18)
+      drop-shadow(0 0 14px rgba(255, 248, 178, 0.7))
+      drop-shadow(0 0 34px rgba(255, 219, 84, 0.42));
+  }
+  62% {
+    opacity: 0.2;
+    filter:
+      brightness(1.1)
+      drop-shadow(0 0 18px rgba(255, 248, 178, 0.5))
+      drop-shadow(0 0 46px rgba(255, 219, 84, 0.26));
+  }
+  100% {
+    opacity: 0;
+    filter: brightness(1) drop-shadow(0 0 0 rgba(255, 245, 170, 0));
+  }
+}
+
+.upgrade-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 30;
+  width: min(86vw, 360px);
+  height: 100vh;
+  padding: 20px;
+  color: #fff8e7;
+  background: #4a2d18;
+  box-shadow: 8px 0 26px rgba(0, 0, 0, 0.28);
+  transform: translateX(-105%);
+  transition: transform 0.25s ease;
+  overflow-y: auto;
+}
+
+.upgrade-panel.open {
+  transform: translateX(0);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.close-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  color: #fff8e7;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 28px;
+  line-height: 1;
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.upgrade-list {
+  display: grid;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+
+.upgrade-card {
+  padding: 16px;
+  border: 2px solid rgba(255, 221, 142, 0.35);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.upgrade-card h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.upgrade-card p {
+  margin: 8px 0;
+  line-height: 1.6;
+}
+
+.upgrade-status {
+  font-weight: 700;
+}
+
+.upgrade-button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 12px;
+  color: #3b2a1a;
+  background: #ffd36f;
+  font-weight: 800;
+  transition: transform 0.12s ease, background 0.12s ease, opacity 0.12s ease;
+}
+
+.upgrade-button:hover:not(:disabled) {
+  background: #ffe08f;
+  transform: translateY(-2px);
+}
+
+.upgrade-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  background: rgba(0, 0, 0, 0.34);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.panel-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (max-width: 520px) {
+  .top-bar {
+    height: 64px;
+    padding: 10px 12px;
+  }
+
+  .menu-button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .score-area {
+    gap: 8px;
+  }
+
+  .score-label {
+    font-size: 14px;
+  }
+}

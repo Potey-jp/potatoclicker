@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ジャガイモクリッカー</title>
+  <link rel="stylesheet" href="game.css" />
+</head>
+<body>
+  <header class="top-bar">
+    <button id="menuButton" class="menu-button" type="button" aria-label="アップグレードメニューを開く">
+      ☰
+    </button>
+
+    <div class="score-area">
+      <span class="score-label">ポイント</span>
+      <span id="pointText" class="score-value">0</span>
+    </div>
+  </header>
+
+  <aside id="upgradePanel" class="upgrade-panel" aria-hidden="true">
+    <div class="panel-header">
+      <h2>アップグレード</h2>
+      <button id="closePanelButton" class="close-button" type="button" aria-label="アップグレードメニューを閉じる">
+        ×
+      </button>
+    </div>
+
+    <div class="upgrade-list">
+      <section class="upgrade-card">
+        <h3>クリック強化</h3>
+        <p>クリック毎のポイント増加量が +1 されます。</p>
+        <p class="upgrade-status">現在: <span id="clickPowerText">1</span> / クリック</p>
+        <button id="clickUpgradeButton" class="upgrade-button" type="button">
+          購入: <span id="clickUpgradeCostText">10</span> ポイント
+        </button>
+      </section>
+
+      <section class="upgrade-card">
+        <h3>オートクリック</h3>
+        <p>1秒ごとに自動でポイントが増えます。</p>
+        <p class="upgrade-status">現在: <span id="autoClickText">0</span> / 秒</p>
+        <button id="autoClickUpgradeButton" class="upgrade-button" type="button">
+          購入: <span id="autoClickCostText">25</span> ポイント
+        </button>
+      </section>
+
+      <section class="upgrade-card">
+        <h3>ボーナス確率</h3>
+        <p>クリック時に、もらえるポイントが倍率分アップする確率が +1% されます。</p>
+        <p class="upgrade-status">現在: <span id="bonusChanceText">1</span>%</p>
+        <button id="bonusChanceUpgradeButton" class="upgrade-button" type="button">
+          購入: <span id="bonusChanceCostText">50</span> ポイント
+        </button>
+      </section>
+
+      <section class="upgrade-card">
+        <h3>ボーナス倍率</h3>
+        <p>ボーナス発生時の倍率が +0.5倍 されます。</p>
+        <p class="upgrade-status">現在: <span id="bonusMultiplierText">2</span>倍</p>
+        <button id="bonusMultiplierUpgradeButton" class="upgrade-button" type="button">
+          購入: <span id="bonusMultiplierCostText">100</span> ポイント
+        </button>
+      </section>
+    </div>
+  </aside>
+
+  <div id="panelOverlay" class="panel-overlay"></div>
+
+  <main class="game-area">
+    <p class="help-text">ジャガイモをクリック！</p>
+
+    <button id="potatoButton" class="potato-button" type="button" aria-label="ジャガイモをクリックする">
+      <img id="potatoImage" src="potato.png" alt="ジャガイモ" class="potato-image" />
+    </button>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
