@@ -27,6 +27,8 @@
     </div>
 
     <div class="upgrade-list">
+      <p class="upgrade-section-title">基本アップグレード</p>
+
       <section class="upgrade-card">
         <h3>クリック強化</h3>
         <p>クリック毎のポイント増加量が +1 されます。</p>
@@ -37,11 +39,41 @@
       </section>
 
       <section class="upgrade-card">
+        <h3>クリック回数強化</h3>
+        <p>1回のクリックで、クリック毎ポイント × 回数分のポイントがもらえます。</p>
+        <p class="upgrade-status">現在: <span id="clickCountText">1</span> 回分</p>
+        <button id="clickCountUpgradeButton" class="upgrade-button" type="button">
+          購入: <span id="clickCountUpgradeCostText">75</span> ポイント
+        </button>
+      </section>
+
+      <section class="upgrade-card">
         <h3>オートクリック</h3>
-        <p>1秒ごとに自動でポイントが増えます。</p>
-        <p class="upgrade-status">現在: <span id="autoClickText">0</span> / 秒</p>
+        <p>一定間隔ごとに自動でポイントが増えます。</p>
+        <p class="upgrade-status">
+          基本: <span id="autoClickText">0</span><br />
+          実効: <span id="effectiveAutoClickText">0</span> / <span id="autoClickIntervalText">1.00</span>秒
+        </p>
         <button id="autoClickUpgradeButton" class="upgrade-button" type="button">
           購入: <span id="autoClickCostText">25</span> ポイント
+        </button>
+      </section>
+
+      <section class="upgrade-card">
+        <h3>オートクリック間隔短縮</h3>
+        <p>購入するたびに、オートクリックの間隔が 5% 短くなります。</p>
+        <p class="upgrade-status">現在の間隔: <span id="autoIntervalText">1.00</span>秒</p>
+        <button id="autoIntervalUpgradeButton" class="upgrade-button" type="button">
+          購入: <span id="autoIntervalUpgradeCostText">150</span> ポイント
+        </button>
+      </section>
+
+      <section class="upgrade-card">
+        <h3>オートクリック倍加</h3>
+        <p>オートクリックの基本数値に倍率をかけます。購入するたびに倍率が +1倍 されます。</p>
+        <p class="upgrade-status">現在: <span id="autoMultiplierText">1</span>倍</p>
+        <button id="autoMultiplierUpgradeButton" class="upgrade-button" type="button">
+          購入: <span id="autoMultiplierUpgradeCostText">300</span> ポイント
         </button>
       </section>
 
@@ -61,6 +93,70 @@
         <button id="bonusMultiplierUpgradeButton" class="upgrade-button" type="button">
           購入: <span id="bonusMultiplierCostText">100</span> ポイント
         </button>
+      </section>
+
+      <section id="enhancedBonusChanceCard" class="upgrade-card locked-card">
+        <h3>強化ボーナス確率</h3>
+        <p>強化ボーナス解放後、通常ボーナス発生時に追加ボーナスが発生する確率を +1% します。</p>
+        <p class="upgrade-status">現在: <span id="enhancedBonusChanceText">未解放</span><span id="enhancedBonusChanceUnit">%</span></p>
+        <button id="enhancedBonusChanceUpgradeButton" class="upgrade-button" type="button">
+          購入: <span id="enhancedBonusChanceCostText">500</span> ポイント
+        </button>
+      </section>
+
+      <section id="enhancedBonusMultiplierCard" class="upgrade-card locked-card">
+        <h3>強化ボーナス倍率</h3>
+        <p>追加ボーナスの倍率が +0.5倍 されます。</p>
+        <p class="upgrade-status">現在: <span id="enhancedBonusMultiplierText">未解放</span>倍</p>
+        <button id="enhancedBonusMultiplierUpgradeButton" class="upgrade-button" type="button">
+          購入: <span id="enhancedBonusMultiplierCostText">800</span> ポイント
+        </button>
+      </section>
+
+      <p class="upgrade-section-title premium-title">高級アップグレード</p>
+
+      <section class="upgrade-card premium-card">
+        <h3>高級リセット</h3>
+        <p>
+          <span id="prestigeCostText">1,000,000</span> ポイント以上で実行できます。
+          実行するとポイントと基本アップグレードがリセットされ、高級アップグレードは残ります。
+        </p>
+        <p class="premium-note">
+          どれを選んでも、リセット時に全ポイント倍率が現在値の 1.1倍になります。
+          さらに下の中から選んだ効果を1つ獲得します。
+        </p>
+
+        <div class="premium-status-grid">
+          <p class="upgrade-status">高級リセット回数: <span id="prestigeCountText">0</span> 回</p>
+          <p class="upgrade-status">全ポイント倍率: <span id="globalPointMultiplierText">1</span>倍</p>
+          <p class="upgrade-status">強化オートクリック: <span id="enhancedAutoClickStatusText">未解放</span></p>
+          <p class="upgrade-status">強化ボーナス: <span id="enhancedBonusStatusText">未解放</span></p>
+          <p class="upgrade-status">基本アップグレード初期レベル: +<span id="basicInitialLevelBonusText">0</span></p>
+          <p class="upgrade-status">基本アップグレードコスト倍率: <span id="basicCostMultiplierText">100</span>%</p>
+          <p class="upgrade-status">高級オート倍率: <span id="premiumAutoMultiplierText">1</span>倍</p>
+          <p class="upgrade-status">通常クリック最終倍率: <span id="manualFinalMultiplierText">1</span>倍</p>
+        </div>
+
+        <div class="premium-actions">
+          <button id="prestigeEnhancedAutoButton" class="upgrade-button premium-button" type="button">
+            リセットして「強化オートクリック解放」
+          </button>
+          <button id="prestigeEnhancedBonusButton" class="upgrade-button premium-button" type="button">
+            リセットして「強化ボーナス解放」
+          </button>
+          <button id="prestigeInitialLevelButton" class="upgrade-button premium-button" type="button">
+            リセットして「基本初期値 +10」
+          </button>
+          <button id="prestigeCostReductionButton" class="upgrade-button premium-button" type="button">
+            リセットして「基本コスト 0.9倍」
+          </button>
+          <button id="prestigePremiumAutoMultiplierButton" class="upgrade-button premium-button" type="button">
+            リセットして「オートクリック高級倍率 4倍」
+          </button>
+          <button id="prestigeManualFinalMultiplierButton" class="upgrade-button premium-button" type="button">
+            リセットして「通常クリック最終倍率 1.5倍」
+          </button>
+        </div>
       </section>
     </div>
   </aside>

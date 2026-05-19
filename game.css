@@ -129,6 +129,17 @@ body {
   animation: bonus-glow-fade 1.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
+.bonus-glow-effect.enhanced {
+  inset: -24%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.72) 0%,
+    rgba(198, 239, 255, 0.48) 34%,
+    rgba(255, 236, 120, 0.28) 58%,
+    rgba(255, 236, 120, 0) 82%
+  );
+}
+
 .bonus-glow-image {
   inset: 0;
   z-index: 3;
@@ -137,6 +148,40 @@ body {
   object-fit: contain;
   opacity: 0;
   animation: bonus-image-glow 1.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.gain-popup {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: 32%;
+  pointer-events: none;
+  color: #fff8e7;
+  font-size: clamp(22px, 5vw, 34px);
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow:
+    0 3px 0 rgba(69, 39, 14, 0.75),
+    0 0 12px rgba(255, 255, 255, 0.55);
+  animation: gain-popup-fade 0.5s ease-out forwards;
+}
+
+.gain-popup.bonus {
+  color: #fff3a6;
+  text-shadow:
+    0 3px 0 rgba(69, 39, 14, 0.75),
+    0 0 14px rgba(255, 249, 190, 0.9),
+    0 0 28px rgba(255, 219, 84, 0.75);
+}
+
+.gain-popup.enhanced {
+  color: #dff6ff;
+  font-size: clamp(24px, 5.5vw, 38px);
+  text-shadow:
+    0 3px 0 rgba(24, 58, 76, 0.8),
+    0 0 16px rgba(226, 249, 255, 0.95),
+    0 0 34px rgba(255, 238, 128, 0.9);
 }
 
 .potato-image {
@@ -162,6 +207,21 @@ body {
   }
   100% {
     transform: scale(1, 1);
+  }
+}
+
+@keyframes gain-popup-fade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -20%) scale(0.85);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -150%) scale(1.12);
   }
 }
 
@@ -214,7 +274,7 @@ body {
   top: 0;
   left: 0;
   z-index: 30;
-  width: min(86vw, 360px);
+  width: min(90vw, 430px);
   height: 100vh;
   padding: 20px;
   color: #fff8e7;
@@ -234,7 +294,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .panel-header h2 {
@@ -263,11 +323,53 @@ body {
   padding-bottom: 24px;
 }
 
+.upgrade-section-title {
+  margin: 4px 0 -4px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: #4a2d18;
+  background: #ffe2a1;
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+.premium-title {
+  background: #dff6ff;
+}
+
 .upgrade-card {
   padding: 16px;
   border: 2px solid rgba(255, 221, 142, 0.35);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.1);
+}
+
+.locked-card {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.locked-card h3::after {
+  content: " 未解放";
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: #4a2d18;
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+.locked-card.unlocked h3::after {
+  content: " 解放済み";
+  background: #dff6ff;
+}
+
+.premium-card {
+  border-color: rgba(191, 235, 255, 0.72);
+  background: linear-gradient(180deg, rgba(90, 139, 166, 0.42), rgba(255, 255, 255, 0.1));
 }
 
 .upgrade-card h3 {
@@ -284,6 +386,32 @@ body {
   font-weight: 700;
 }
 
+.premium-note {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 14px;
+}
+
+.premium-status-grid {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.premium-status-grid p {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.premium-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
 .upgrade-button {
   width: 100%;
   margin-top: 8px;
@@ -293,12 +421,22 @@ body {
   color: #3b2a1a;
   background: #ffd36f;
   font-weight: 800;
+  line-height: 1.45;
   transition: transform 0.12s ease, background 0.12s ease, opacity 0.12s ease;
+}
+
+.premium-button {
+  margin-top: 0;
+  background: #c6efff;
 }
 
 .upgrade-button:hover:not(:disabled) {
   background: #ffe08f;
   transform: translateY(-2px);
+}
+
+.premium-button:hover:not(:disabled) {
+  background: #e0f8ff;
 }
 
 .upgrade-button:disabled {
@@ -338,5 +476,10 @@ body {
 
   .score-label {
     font-size: 14px;
+  }
+
+  .upgrade-panel {
+    width: min(94vw, 430px);
+    padding: 16px;
   }
 }
