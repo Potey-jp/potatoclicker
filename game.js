@@ -1,1547 +1,557 @@
-const scoreArea = document.getElementById("scoreArea");
-const mainScoreLabel = document.getElementById("mainScoreLabel");
-const secondaryScoreArea = document.getElementById("secondaryScoreArea");
-const secondaryScoreLabel = document.getElementById("secondaryScoreLabel");
-const secondaryScoreText = document.getElementById("secondaryScoreText");
-const pointText = document.getElementById("pointText");
-const clickPowerText = document.getElementById("clickPowerText");
-const clickCountText = document.getElementById("clickCountText");
-const autoClickText = document.getElementById("autoClickText");
-const effectiveAutoClickText = document.getElementById("effectiveAutoClickText");
-const autoClickIntervalText = document.getElementById("autoClickIntervalText");
-const autoIntervalText = document.getElementById("autoIntervalText");
-const autoMultiplierText = document.getElementById("autoMultiplierText");
-const clickUpgradeCostText = document.getElementById("clickUpgradeCostText");
-const clickCountUpgradeCostText = document.getElementById("clickCountUpgradeCostText");
-const autoClickCostText = document.getElementById("autoClickCostText");
-const autoIntervalUpgradeCostText = document.getElementById("autoIntervalUpgradeCostText");
-const autoMultiplierUpgradeCostText = document.getElementById("autoMultiplierUpgradeCostText");
-const bonusChanceText = document.getElementById("bonusChanceText");
-const bonusMultiplierText = document.getElementById("bonusMultiplierText");
-const bonusChanceCostText = document.getElementById("bonusChanceCostText");
-const bonusMultiplierCostText = document.getElementById("bonusMultiplierCostText");
-const enhancedBonusChanceText = document.getElementById("enhancedBonusChanceText");
-const enhancedBonusMultiplierText = document.getElementById("enhancedBonusMultiplierText");
-const enhancedBonusChanceCostText = document.getElementById("enhancedBonusChanceCostText");
-const enhancedBonusMultiplierCostText = document.getElementById("enhancedBonusMultiplierCostText");
-const enhancedBonusChanceUnit = document.getElementById("enhancedBonusChanceUnit");
-const enhancedBonusChanceCard = document.getElementById("enhancedBonusChanceCard");
-const enhancedBonusMultiplierCard = document.getElementById("enhancedBonusMultiplierCard");
+const $ = (id) => document.getElementById(id);
 
-const prestigeCostText = document.getElementById("prestigeCostText");
-const prestigePointText = document.getElementById("prestigePointText");
-const prestigeCountText = document.getElementById("prestigeCountText");
-const globalPointMultiplierText = document.getElementById("globalPointMultiplierText");
-const enhancedAutoClickStatusText = document.getElementById("enhancedAutoClickStatusText");
-const enhancedBonusStatusText = document.getElementById("enhancedBonusStatusText");
-const basicInitialLevelBonusText = document.getElementById("basicInitialLevelBonusText");
-const basicCostMultiplierText = document.getElementById("basicCostMultiplierText");
-const premiumAutoMultiplierText = document.getElementById("premiumAutoMultiplierText");
-const manualFinalMultiplierText = document.getElementById("manualFinalMultiplierText");
-const autoPrestigeStatusText = document.getElementById("autoPrestigeStatusText");
-const autoBasicUpgradeStatusText = document.getElementById("autoBasicUpgradeStatusText");
-const prestigePointGainText = document.getElementById("prestigePointGainText");
-const bigBangPointText = document.getElementById("bigBangPointText");
-const bigBangCountText = document.getElementById("bigBangCountText");
-const bigBangGainText = document.getElementById("bigBangGainText");
-const bigBangNormalMultiplierText = document.getElementById("bigBangNormalMultiplierText");
-const bigBangPrestigeMultiplierText = document.getElementById("bigBangPrestigeMultiplierText");
-const saveStatusText = document.getElementById("saveStatusText");
-
-const potatoButton = document.getElementById("potatoButton");
-const potatoImage = document.getElementById("potatoImage");
-
-const menuButton = document.getElementById("menuButton");
-const closePanelButton = document.getElementById("closePanelButton");
-const upgradePanel = document.getElementById("upgradePanel");
-const panelOverlay = document.getElementById("panelOverlay");
-
-const clickUpgradeButton = document.getElementById("clickUpgradeButton");
-const clickCountUpgradeButton = document.getElementById("clickCountUpgradeButton");
-const autoClickUpgradeButton = document.getElementById("autoClickUpgradeButton");
-const autoIntervalUpgradeButton = document.getElementById("autoIntervalUpgradeButton");
-const autoMultiplierUpgradeButton = document.getElementById("autoMultiplierUpgradeButton");
-const bonusChanceUpgradeButton = document.getElementById("bonusChanceUpgradeButton");
-const bonusMultiplierUpgradeButton = document.getElementById("bonusMultiplierUpgradeButton");
-const enhancedBonusChanceUpgradeButton = document.getElementById("enhancedBonusChanceUpgradeButton");
-const enhancedBonusMultiplierUpgradeButton = document.getElementById("enhancedBonusMultiplierUpgradeButton");
-
-const prestigeResetButton = document.getElementById("prestigeResetButton");
-const prestigeEnhancedAutoButton = document.getElementById("prestigeEnhancedAutoButton");
-const prestigeEnhancedBonusButton = document.getElementById("prestigeEnhancedBonusButton");
-const prestigeInitialLevelButton = document.getElementById("prestigeInitialLevelButton");
-const prestigeCostReductionButton = document.getElementById("prestigeCostReductionButton");
-const prestigePremiumAutoMultiplierButton = document.getElementById("prestigePremiumAutoMultiplierButton");
-const prestigeManualFinalMultiplierButton = document.getElementById("prestigeManualFinalMultiplierButton");
-const prestigeAutoResetButton = document.getElementById("prestigeAutoResetButton");
-const toggleAutoPrestigeButton = document.getElementById("toggleAutoPrestigeButton");
-const prestigeAutoBasicUpgradeButton = document.getElementById("prestigeAutoBasicUpgradeButton");
-const prestigePointGainButton = document.getElementById("prestigePointGainButton");
-const toggleAutoBasicUpgradeButton = document.getElementById("toggleAutoBasicUpgradeButton");
-const autoBasicUpgradeCard = document.getElementById("autoBasicUpgradeCard");
-const manualSaveButton = document.getElementById("manualSaveButton");
-const deleteSaveButton = document.getElementById("deleteSaveButton");
-
-const bigBangTitle = document.getElementById("bigBangTitle");
-const bigBangCard = document.getElementById("bigBangCard");
-const bigBangCostText = document.getElementById("bigBangCostText");
-const bigBangResetGainText = document.getElementById("bigBangResetGainText");
-const bigBangNormalMultiplierText2 = document.getElementById("bigBangNormalMultiplierText2");
-const bigBangPrestigeMultiplierText2 = document.getElementById("bigBangPrestigeMultiplierText2");
-const bigBangPointGainText = document.getElementById("bigBangPointGainText");
-const bigBangResetButton = document.getElementById("bigBangResetButton");
-const bigBangNormalMultiplierButton = document.getElementById("bigBangNormalMultiplierButton");
-const bigBangPrestigeMultiplierButton = document.getElementById("bigBangPrestigeMultiplierButton");
-const bigBangPointGainButton = document.getElementById("bigBangPointGainButton");
-
-const BASIC_UPGRADE_KEYS = [
-  "clickPower",
-  "clickCount",
-  "autoClick",
-  "autoInterval",
-  "autoMultiplier",
-  "bonusChance",
-  "bonusMultiplier",
-  "enhancedBonusChance",
-  "enhancedBonusMultiplier",
-];
-
-const BASIC_UPGRADE_LABELS = {
-  clickPower: "クリック強化",
-  clickCount: "クリック回数強化",
-  autoClick: "オートクリック",
-  autoInterval: "オート間隔短縮",
-  autoMultiplier: "オートクリック倍加",
-  bonusChance: "ボーナス確率",
-  bonusMultiplier: "ボーナス倍率",
-  enhancedBonusChance: "強化ボーナス確率",
-  enhancedBonusMultiplier: "強化ボーナス倍率",
+const els = {
+  scoreArea: $("scoreArea"), mainScoreLabel: $("mainScoreLabel"), secondaryScoreArea: $("secondaryScoreArea"), secondaryScoreLabel: $("secondaryScoreLabel"), secondaryScoreText: $("secondaryScoreText"), pointText: $("pointText"), multiplierFormulaText: $("multiplierFormulaText"),
+  menuButton: $("menuButton"), statsButton: $("statsButton"), closePanelButton: $("closePanelButton"), closeStatsButton: $("closeStatsButton"), upgradePanel: $("upgradePanel"), statsPanel: $("statsPanel"), panelOverlay: $("panelOverlay"), statsContent: $("statsContent"),
+  potatoButton: $("potatoButton"), potatoImage: $("potatoImage"),
+  debugModal: $("debugModal"), debugFields: $("debugFields"), closeDebugButton: $("closeDebugButton"), cancelDebugButton: $("cancelDebugButton"), applyDebugButton: $("applyDebugButton"),
+  saveStatusText: $("saveStatusText"), autoBasicRows: $("autoBasicRows"), autoPrestigeTargetInput: $("autoPrestigeTargetInput"), autoPrestigeSettings: $("autoPrestigeSettings"),
 };
 
-const AUTO_BASIC_CONTROLS = {
-  clickPower: { input: document.getElementById("autoTargetClickPowerInput"), button: document.getElementById("autoToggleClickPowerButton") },
-  clickCount: { input: document.getElementById("autoTargetClickCountInput"), button: document.getElementById("autoToggleClickCountButton") },
-  autoClick: { input: document.getElementById("autoTargetAutoClickInput"), button: document.getElementById("autoToggleAutoClickButton") },
-  autoInterval: { input: document.getElementById("autoTargetAutoIntervalInput"), button: document.getElementById("autoToggleAutoIntervalButton") },
-  autoMultiplier: { input: document.getElementById("autoTargetAutoMultiplierInput"), button: document.getElementById("autoToggleAutoMultiplierButton") },
-  bonusChance: { input: document.getElementById("autoTargetBonusChanceInput"), button: document.getElementById("autoToggleBonusChanceButton") },
-  bonusMultiplier: { input: document.getElementById("autoTargetBonusMultiplierInput"), button: document.getElementById("autoToggleBonusMultiplierButton") },
-  enhancedBonusChance: { input: document.getElementById("autoTargetEnhancedBonusChanceInput"), button: document.getElementById("autoToggleEnhancedBonusChanceButton") },
-  enhancedBonusMultiplier: { input: document.getElementById("autoTargetEnhancedBonusMultiplierInput"), button: document.getElementById("autoToggleEnhancedBonusMultiplierButton") },
+const BASIC_KEYS = ["clickPower","clickCount","autoClick","autoInterval","autoMultiplier","bonusChance","bonusMultiplier","enhancedBonusChance","enhancedBonusMultiplier"];
+const BASIC_LABELS = {
+  clickPower:"クリック強化", clickCount:"クリック回数強化", autoClick:"オートクリック", autoInterval:"オート間隔短縮", autoMultiplier:"オートクリック倍加", bonusChance:"ボーナス確率", bonusMultiplier:"ボーナス倍率", enhancedBonusChance:"強化ボーナス確率", enhancedBonusMultiplier:"強化ボーナス倍率"
 };
-
-const UPGRADE_CONFIG = {
-  clickPower: {
-    baseCost: 10,
-    growth: 1.6,
-  },
-  clickCount: {
-    baseCost: 75,
-    growth: 1.75,
-  },
-  autoClick: {
-    baseCost: 25,
-    growth: 1.7,
-  },
-  autoInterval: {
-    baseCost: 150,
-    growth: 1.65,
-  },
-  autoMultiplier: {
-    baseCost: 300,
-    growth: 2.0,
-  },
-  bonusChance: {
-    baseCost: 50,
-    growth: 1.55,
-  },
-  bonusMultiplier: {
-    baseCost: 100,
-    growth: 1.9,
-  },
-  enhancedBonusChance: {
-    baseCost: 500,
-    growth: 1.6,
-  },
-  enhancedBonusMultiplier: {
-    baseCost: 800,
-    growth: 1.95,
-  },
+const BASIC_CONFIG = {
+  clickPower:{baseCost:10,growth:1.6}, clickCount:{baseCost:75,growth:1.75}, autoClick:{baseCost:25,growth:1.7}, autoInterval:{baseCost:150,growth:1.65}, autoMultiplier:{baseCost:300,growth:2}, bonusChance:{baseCost:50,growth:1.55}, bonusMultiplier:{baseCost:100,growth:1.9}, enhancedBonusChance:{baseCost:500,growth:1.6}, enhancedBonusMultiplier:{baseCost:800,growth:1.95}
 };
+const PRESTIGE_TYPES = ["enhancedAuto","enhancedBonus","initialLevel","costReduction","premiumAutoMultiplier","manualFinalMultiplier","autoPrestige","autoBasicUpgrade","prestigePointGain"];
+const PRESTIGE_BASE_COST = { enhancedAuto:1, enhancedBonus:1, initialLevel:1, costReduction:1, premiumAutoMultiplier:1, manualFinalMultiplier:1, autoPrestige:5, autoBasicUpgrade:10, prestigePointGain:1 };
+const PRESTIGE_LABELS = { enhancedAuto:"強化オートクリック解放", enhancedBonus:"強化ボーナス解放", initialLevel:"基本初期値 +2", costReduction:"基本コスト 0.9倍", premiumAutoMultiplier:"オートクリック高級倍率", manualFinalMultiplier:"通常クリック最終倍率", autoPrestige:"自動リセット解放", autoBasicUpgrade:"基本アップグレード自動強化解放", prestigePointGain:"高級ポイント獲得量 +1" };
 
 const PRESTIGE_COST = 1_000_000;
-const PRESTIGE_POINT_GAIN_BASE = 1;
-const PRESTIGE_UPGRADE_COST = 1;
-const AUTO_PRESTIGE_UNLOCK_COST = 5;
-const AUTO_BASIC_UPGRADE_UNLOCK_COST = 10;
-
-const PRESTIGE_UPGRADE_BASE_COSTS = {
-  enhancedAuto: PRESTIGE_UPGRADE_COST,
-  enhancedBonus: PRESTIGE_UPGRADE_COST,
-  initialLevel: PRESTIGE_UPGRADE_COST,
-  costReduction: PRESTIGE_UPGRADE_COST,
-  premiumAutoMultiplier: PRESTIGE_UPGRADE_COST,
-  manualFinalMultiplier: PRESTIGE_UPGRADE_COST,
-  autoPrestige: AUTO_PRESTIGE_UNLOCK_COST,
-  autoBasicUpgrade: AUTO_BASIC_UPGRADE_UNLOCK_COST,
-  prestigePointGain: PRESTIGE_UPGRADE_COST,
-};
-
-const PRESTIGE_UPGRADE_KEYS = Object.keys(PRESTIGE_UPGRADE_BASE_COSTS);
-const GLOBAL_POINT_MULTIPLIER_INCREMENT = 0.01;
-const BIG_BANG_GLOBAL_POINT_BONUS_INCREMENT = 0.1;
-const BASIC_INITIAL_LEVEL_BONUS_INCREMENT = 2;
-const MAX_BASIC_INITIAL_LEVEL_BONUS = 100;
-
-const AUTO_INTERVAL_REDUCTION_RATE = 0.95; // レベルごとに間隔 -5%
-const MIN_AUTO_CLICK_INTERVAL = 100; // 負荷対策として最短 0.10秒
-const ENHANCED_AUTO_CLICK_INTERVAL = 200; // 毎秒5回
-const GAIN_POPUP_LIFETIME = 700;
+const BIG_BANG_COST = 1_000_000;
+const BIG_BANG_VISIBLE_THRESHOLD = 100_000;
+const SAVE_KEY = "potatoClickerSaveData_v2";
+const OLD_SAVE_KEYS = ["potatoClickerSaveData_v1"];
+const AUTO_SAVE_INTERVAL = 5000;
+const AUTO_BASIC_INTERVAL = 500;
+const AUTO_BASIC_PURCHASES_PER_TICK = 20;
+const AUTO_INTERVAL_REDUCTION = 0.95;
+const MIN_AUTO_INTERVAL = 100;
+const ENHANCED_AUTO_INTERVAL = 200;
 const MAX_BONUS_CHANCE = 100;
-const MIN_COST_GROWTH_RATE = 1.1;
-
 const BONUS_CHANCE_BASE = 0.5;
 const BONUS_CHANCE_PER_LEVEL = 0.5;
-const BONUS_EXTRA_MULTIPLIER_BASE = 0.25;
-const BONUS_EXTRA_MULTIPLIER_PER_LEVEL = 0.25;
+const BONUS_MULT_BASE = 1.25;
+const BONUS_MULT_PER_LEVEL = 0.25;
 const ENHANCED_BONUS_CHANCE_BASE = 0.5;
 const ENHANCED_BONUS_CHANCE_PER_LEVEL = 0.5;
-const ENHANCED_BONUS_MULTIPLIER_BASE = 0.25;
-const ENHANCED_BONUS_MULTIPLIER_PER_LEVEL = 0.25;
-
-const MAX_STANDARD_POPUPS_PER_CLICK = 10;
-const MAX_ENHANCED_POPUPS_PER_CLICK = 10;
-const MAX_STANDARD_POPUPS_ON_SCREEN = 40;
-const MAX_ENHANCED_POPUPS_ON_SCREEN = 40;
-const DEBUG_COMMAND = "POTATO";
-const DEBUG_POINT_GAIN = 1_000_000;
-const SAVE_KEY = "potatoClickerSaveData_v1";
-const SAVE_VERSION = 1;
-const AUTO_SAVE_INTERVAL = 5000;
-const AUTO_BASIC_UPGRADE_INTERVAL = 500;
-const AUTO_BASIC_PURCHASES_PER_TICK = 20;
+const ENHANCED_BONUS_MULT_BASE = 1.25;
+const ENHANCED_BONUS_MULT_PER_LEVEL = 0.25;
+const BASIC_INITIAL_INCREMENT = 2;
+const BASIC_INITIAL_MAX = 100;
+const POPUP_LIFETIME = 700;
+const MAX_STANDARD_PER_CLICK = 10;
+const MAX_ENHANCED_PER_CLICK = 10;
+const MAX_STANDARD_ON_SCREEN = 40;
+const MAX_ENHANCED_ON_SCREEN = 40;
 const PRESTIGE_TOP_DISPLAY_THRESHOLD = 100;
 const PRESTIGE_TOP_DISPLAY_DURATION = 10_000;
-const BIG_BANG_VISIBLE_THRESHOLD = 100_000;
-const BIG_BANG_COST = 1_000_000;
-const BIG_BANG_NORMAL_MULTIPLIER_INCREMENT = 100;
-const BIG_BANG_PRESTIGE_MULTIPLIER_INCREMENT = 10;
+const DEBUG_COMMAND = "POTATO";
 
-let points = 0;
-let upgradeLevels = {};
-let upgradeCosts = {};
+const basicEls = {};
+BASIC_KEYS.forEach((key) => {
+  basicEls[key] = {
+    level: $(`${key}LevelText`),
+    cost: $(key === "clickPower" ? "clickUpgradeCostText" : key === "clickCount" ? "clickCountUpgradeCostText" : key === "autoClick" ? "autoClickCostText" : key === "autoInterval" ? "autoIntervalUpgradeCostText" : key === "autoMultiplier" ? "autoMultiplierUpgradeCostText" : key === "bonusChance" ? "bonusChanceCostText" : key === "bonusMultiplier" ? "bonusMultiplierCostText" : key === "enhancedBonusChance" ? "enhancedBonusChanceCostText" : "enhancedBonusMultiplierCostText"),
+    button: $(key === "clickPower" ? "clickUpgradeButton" : key === "clickCount" ? "clickCountUpgradeButton" : key === "autoClick" ? "autoClickUpgradeButton" : key === "autoInterval" ? "autoIntervalUpgradeButton" : key === "autoMultiplier" ? "autoMultiplierUpgradeButton" : key === "bonusChance" ? "bonusChanceUpgradeButton" : key === "bonusMultiplier" ? "bonusMultiplierUpgradeButton" : key === "enhancedBonusChance" ? "enhancedBonusChanceUpgradeButton" : "enhancedBonusMultiplierUpgradeButton")
+  };
+});
 
-let prestigeCount = 0;
-let prestigePoints = 0;
-let globalPointMultiplier = 1;
-let enhancedAutoClickUnlocked = false;
-let enhancedBonusUnlocked = false;
-let basicInitialLevelBonus = 0;
-let basicCostMultiplier = 1;
-let premiumAutoMultiplier = 1;
-let premiumAutoMultiplierUpgradeCount = 0;
-let manualFinalMultiplier = 1;
-let manualFinalMultiplierUpgradeCount = 0;
-let autoPrestigeUnlocked = false;
-let autoPrestigeEnabled = false;
-let autoBasicUpgradeUnlocked = false;
-let autoBasicUpgradeEnabled = false;
-let autoBasicUpgradeSettings = createAutoBasicUpgradeSettings();
-let prestigePointGainUpgradeCount = 0;
-let bigBangPoints = 0;
-let bigBangCount = 0;
-let bigBangGlobalPointBonus = 0;
-let bigBangNormalMultiplierUpgradeCount = 0;
-let bigBangPrestigeMultiplierUpgradeCount = 0;
-let bigBangPointGainUpgradeCount = 0;
-let prestigeUpgradePurchaseCounts = createPrestigeUpgradePurchaseCounts();
-let debugCommandProgress = "";
-let saveStatusTimerId = null;
+const state = createInitialState();
+let autoClickTimer = null;
+let enhancedAutoTimer = null;
+let autoBasicTimer = null;
+let prestigeTopTimer = null;
+let prestigeTopActive = false;
+let debugProgress = "";
+let saveStatusTimer = null;
+const popupQueues = { standard: [], enhanced: [] };
+const autoBasicControls = {};
 
-let autoClickTimerId = null;
-let enhancedAutoClickTimerId = null;
-let autoBasicUpgradeTimerId = null;
-let prestigeTopDisplayTimerId = null;
-let isPrestigeTopDisplayActive = false;
-
-const popupQueues = {
-  standard: [],
-  enhanced: [],
-};
-
-function formatNumber(value) {
-  const normalizedValue = Math.abs(value) < 0.000001 ? 0 : value;
-  const sign = normalizedValue < 0 ? "-" : "";
-  const absoluteValue = Math.abs(normalizedValue);
-  const units = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No"];
-
-  if (absoluteValue < 1000) {
-    const isInteger = Math.abs(absoluteValue - Math.round(absoluteValue)) < 0.000001;
-    return `${sign}${absoluteValue.toLocaleString("ja-JP", {
-      minimumFractionDigits: isInteger ? 0 : 1,
-      maximumFractionDigits: isInteger ? 0 : 2,
-    })}`;
-  }
-
-  let unitIndex = Math.floor(Math.log10(absoluteValue) / 3);
-  unitIndex = Math.min(unitIndex, units.length - 1);
-
-  const shortenedValue = absoluteValue / 1000 ** unitIndex;
-  const fractionDigits = shortenedValue >= 100 ? 0 : shortenedValue >= 10 ? 1 : 2;
-
-  return `${sign}${shortenedValue.toLocaleString("ja-JP", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: fractionDigits,
-  })}${units[unitIndex]}`;
-}
-
-function formatFullNumber(value) {
-  const normalizedValue = Math.abs(value) < 0.000001 ? 0 : value;
-  const isInteger = Math.abs(normalizedValue - Math.round(normalizedValue)) < 0.000001;
-  return normalizedValue.toLocaleString("ja-JP", {
-    minimumFractionDigits: isInteger ? 0 : 1,
-    maximumFractionDigits: isInteger ? 0 : 2,
-  });
-}
-
-function formatMultiplier(value) {
-  return value
-    .toFixed(2)
-    .replace(/0+$/, "")
-    .replace(/\.$/, "");
-}
-
-function formatSeconds(milliseconds) {
-  return (milliseconds / 1000).toLocaleString("ja-JP", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
-function formatPercent(value) {
-  return (value * 100).toLocaleString("ja-JP", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 1,
-  });
-}
-
-function getInitialUpgradeCost(upgradeKey) {
-  return Math.max(1, Math.floor(UPGRADE_CONFIG[upgradeKey].baseCost * basicCostMultiplier));
-}
-
-function getNextUpgradeCost(upgradeKey, currentCost) {
-  const config = UPGRADE_CONFIG[upgradeKey];
-  const normalNextCost = Math.floor(currentCost * config.growth);
-  const minimumNextCost = Math.ceil(currentCost * MIN_COST_GROWTH_RATE);
-
-  return Math.max(1, normalNextCost, minimumNextCost);
-}
-
-function resetBasicUpgrades() {
-  BASIC_UPGRADE_KEYS.forEach((upgradeKey) => {
-    upgradeLevels[upgradeKey] = basicInitialLevelBonus;
-    upgradeCosts[upgradeKey] = getInitialUpgradeCost(upgradeKey);
-  });
-}
-
-function getClickPower() {
-  return 1 + upgradeLevels.clickPower;
-}
-
-function getClickCount() {
-  return 1 + upgradeLevels.clickCount;
-}
-
-function getAutoClickPower() {
-  return upgradeLevels.autoClick;
-}
-
-function getBasicAutoMultiplier() {
-  return 1 + upgradeLevels.autoMultiplier;
-}
-
-function getBigBangNormalPointMultiplier() {
-  return 1 + bigBangNormalMultiplierUpgradeCount * BIG_BANG_NORMAL_MULTIPLIER_INCREMENT;
-}
-
-function getBigBangPrestigePointMultiplier() {
-  return 1 + bigBangPrestigeMultiplierUpgradeCount * BIG_BANG_PRESTIGE_MULTIPLIER_INCREMENT;
-}
-
-function getNormalPointMultiplier() {
-  return globalPointMultiplier * getBigBangNormalPointMultiplier();
-}
-
-function getPrestigePointGain() {
-  return Math.floor((PRESTIGE_POINT_GAIN_BASE + prestigePointGainUpgradeCount) * getBigBangPrestigePointMultiplier());
-}
-
-function getBigBangPointGain() {
-  return 1 + bigBangPointGainUpgradeCount;
-}
-
-function getEffectiveAutoClickPower() {
-  return getAutoClickPower() * getBasicAutoMultiplier() * premiumAutoMultiplier * getNormalPointMultiplier();
-}
-
-function getAutoClickInterval() {
-  const interval = Math.round(
-    1000 * AUTO_INTERVAL_REDUCTION_RATE ** upgradeLevels.autoInterval
-  );
-
-  return Math.max(MIN_AUTO_CLICK_INTERVAL, interval);
-}
-
-function getBonusChance() {
-  return Math.min(
-    MAX_BONUS_CHANCE,
-    BONUS_CHANCE_BASE + upgradeLevels.bonusChance * BONUS_CHANCE_PER_LEVEL
-  );
-}
-
-function getBonusMultiplier() {
-  // 0.25は「追加倍率」として扱い、実際のボーナス発生時は 1.25倍 から始まります。
-  return 1 + BONUS_EXTRA_MULTIPLIER_BASE + upgradeLevels.bonusMultiplier * BONUS_EXTRA_MULTIPLIER_PER_LEVEL;
-}
-
-function getEnhancedBonusChance() {
-  return Math.min(
-    MAX_BONUS_CHANCE,
-    ENHANCED_BONUS_CHANCE_BASE + upgradeLevels.enhancedBonusChance * ENHANCED_BONUS_CHANCE_PER_LEVEL
-  );
-}
-
-function getEnhancedBonusMultiplier() {
-  return ENHANCED_BONUS_MULTIPLIER_BASE + upgradeLevels.enhancedBonusMultiplier * ENHANCED_BONUS_MULTIPLIER_PER_LEVEL;
-}
-
-function getNextPremiumAutoMultiplier() {
-  return premiumAutoMultiplierUpgradeCount === 0
-    ? 10
-    : premiumAutoMultiplier + 10;
-}
-
-function getNextManualFinalMultiplier() {
-  return manualFinalMultiplierUpgradeCount === 0
-    ? 1.5
-    : manualFinalMultiplier + 0.5;
-}
-
-function createAutoBasicUpgradeSettings() {
-  return BASIC_UPGRADE_KEYS.reduce((settings, upgradeKey) => {
-    settings[upgradeKey] = {
-      enabled: false,
-      targetLevel: 0,
-    };
-    return settings;
-  }, {});
-}
-
-function normalizeAutoBasicUpgradeSettings(saveData = {}) {
-  const settings = createAutoBasicUpgradeSettings();
-  const savedSettings = saveData.autoBasicUpgradeSettings;
-
-  if (!savedSettings || typeof savedSettings !== "object") return settings;
-
-  BASIC_UPGRADE_KEYS.forEach((upgradeKey) => {
-    const saved = savedSettings[upgradeKey];
-    if (!saved || typeof saved !== "object") return;
-
-    settings[upgradeKey].enabled = saved.enabled === true;
-    settings[upgradeKey].targetLevel = Number.isFinite(saved.targetLevel)
-      ? Math.max(0, Math.floor(saved.targetLevel))
-      : 0;
-  });
-
-  return settings;
-}
-
-function createPrestigeUpgradePurchaseCounts() {
-  return PRESTIGE_UPGRADE_KEYS.reduce((counts, prestigeType) => {
-    counts[prestigeType] = 0;
-    return counts;
-  }, {});
-}
-
-function getPrestigeUpgradePurchaseCount(prestigeType) {
-  const count = prestigeUpgradePurchaseCounts[prestigeType];
-  return Number.isFinite(count) ? count : 0;
-}
-
-function getPrestigeUpgradeCost(prestigeType) {
-  if (prestigeType === "prestigePointGain") {
-    return Math.max(1, Math.ceil(getPrestigePointGain() / 1.25 + prestigePointGainUpgradeCount));
-  }
-
-  const baseCost = PRESTIGE_UPGRADE_BASE_COSTS[prestigeType] ?? PRESTIGE_UPGRADE_COST;
-  return baseCost + Math.floor(getPrestigeUpgradePurchaseCount(prestigeType) / 2);
-}
-
-function getBigBangPointGainUpgradeCost() {
-  return Math.max(1, Math.ceil(getBigBangPointGain() / 1.25 + bigBangPointGainUpgradeCount));
-}
-
-function canPayPrestigeUpgrade(prestigeType) {
-  return prestigePoints >= getPrestigeUpgradeCost(prestigeType);
-}
-
-function estimateCostReductionPurchaseCount(multiplier) {
-  if (!Number.isFinite(multiplier) || multiplier <= 0 || multiplier >= 1) return 0;
-  return Math.max(0, Math.round(Math.log(multiplier) / Math.log(0.9)));
-}
-
-function normalizePrestigeUpgradePurchaseCounts(saveData = {}) {
-  const counts = createPrestigeUpgradePurchaseCounts();
-
-  if (saveData.prestigeUpgradePurchaseCounts && typeof saveData.prestigeUpgradePurchaseCounts === "object") {
-    PRESTIGE_UPGRADE_KEYS.forEach((prestigeType) => {
-      const savedCount = saveData.prestigeUpgradePurchaseCounts[prestigeType];
-      counts[prestigeType] = Number.isFinite(savedCount) ? Math.max(0, Math.floor(savedCount)) : 0;
-    });
-    return counts;
-  }
-
-  // 旧セーブ向けの推定。以前の「全体共通購入回数」は使わず、各効果の実績から個別回数を補完します。
-  counts.enhancedAuto = saveData.enhancedAutoClickUnlocked === true ? 1 : 0;
-  counts.enhancedBonus = saveData.enhancedBonusUnlocked === true ? 1 : 0;
-  counts.initialLevel = Number.isFinite(saveData.basicInitialLevelBonus)
-    ? Math.floor(Math.max(0, saveData.basicInitialLevelBonus) / BASIC_INITIAL_LEVEL_BONUS_INCREMENT)
-    : 0;
-  counts.costReduction = estimateCostReductionPurchaseCount(saveData.basicCostMultiplier);
-  counts.premiumAutoMultiplier = Number.isFinite(saveData.premiumAutoMultiplierUpgradeCount)
-    ? Math.max(0, Math.floor(saveData.premiumAutoMultiplierUpgradeCount))
-    : 0;
-  counts.manualFinalMultiplier = Number.isFinite(saveData.manualFinalMultiplierUpgradeCount)
-    ? Math.max(0, Math.floor(saveData.manualFinalMultiplierUpgradeCount))
-    : 0;
-  counts.autoPrestige = saveData.autoPrestigeUnlocked === true ? 1 : 0;
-  counts.autoBasicUpgrade = saveData.autoBasicUpgradeUnlocked === true ? 1 : 0;
-  counts.prestigePointGain = Number.isFinite(saveData.prestigePointGainUpgradeCount)
-    ? Math.max(0, Math.floor(saveData.prestigePointGainUpgradeCount))
-    : 0;
-
-  return counts;
-}
-
-
-function setSaveStatus(message) {
-  if (!saveStatusText) return;
-  saveStatusText.textContent = message;
-
-  if (saveStatusTimerId !== null) {
-    clearTimeout(saveStatusTimerId);
-  }
-
-  saveStatusTimerId = setTimeout(() => {
-    const savedAtText = localStorage.getItem(`${SAVE_KEY}_savedAtText`);
-    saveStatusText.textContent = savedAtText || "自動保存ON";
-  }, 1800);
-}
-
-function createSaveData() {
+function createInitialState() {
+  const levels = {}; const costs = {}; const autoSettings = {}; const pCounts = {};
+  BASIC_KEYS.forEach((k) => { levels[k] = 0; costs[k] = BASIC_CONFIG[k].baseCost; autoSettings[k] = {enabled:false,targetLevel:0}; });
+  PRESTIGE_TYPES.forEach((k) => { pCounts[k] = 0; });
   return {
-    version: SAVE_VERSION,
-    savedAt: new Date().toISOString(),
-    points,
-    upgradeLevels,
-    upgradeCosts,
-    prestigeCount,
-    prestigePoints,
-    globalPointMultiplier,
-    enhancedAutoClickUnlocked,
-    enhancedBonusUnlocked,
-    basicInitialLevelBonus,
-    basicCostMultiplier,
-    premiumAutoMultiplier,
-    premiumAutoMultiplierUpgradeCount,
-    manualFinalMultiplier,
-    manualFinalMultiplierUpgradeCount,
-    autoPrestigeUnlocked,
-    autoPrestigeEnabled,
-    autoBasicUpgradeUnlocked,
-    autoBasicUpgradeEnabled,
-    autoBasicUpgradeSettings,
-    prestigePointGainUpgradeCount,
-    bigBangPoints,
-    bigBangCount,
-    bigBangGlobalPointBonus,
-    bigBangNormalMultiplierUpgradeCount,
-    bigBangPrestigeMultiplierUpgradeCount,
-    bigBangPointGainUpgradeCount,
-    prestigeUpgradePurchaseCounts,
+    points:0, prestigePoints:0, bigBangPoints:0,
+    basicLevels:levels, basicCosts:costs,
+    prestigeResetCount:0, bigBangCount:0,
+    prestigeBasicMultiplier:1, bbAllMultiplier:1,
+    enhancedAutoUnlocked:false, enhancedBonusUnlocked:false,
+    basicInitialLevelBonus:0, basicCostMultiplier:1,
+    premiumAutoMultiplier:1, premiumAutoLevel:0,
+    manualFinalMultiplier:1, manualFinalLevel:0,
+    autoPrestigeUnlocked:false, autoPrestigeEnabled:false, autoPrestigeTarget:1,
+    autoBasicUnlocked:false, autoBasicEnabled:false, autoBasicSettings:autoSettings,
+    prestigePointGainLevel:0,
+    prestigePurchaseCounts:pCounts,
+    bbNormalMultiplierLevel:0, bbPrestigeMultiplierLevel:0, bbPointGainLevel:0,
   };
 }
 
-function saveGame(showMessage = false) {
-  try {
-    const saveData = createSaveData();
-    localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-    const savedTimeText = `保存済み ${new Date().toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}`;
-    localStorage.setItem(`${SAVE_KEY}_savedAtText`, savedTimeText);
-    if (showMessage) setSaveStatus("保存しました");
-    else if (saveStatusText) saveStatusText.textContent = savedTimeText;
-  } catch (error) {
-    setSaveStatus("保存失敗");
-    console.error("セーブに失敗しました", error);
-  }
-}
-
-function copyKnownKeys(target, source, keys) {
-  keys.forEach((key) => {
-    if (typeof source[key] === "number" && Number.isFinite(source[key])) {
-      target[key] = source[key];
-    }
+function assignState(data) {
+  const fresh = createInitialState();
+  Object.assign(state, fresh, data || {});
+  state.points = num(state.points, 0);
+  state.prestigePoints = num(state.prestigePoints, 0);
+  state.bigBangPoints = num(state.bigBangPoints, 0);
+  state.prestigeResetCount = Math.floor(num(state.prestigeResetCount, 0));
+  state.bigBangCount = Math.floor(num(state.bigBangCount, 0));
+  state.prestigeBasicMultiplier = num(state.prestigeBasicMultiplier, 1);
+  state.bbAllMultiplier = num(state.bbAllMultiplier, 1);
+  state.basicInitialLevelBonus = Math.min(BASIC_INITIAL_MAX, Math.max(0, Math.floor(num(state.basicInitialLevelBonus, 0))));
+  state.autoPrestigeTarget = Math.max(1, Math.floor(num(state.autoPrestigeTarget, 1)));
+  BASIC_KEYS.forEach((k) => {
+    state.basicLevels[k] = Math.max(0, Math.floor(num(state.basicLevels?.[k], 0)));
+    state.basicCosts[k] = Math.max(1, num(state.basicCosts?.[k], getInitialBasicCost(k)));
+    const s = state.autoBasicSettings?.[k] || {};
+    state.autoBasicSettings[k] = { enabled:s.enabled === true, targetLevel:Math.max(0, Math.floor(num(s.targetLevel, 0))) };
   });
+  PRESTIGE_TYPES.forEach((k) => { state.prestigePurchaseCounts[k] = Math.max(0, Math.floor(num(state.prestigePurchaseCounts?.[k], 0))); });
 }
 
-function loadGame() {
-  const rawSaveData = localStorage.getItem(SAVE_KEY);
-  if (!rawSaveData) {
-    setSaveStatus("新規データ");
-    return false;
-  }
-
-  try {
-    const saveData = JSON.parse(rawSaveData);
-    if (!saveData || saveData.version !== SAVE_VERSION) {
-      setSaveStatus("旧セーブ無視");
-      return false;
-    }
-
-    points = Number.isFinite(saveData.points) ? saveData.points : 0;
-    prestigeCount = Number.isFinite(saveData.prestigeCount) ? saveData.prestigeCount : 0;
-    prestigePoints = Number.isFinite(saveData.prestigePoints) ? saveData.prestigePoints : 0;
-    globalPointMultiplier = Number.isFinite(saveData.globalPointMultiplier) ? saveData.globalPointMultiplier : 1;
-    enhancedAutoClickUnlocked = saveData.enhancedAutoClickUnlocked === true;
-    enhancedBonusUnlocked = saveData.enhancedBonusUnlocked === true;
-    basicInitialLevelBonus = Number.isFinite(saveData.basicInitialLevelBonus) ? saveData.basicInitialLevelBonus : 0;
-    basicCostMultiplier = Number.isFinite(saveData.basicCostMultiplier) ? saveData.basicCostMultiplier : 1;
-    premiumAutoMultiplier = Number.isFinite(saveData.premiumAutoMultiplier) ? saveData.premiumAutoMultiplier : 1;
-    premiumAutoMultiplierUpgradeCount = Number.isFinite(saveData.premiumAutoMultiplierUpgradeCount) ? saveData.premiumAutoMultiplierUpgradeCount : 0;
-    manualFinalMultiplier = Number.isFinite(saveData.manualFinalMultiplier) ? saveData.manualFinalMultiplier : 1;
-    manualFinalMultiplierUpgradeCount = Number.isFinite(saveData.manualFinalMultiplierUpgradeCount) ? saveData.manualFinalMultiplierUpgradeCount : 0;
-    autoPrestigeUnlocked = saveData.autoPrestigeUnlocked === true;
-    autoPrestigeEnabled = autoPrestigeUnlocked && saveData.autoPrestigeEnabled === true;
-    autoBasicUpgradeUnlocked = saveData.autoBasicUpgradeUnlocked === true;
-    autoBasicUpgradeEnabled = autoBasicUpgradeUnlocked && saveData.autoBasicUpgradeEnabled === true;
-    autoBasicUpgradeSettings = normalizeAutoBasicUpgradeSettings(saveData);
-    prestigePointGainUpgradeCount = Number.isFinite(saveData.prestigePointGainUpgradeCount) ? Math.max(0, Math.floor(saveData.prestigePointGainUpgradeCount)) : 0;
-    bigBangPoints = Number.isFinite(saveData.bigBangPoints) ? Math.max(0, saveData.bigBangPoints) : 0;
-    bigBangCount = Number.isFinite(saveData.bigBangCount) ? Math.max(0, Math.floor(saveData.bigBangCount)) : 0;
-    bigBangGlobalPointBonus = Number.isFinite(saveData.bigBangGlobalPointBonus) ? Math.max(0, saveData.bigBangGlobalPointBonus) : 0;
-    bigBangNormalMultiplierUpgradeCount = Number.isFinite(saveData.bigBangNormalMultiplierUpgradeCount) ? Math.max(0, Math.floor(saveData.bigBangNormalMultiplierUpgradeCount)) : 0;
-    bigBangPrestigeMultiplierUpgradeCount = Number.isFinite(saveData.bigBangPrestigeMultiplierUpgradeCount) ? Math.max(0, Math.floor(saveData.bigBangPrestigeMultiplierUpgradeCount)) : 0;
-    bigBangPointGainUpgradeCount = Number.isFinite(saveData.bigBangPointGainUpgradeCount) ? Math.max(0, Math.floor(saveData.bigBangPointGainUpgradeCount)) : 0;
-    prestigeUpgradePurchaseCounts = normalizePrestigeUpgradePurchaseCounts(saveData);
-
-    // 旧バージョンのセーブで上限を超えていた場合の補正。
-    basicInitialLevelBonus = Math.min(MAX_BASIC_INITIAL_LEVEL_BONUS, Math.max(0, basicInitialLevelBonus));
-
-    resetBasicUpgrades();
-    if (saveData.upgradeLevels && typeof saveData.upgradeLevels === "object") {
-      copyKnownKeys(upgradeLevels, saveData.upgradeLevels, BASIC_UPGRADE_KEYS);
-    }
-    if (saveData.upgradeCosts && typeof saveData.upgradeCosts === "object") {
-      copyKnownKeys(upgradeCosts, saveData.upgradeCosts, BASIC_UPGRADE_KEYS);
-    }
-
-    const savedTimeText = localStorage.getItem(`${SAVE_KEY}_savedAtText`);
-    if (saveStatusText) saveStatusText.textContent = savedTimeText || "ロード済み";
-    return true;
-  } catch (error) {
-    setSaveStatus("ロード失敗");
-    console.error("ロードに失敗しました", error);
-    return false;
-  }
+function num(value, fallback) { return Number.isFinite(Number(value)) ? Number(value) : fallback; }
+function fmt(value) {
+  const units = ["","K","M","B","T","Qa","Qi","Sx","Sp","Oc","No"];
+  const v = Math.abs(value) < 1e-9 ? 0 : value;
+  const sign = v < 0 ? "-" : "";
+  let a = Math.abs(v);
+  if (a < 1000) return sign + a.toLocaleString("ja-JP", { maximumFractionDigits: Math.abs(a - Math.round(a)) < 1e-9 ? 0 : 2 });
+  let i = Math.min(units.length - 1, Math.floor(Math.log10(a) / 3));
+  let n = a / 1000 ** i;
+  return sign + n.toLocaleString("ja-JP", { maximumFractionDigits: n >= 100 ? 0 : n >= 10 ? 1 : 2 }) + units[i];
 }
+function fmtFull(value) { return num(value,0).toLocaleString("ja-JP", { maximumFractionDigits: 2 }); }
+function fmtMult(value) { return num(value,0).toFixed(2).replace(/0+$/, "").replace(/\.$/, ""); }
+function fmtSec(ms) { return (ms / 1000).toLocaleString("ja-JP", { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+function fmtPct(value) { return (value * 100).toLocaleString("ja-JP", { maximumFractionDigits:1 }); }
 
-function resetAllGameData() {
-  points = 0;
-  prestigeCount = 0;
-  prestigePoints = 0;
-  globalPointMultiplier = 1;
-  enhancedAutoClickUnlocked = false;
-  enhancedBonusUnlocked = false;
-  basicInitialLevelBonus = 0;
-  basicCostMultiplier = 1;
-  premiumAutoMultiplier = 1;
-  premiumAutoMultiplierUpgradeCount = 0;
-  manualFinalMultiplier = 1;
-  manualFinalMultiplierUpgradeCount = 0;
-  autoPrestigeUnlocked = false;
-  autoPrestigeEnabled = false;
-  autoBasicUpgradeUnlocked = false;
-  autoBasicUpgradeEnabled = false;
-  autoBasicUpgradeSettings = createAutoBasicUpgradeSettings();
-  prestigePointGainUpgradeCount = 0;
-  bigBangPoints = 0;
-  bigBangCount = 0;
-  bigBangGlobalPointBonus = 0;
-  bigBangNormalMultiplierUpgradeCount = 0;
-  bigBangPrestigeMultiplierUpgradeCount = 0;
-  bigBangPointGainUpgradeCount = 0;
-  prestigeUpgradePurchaseCounts = createPrestigeUpgradePurchaseCounts();
-  hidePrestigeTopDisplay();
-  debugCommandProgress = "";
-
-  popupQueues.standard.forEach((popup) => popup.remove());
-  popupQueues.enhanced.forEach((popup) => popup.remove());
-  popupQueues.standard = [];
-  popupQueues.enhanced = [];
-
+function getInitialBasicCost(key) { return Math.max(1, Math.floor(BASIC_CONFIG[key].baseCost * state.basicCostMultiplier)); }
+function getNextBasicCost(key, cost) { return Math.max(1, Math.floor(cost * BASIC_CONFIG[key].growth), Math.ceil(cost * 1.1)); }
+function resetBasicUpgrades() { BASIC_KEYS.forEach((k) => { state.basicLevels[k] = state.basicInitialLevelBonus; state.basicCosts[k] = getInitialBasicCost(k); }); }
+function resetPrestigeLayer() {
+  state.points = 0; state.prestigePoints = 0; state.prestigeResetCount = 0; state.prestigeBasicMultiplier = 1;
+  state.enhancedAutoUnlocked = false; state.enhancedBonusUnlocked = false;
+  state.basicInitialLevelBonus = 0; state.basicCostMultiplier = 1;
+  state.premiumAutoMultiplier = 1; state.premiumAutoLevel = 0;
+  state.manualFinalMultiplier = 1; state.manualFinalLevel = 0;
+  state.autoPrestigeUnlocked = false; state.autoPrestigeEnabled = false; state.autoPrestigeTarget = 1;
+  state.autoBasicUnlocked = false; state.autoBasicEnabled = false;
+  state.prestigePointGainLevel = 0;
+  state.autoBasicSettings = createInitialState().autoBasicSettings;
+  state.prestigePurchaseCounts = createInitialState().prestigePurchaseCounts;
   resetBasicUpgrades();
-  startAutoClickLoop();
-  startEnhancedAutoClickLoop();
-  startAutoBasicUpgradeLoop();
-  updateScreen();
 }
+function resetAll() { assignState(createInitialState()); resetBasicUpgrades(); clearPopups(); hidePrestigeTopDisplay(); restartLoops(); updateScreen(); }
 
-function initializeSaveData() {
-  localStorage.removeItem(SAVE_KEY);
-  localStorage.removeItem(`${SAVE_KEY}_savedAtText`);
-  resetAllGameData();
-  saveGame(false);
-  setSaveStatus("初期化しました");
+function getClickPower() { return 1 + state.basicLevels.clickPower; }
+function getClickCount() { return 1 + state.basicLevels.clickCount; }
+function getAutoClickBase() { return state.basicLevels.autoClick; }
+function getAutoMultiplier() { return 1 + state.basicLevels.autoMultiplier; }
+function getAutoInterval() { return Math.max(MIN_AUTO_INTERVAL, Math.round(1000 * AUTO_INTERVAL_REDUCTION ** state.basicLevels.autoInterval)); }
+function getBonusChance() { return Math.min(MAX_BONUS_CHANCE, BONUS_CHANCE_BASE + state.basicLevels.bonusChance * BONUS_CHANCE_PER_LEVEL); }
+function getBonusMultiplier() { return BONUS_MULT_BASE + state.basicLevels.bonusMultiplier * BONUS_MULT_PER_LEVEL; }
+function getEnhancedBonusChance() { return Math.min(MAX_BONUS_CHANCE, ENHANCED_BONUS_CHANCE_BASE + state.basicLevels.enhancedBonusChance * ENHANCED_BONUS_CHANCE_PER_LEVEL); }
+function getEnhancedBonusMultiplier() { return ENHANCED_BONUS_MULT_BASE + state.basicLevels.enhancedBonusMultiplier * ENHANCED_BONUS_MULT_PER_LEVEL; }
+function getBbNormalMultiplier() { return 1 + state.bbNormalMultiplierLevel * 100; }
+function getBbPrestigeMultiplier() { return 1 + state.bbPrestigeMultiplierLevel * 10; }
+function getNormalPointMultiplier() { return state.prestigeBasicMultiplier * state.bbAllMultiplier * getBbNormalMultiplier(); }
+function getPrestigePointMultiplier() { return state.bbAllMultiplier * getBbPrestigeMultiplier(); }
+function getPrestigeGainPerReset() { return Math.max(1, Math.floor((1 + state.prestigePointGainLevel) * getPrestigePointMultiplier())); }
+function getBigBangGainPerReset() { return 1 + state.bbPointGainLevel; }
+function getEffectiveAutoClickPower() { return getAutoClickBase() * getAutoMultiplier() * state.premiumAutoMultiplier * getNormalPointMultiplier(); }
+function getNextPremiumAutoMultiplier() { return state.premiumAutoLevel === 0 ? 10 : state.premiumAutoMultiplier + 10; }
+function getNextManualFinalMultiplier() { return state.manualFinalLevel === 0 ? 1.5 : state.manualFinalMultiplier + 0.5; }
+function getPrestigeCost(type) {
+  if (type === "prestigePointGain") return Math.max(1, Math.floor(getPrestigeGainPerReset() * (state.prestigePointGainLevel / 2)));
+  return (PRESTIGE_BASE_COST[type] || 1) + Math.floor((state.prestigePurchaseCounts[type] || 0) / 2);
 }
+function getBbPointGainCost() { return Math.max(1, Math.floor(getBigBangGainPerReset() / 1.25 + state.bbPointGainLevel)); }
 
+function createSaveData() { return JSON.parse(JSON.stringify({ version:2, savedAt:new Date().toISOString(), ...state })); }
+function saveGame(show=false) {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(createSaveData()));
+    const text = `保存済み ${new Date().toLocaleTimeString("ja-JP", {hour:"2-digit", minute:"2-digit"})}`;
+    localStorage.setItem(`${SAVE_KEY}_status`, text);
+    if (show) setSaveStatus("保存しました"); else if (els.saveStatusText) els.saveStatusText.textContent = text;
+  } catch (e) { setSaveStatus("保存失敗"); console.error(e); }
+}
+function setSaveStatus(text) {
+  if (!els.saveStatusText) return;
+  els.saveStatusText.textContent = text;
+  clearTimeout(saveStatusTimer);
+  saveStatusTimer = setTimeout(() => { els.saveStatusText.textContent = localStorage.getItem(`${SAVE_KEY}_status`) || "自動保存ON"; }, 1800);
+}
+function loadGame() {
+  const raw = localStorage.getItem(SAVE_KEY) || OLD_SAVE_KEYS.map((k) => localStorage.getItem(k)).find(Boolean);
+  if (!raw) { resetBasicUpgrades(); setSaveStatus("新規データ"); return; }
+  try {
+    const data = JSON.parse(raw);
+    if (data.version === 1) {
+      data.prestigeBasicMultiplier = num(data.globalPointMultiplier, 1);
+      data.bbAllMultiplier = 1 + num(data.bigBangGlobalPointBonus, 0);
+      data.prestigeResetCount = num(data.prestigeCount, 0);
+      data.enhancedAutoUnlocked = data.enhancedAutoClickUnlocked;
+      data.enhancedBonusUnlocked = data.enhancedBonusUnlocked;
+      data.premiumAutoLevel = num(data.premiumAutoMultiplierUpgradeCount, 0);
+      data.manualFinalLevel = num(data.manualFinalMultiplierUpgradeCount, 0);
+      data.autoBasicUnlocked = data.autoBasicUpgradeUnlocked;
+      data.autoBasicEnabled = data.autoBasicUpgradeEnabled;
+      data.bbNormalMultiplierLevel = num(data.bigBangNormalMultiplierUpgradeCount, 0);
+      data.bbPrestigeMultiplierLevel = num(data.bigBangPrestigeMultiplierUpgradeCount, 0);
+      data.bbPointGainLevel = num(data.bigBangPointGainUpgradeCount, 0);
+      data.basicLevels = data.upgradeLevels;
+      data.basicCosts = data.upgradeCosts;
+      data.prestigePurchaseCounts = data.prestigeUpgradePurchaseCounts;
+    }
+    assignState(data);
+    setSaveStatus("ロード済み");
+  } catch (e) { resetBasicUpgrades(); setSaveStatus("ロード失敗"); console.error(e); }
+}
 function deleteSaveData() {
-  const firstConfirmed = window.confirm(
-    "本当にセーブデータを初期化しますか？\n現在のポイント・基本アップグレード・高級アップグレードもすべて初期化されます。"
-  );
-
-  if (!firstConfirmed) {
-    setSaveStatus("初期化キャンセル");
-    return;
-  }
-
-  const secondConfirmed = window.confirm(
-    "最終確認です。初期化すると元に戻せません。\n本当にすべてのゲームデータを初期化しますか？"
-  );
-
-  if (!secondConfirmed) {
-    setSaveStatus("初期化キャンセル");
-    return;
-  }
-
-  initializeSaveData();
+  if (!confirm("本当にセーブデータを初期化しますか？\n現在のゲームデータもすべて初期化されます。")) { setSaveStatus("初期化キャンセル"); return; }
+  if (!confirm("最終確認です。初期化すると元に戻せません。\n本当にすべて初期化しますか？")) { setSaveStatus("初期化キャンセル"); return; }
+  localStorage.removeItem(SAVE_KEY); localStorage.removeItem(`${SAVE_KEY}_status`); OLD_SAVE_KEYS.forEach((k) => localStorage.removeItem(k));
+  resetAll(); saveGame(false); setSaveStatus("初期化しました");
 }
 
 function updateScreen() {
-  const autoClickInterval = getAutoClickInterval();
-  const canPrestigeReset = points >= PRESTIGE_COST;
-  const enhancedAutoPrestigeCost = getPrestigeUpgradeCost("enhancedAuto");
-  const enhancedBonusPrestigeCost = getPrestigeUpgradeCost("enhancedBonus");
-  const initialLevelPrestigeCost = getPrestigeUpgradeCost("initialLevel");
-  const costReductionPrestigeCost = getPrestigeUpgradeCost("costReduction");
-  const premiumAutoPrestigeCost = getPrestigeUpgradeCost("premiumAutoMultiplier");
-  const manualFinalPrestigeCost = getPrestigeUpgradeCost("manualFinalMultiplier");
-  const autoPrestigeUnlockCost = getPrestigeUpgradeCost("autoPrestige");
-  const autoBasicUpgradeUnlockCost = getPrestigeUpgradeCost("autoBasicUpgrade");
-  const prestigePointGainCost = getPrestigeUpgradeCost("prestigePointGain");
-  const bigBangCanBeShown = prestigePoints >= BIG_BANG_VISIBLE_THRESHOLD || bigBangCount > 0 || bigBangPoints > 0;
-  const bigBangCanReset = prestigePoints >= BIG_BANG_COST;
-  const bigBangPointGainCost = getBigBangPointGainUpgradeCost();
-  const isBonusChanceMaxed = getBonusChance() >= MAX_BONUS_CHANCE;
-  const isEnhancedBonusChanceMaxed = getEnhancedBonusChance() >= MAX_BONUS_CHANCE;
-  const isAutoIntervalMaxed = autoClickInterval <= MIN_AUTO_CLICK_INTERVAL;
-
-  updateTopScoreDisplay();
-  clickPowerText.textContent = formatNumber(getClickPower());
-  clickCountText.textContent = formatNumber(getClickCount());
-  autoClickText.textContent = formatNumber(getAutoClickPower());
-  effectiveAutoClickText.textContent = formatNumber(getEffectiveAutoClickPower());
-  autoClickIntervalText.textContent = formatSeconds(autoClickInterval);
-  autoIntervalText.textContent = formatSeconds(autoClickInterval);
-  autoMultiplierText.textContent = formatMultiplier(getBasicAutoMultiplier());
-  bonusChanceText.textContent = formatNumber(getBonusChance());
-  bonusMultiplierText.textContent = formatMultiplier(getBonusMultiplier());
-
-  clickUpgradeCostText.textContent = formatNumber(upgradeCosts.clickPower);
-  clickCountUpgradeCostText.textContent = formatNumber(upgradeCosts.clickCount);
-  autoClickCostText.textContent = formatNumber(upgradeCosts.autoClick);
-  autoIntervalUpgradeCostText.textContent = formatNumber(upgradeCosts.autoInterval);
-  autoMultiplierUpgradeCostText.textContent = formatNumber(upgradeCosts.autoMultiplier);
-  bonusChanceCostText.textContent = formatNumber(upgradeCosts.bonusChance);
-  bonusMultiplierCostText.textContent = formatNumber(upgradeCosts.bonusMultiplier);
-  enhancedBonusChanceCostText.textContent = formatNumber(upgradeCosts.enhancedBonusChance);
-  enhancedBonusMultiplierCostText.textContent = formatNumber(upgradeCosts.enhancedBonusMultiplier);
-
-  if (enhancedBonusUnlocked) {
-    enhancedBonusChanceText.textContent = formatNumber(getEnhancedBonusChance());
-    enhancedBonusMultiplierText.textContent = formatMultiplier(getEnhancedBonusMultiplier());
-    enhancedBonusChanceUnit.textContent = "%";
+  updateTopScore(); updateBasicDisplay(); updatePrestigeDisplay(); updateAutoBasicDisplay(); updateBigBangDisplay(); updateStats();
+}
+function updateTopScore() {
+  const showPrestige = prestigeTopActive && state.prestigePoints > PRESTIGE_TOP_DISPLAY_THRESHOLD;
+  els.scoreArea.classList.toggle("prestige-main", showPrestige);
+  if (showPrestige) {
+    els.mainScoreLabel.textContent = "高級ポイント"; els.pointText.textContent = fmt(state.prestigePoints);
+    els.secondaryScoreLabel.textContent = "ポイント"; els.secondaryScoreText.textContent = fmt(state.points); els.secondaryScoreArea.classList.remove("hidden");
   } else {
-    enhancedBonusChanceText.textContent = "未解放";
-    enhancedBonusMultiplierText.textContent = "未解放";
-    enhancedBonusChanceUnit.textContent = "";
+    els.mainScoreLabel.textContent = "ポイント"; els.pointText.textContent = fmt(state.points); els.secondaryScoreArea.classList.add("hidden");
   }
-
-  enhancedBonusChanceCard.classList.toggle("unlocked", enhancedBonusUnlocked);
-  enhancedBonusMultiplierCard.classList.toggle("unlocked", enhancedBonusUnlocked);
-
-  prestigeCostText.textContent = formatNumber(PRESTIGE_COST);
-  prestigePointText.textContent = formatNumber(prestigePoints);
-  prestigeCountText.textContent = formatNumber(prestigeCount);
-  globalPointMultiplierText.textContent = formatMultiplier(globalPointMultiplier);
-  enhancedAutoClickStatusText.textContent = enhancedAutoClickUnlocked
-    ? "解放済み / 毎秒5回"
-    : "未解放";
-  enhancedBonusStatusText.textContent = enhancedBonusUnlocked
-    ? "解放済み"
-    : "未解放";
-  basicInitialLevelBonusText.textContent = formatNumber(basicInitialLevelBonus);
-  basicCostMultiplierText.textContent = formatPercent(basicCostMultiplier);
-  premiumAutoMultiplierText.textContent = formatMultiplier(premiumAutoMultiplier);
-  manualFinalMultiplierText.textContent = formatMultiplier(manualFinalMultiplier);
-  autoPrestigeStatusText.textContent = autoPrestigeUnlocked
-    ? autoPrestigeEnabled ? "解放済み / ON" : "解放済み / OFF"
-    : "未解放";
-  autoBasicUpgradeStatusText.textContent = autoBasicUpgradeUnlocked
-    ? autoBasicUpgradeEnabled ? "解放済み / ON" : "解放済み / OFF"
-    : "未解放";
-  prestigePointGainText.textContent = formatNumber(getPrestigePointGain());
-  bigBangPointText.textContent = formatNumber(bigBangPoints);
-  bigBangCountText.textContent = formatNumber(bigBangCount);
-  bigBangGainText.textContent = formatNumber(getBigBangPointGain());
-  bigBangNormalMultiplierText.textContent = formatMultiplier(getBigBangNormalPointMultiplier());
-  bigBangPrestigeMultiplierText.textContent = formatMultiplier(getBigBangPrestigePointMultiplier());
-  bigBangTitle.classList.toggle("hidden-card", !bigBangCanBeShown);
-  bigBangCard.classList.toggle("hidden-card", !bigBangCanBeShown);
-  bigBangCostText.textContent = formatNumber(BIG_BANG_COST);
-  bigBangResetGainText.textContent = formatNumber(getBigBangPointGain());
-  bigBangNormalMultiplierText2.textContent = formatMultiplier(getBigBangNormalPointMultiplier());
-  bigBangPrestigeMultiplierText2.textContent = formatMultiplier(getBigBangPrestigePointMultiplier());
-  bigBangPointGainText.textContent = formatNumber(getBigBangPointGain());
-  updateAutoBasicControls();
-
-  clickUpgradeButton.disabled = points < upgradeCosts.clickPower;
-  clickCountUpgradeButton.disabled = points < upgradeCosts.clickCount;
-  autoClickUpgradeButton.disabled = points < upgradeCosts.autoClick;
-  autoIntervalUpgradeButton.disabled = points < upgradeCosts.autoInterval || isAutoIntervalMaxed;
-  autoMultiplierUpgradeButton.disabled = points < upgradeCosts.autoMultiplier;
-  bonusChanceUpgradeButton.disabled = points < upgradeCosts.bonusChance || isBonusChanceMaxed;
-  bonusMultiplierUpgradeButton.disabled = points < upgradeCosts.bonusMultiplier;
-  enhancedBonusChanceUpgradeButton.disabled =
-    !enhancedBonusUnlocked || points < upgradeCosts.enhancedBonusChance || isEnhancedBonusChanceMaxed;
-  enhancedBonusMultiplierUpgradeButton.disabled =
-    !enhancedBonusUnlocked || points < upgradeCosts.enhancedBonusMultiplier;
-
-  prestigeResetButton.disabled = !canPrestigeReset;
-  prestigeEnhancedAutoButton.disabled = prestigePoints < enhancedAutoPrestigeCost || enhancedAutoClickUnlocked;
-  prestigeEnhancedBonusButton.disabled = prestigePoints < enhancedBonusPrestigeCost || enhancedBonusUnlocked;
-  prestigeInitialLevelButton.disabled =
-    prestigePoints < initialLevelPrestigeCost || basicInitialLevelBonus >= MAX_BASIC_INITIAL_LEVEL_BONUS;
-  prestigeCostReductionButton.disabled = prestigePoints < costReductionPrestigeCost;
-  prestigePremiumAutoMultiplierButton.disabled = prestigePoints < premiumAutoPrestigeCost;
-  prestigeManualFinalMultiplierButton.disabled = prestigePoints < manualFinalPrestigeCost;
-  prestigeAutoResetButton.disabled = prestigePoints < autoPrestigeUnlockCost || autoPrestigeUnlocked;
-  prestigeAutoBasicUpgradeButton.disabled = prestigePoints < autoBasicUpgradeUnlockCost || autoBasicUpgradeUnlocked;
-  prestigePointGainButton.disabled = prestigePoints < prestigePointGainCost;
-  toggleAutoPrestigeButton.disabled = !autoPrestigeUnlocked;
-  toggleAutoBasicUpgradeButton.disabled = !autoBasicUpgradeUnlocked;
-  bigBangResetButton.disabled = !bigBangCanReset;
-  bigBangNormalMultiplierButton.disabled = bigBangPoints < 1;
-  bigBangPrestigeMultiplierButton.disabled = bigBangPoints < 1;
-  bigBangPointGainButton.disabled = bigBangPoints < bigBangPointGainCost;
-
-  prestigeResetButton.textContent = canPrestigeReset
-    ? `高級リセットを実行して高級ポイント +${formatNumber(getPrestigePointGain())}`
-    : `高級リセットまで ${formatNumber(Math.max(0, PRESTIGE_COST - points))} ポイント`;
-
-  prestigeEnhancedAutoButton.textContent = enhancedAutoClickUnlocked
-    ? "強化オートクリックは解放済み"
-    : `購入: 強化オートクリック解放 / 高級ポイント ${enhancedAutoPrestigeCost}`;
-  prestigeEnhancedBonusButton.textContent = enhancedBonusUnlocked
-    ? "強化ボーナスは解放済み"
-    : `購入: 強化ボーナス解放 / 高級ポイント ${enhancedBonusPrestigeCost}`;
-  prestigeInitialLevelButton.textContent =
-    basicInitialLevelBonus >= MAX_BASIC_INITIAL_LEVEL_BONUS
-      ? `基本初期値は上限 +${MAX_BASIC_INITIAL_LEVEL_BONUS}`
-      : `購入: 基本初期値 +${BASIC_INITIAL_LEVEL_BONUS_INCREMENT} / 高級ポイント ${initialLevelPrestigeCost}`;
-  prestigeCostReductionButton.textContent =
-    `購入: 基本コスト 0.9倍 / 高級ポイント ${costReductionPrestigeCost}`;
-  prestigePremiumAutoMultiplierButton.textContent =
-    `購入: オートクリック高級倍率 ${formatMultiplier(getNextPremiumAutoMultiplier())}倍 / 高級ポイント ${premiumAutoPrestigeCost}`;
-  prestigeManualFinalMultiplierButton.textContent =
-    `購入: 通常クリック最終倍率 ${formatMultiplier(getNextManualFinalMultiplier())}倍 / 高級ポイント ${manualFinalPrestigeCost}`;
-  prestigeAutoResetButton.textContent = autoPrestigeUnlocked
-    ? "自動リセットは解放済み"
-    : `購入: 自動リセット解放 / 高級ポイント ${autoPrestigeUnlockCost}`;
-  prestigeAutoBasicUpgradeButton.textContent = autoBasicUpgradeUnlocked
-    ? "基本アップグレード自動強化は解放済み"
-    : `購入: 基本アップグレードの自動強化解放 / 高級ポイント ${autoBasicUpgradeUnlockCost}`;
-  prestigePointGainButton.textContent = `購入: 高級ポイント獲得量 +1 / 高級ポイント ${prestigePointGainCost}`;
-  toggleAutoPrestigeButton.textContent = autoPrestigeUnlocked
-    ? autoPrestigeEnabled ? "自動リセット: ON" : "自動リセット: OFF"
-    : "自動リセット: 未解放";
-  toggleAutoBasicUpgradeButton.textContent = autoBasicUpgradeUnlocked
-    ? autoBasicUpgradeEnabled ? "基本自動強化: ON" : "基本自動強化: OFF"
-    : "基本自動強化: 未解放";
-  bigBangResetButton.textContent = bigBangCanReset
-    ? `ジャガイモビックバン実行してBBポイント +${formatNumber(getBigBangPointGain())}`
-    : `ビックバンまで高級ポイント ${formatNumber(Math.max(0, BIG_BANG_COST - prestigePoints))}`;
-  bigBangNormalMultiplierButton.textContent = "購入: 通常ポイント倍率 +100倍 / ビックバンポイント 1";
-  bigBangPrestigeMultiplierButton.textContent = "購入: 高級ポイント倍率 +10倍 / ビックバンポイント 1";
-  bigBangPointGainButton.textContent = `購入: ビックバンポイント獲得量 +1 / ビックバンポイント ${bigBangPointGainCost}`;
+  els.multiplierFormulaText.textContent = `*${fmtMult(state.prestigeBasicMultiplier)} *${fmtMult(state.bbAllMultiplier)}`;
 }
-
-function updateTopScoreDisplay() {
-  const showPrestigeAsMain = isPrestigeTopDisplayActive && prestigePoints > PRESTIGE_TOP_DISPLAY_THRESHOLD;
-
-  scoreArea.classList.toggle("prestige-main", showPrestigeAsMain);
-
-  if (showPrestigeAsMain) {
-    mainScoreLabel.textContent = "高級ポイント";
-    pointText.textContent = formatNumber(prestigePoints);
-    secondaryScoreLabel.textContent = "ポイント";
-    secondaryScoreText.textContent = formatNumber(points);
-    secondaryScoreArea.classList.remove("hidden");
-    return;
-  }
-
-  mainScoreLabel.textContent = "ポイント";
-  pointText.textContent = formatNumber(points);
-  secondaryScoreArea.classList.add("hidden");
-}
-
-function showPrestigeTopDisplay() {
-  if (prestigePoints <= PRESTIGE_TOP_DISPLAY_THRESHOLD) return;
-
-  isPrestigeTopDisplayActive = true;
-
-  if (prestigeTopDisplayTimerId !== null) {
-    clearTimeout(prestigeTopDisplayTimerId);
-  }
-
-  prestigeTopDisplayTimerId = setTimeout(() => {
-    isPrestigeTopDisplayActive = false;
-    updateScreen();
-  }, PRESTIGE_TOP_DISPLAY_DURATION);
-}
-
-function hidePrestigeTopDisplay() {
-  isPrestigeTopDisplayActive = false;
-
-  if (prestigeTopDisplayTimerId !== null) {
-    clearTimeout(prestigeTopDisplayTimerId);
-    prestigeTopDisplayTimerId = null;
-  }
-}
-
-function addPoints(amount) {
-  points += amount;
-  updateScreen();
-  checkAutoPrestigeReset();
-}
-
-function checkAutoPrestigeReset() {
-  if (!autoPrestigeUnlocked || !autoPrestigeEnabled || points < PRESTIGE_COST) return;
-  executePrestigeReset({ ignoreCostCheck: true });
-}
-
-function addDebugPoints() {
-  points += DEBUG_POINT_GAIN;
-  showPopupGroupWithLimit(
-    [
-      {
-        amount: DEBUG_POINT_GAIN,
-        type: "normal",
-      },
-    ],
-    1,
-    1
-  );
-  updateScreen();
-  checkAutoPrestigeReset();
-}
-
-function handleDebugCommand(event) {
-  if (event.repeat) return;
-
-  if (!event.shiftKey) {
-    debugCommandProgress = "";
-    return;
-  }
-
-  const typedKey = event.key.toUpperCase();
-
-  if (!/^[A-Z]$/.test(typedKey)) return;
-
-  const expectedKey = DEBUG_COMMAND[debugCommandProgress.length];
-
-  if (typedKey === expectedKey) {
-    debugCommandProgress += typedKey;
-
-    if (debugCommandProgress === DEBUG_COMMAND) {
-      debugCommandProgress = "";
-      addDebugPoints();
-    }
-    return;
-  }
-
-  debugCommandProgress = typedKey === DEBUG_COMMAND[0] ? typedKey : "";
-}
-
-function playPotatoAnimation() {
-  potatoImage.classList.remove("pop");
-
-  // 同じアニメーションを連続クリックでも再生できるようにする
-  void potatoImage.offsetWidth;
-
-  potatoImage.classList.add("pop");
-}
-
-function getPopupCategory(type) {
-  return type === "enhanced" ? "enhanced" : "standard";
-}
-
-function getMaxPopupsOnScreen(category) {
-  return category === "enhanced"
-    ? MAX_ENHANCED_POPUPS_ON_SCREEN
-    : MAX_STANDARD_POPUPS_ON_SCREEN;
-}
-
-function cleanupPopupQueue(category) {
-  popupQueues[category] = popupQueues[category].filter((popup) => popup.isConnected);
-}
-
-function enforcePopupLimit(category) {
-  cleanupPopupQueue(category);
-
-  const maxPopups = getMaxPopupsOnScreen(category);
-  while (popupQueues[category].length > maxPopups) {
-    const oldestPopup = popupQueues[category].shift();
-    if (oldestPopup) {
-      oldestPopup.remove();
-    }
-  }
-}
-
-function showGainPopup(amount, type) {
-  const category = getPopupCategory(type);
-  const popup = document.createElement("span");
-  popup.className = `gain-popup ${type}`.trim();
-  popup.textContent = `+${formatNumber(amount)}`;
-  popup.setAttribute("aria-hidden", "true");
-
-  // ジャガイモの近くにランダム表示する。
-  popup.style.left = `${50 + Math.random() * 38 - 19}%`;
-  popup.style.top = `${32 + Math.random() * 30 - 15}%`;
-
-  potatoButton.append(popup);
-  popupQueues[category].push(popup);
-  enforcePopupLimit(category);
-
-  const removePopup = () => {
-    popup.remove();
-    cleanupPopupQueue(category);
+function updateBasicDisplay() {
+  const ids = {
+    clickPowerText:getClickPower(), clickCountText:getClickCount(), autoClickText:getAutoClickBase(), effectiveAutoClickText:getEffectiveAutoClickPower(), autoClickIntervalText:fmtSec(getAutoInterval()), autoIntervalText:fmtSec(getAutoInterval()), autoMultiplierText:fmtMult(getAutoMultiplier()), bonusChanceText:getBonusChance(), bonusMultiplierText:fmtMult(getBonusMultiplier()), enhancedBonusChanceText:state.enhancedBonusUnlocked ? getEnhancedBonusChance() : "未解放", enhancedBonusMultiplierText:state.enhancedBonusUnlocked ? fmtMult(getEnhancedBonusMultiplier()) : "未解放"
   };
-
-  popup.addEventListener("animationend", removePopup, { once: true });
-
-  // animationend が発火しなかった場合の保険
-  setTimeout(removePopup, GAIN_POPUP_LIFETIME);
+  Object.entries(ids).forEach(([id, value]) => { const e = $(id); if (e) e.textContent = typeof value === "number" ? fmt(value) : value; });
+  $("enhancedBonusChanceUnit").classList.toggle("hidden", !state.enhancedBonusUnlocked);
+  $("enhancedBonusChanceCard").classList.toggle("locked-card", !state.enhancedBonusUnlocked);
+  $("enhancedBonusChanceCard").classList.toggle("unlocked", state.enhancedBonusUnlocked);
+  $("enhancedBonusMultiplierCard").classList.toggle("locked-card", !state.enhancedBonusUnlocked);
+  $("enhancedBonusMultiplierCard").classList.toggle("unlocked", state.enhancedBonusUnlocked);
+  BASIC_KEYS.forEach((k) => {
+    if (basicEls[k].level) basicEls[k].level.textContent = fmt(state.basicLevels[k]);
+    if (basicEls[k].cost) basicEls[k].cost.textContent = fmt(state.basicCosts[k]);
+    if (basicEls[k].button) basicEls[k].button.disabled = !canBuyBasic(k);
+  });
 }
-
-function showPopupGroupWithLimit(entries, repeatCount, maxDisplayCount) {
-  if (entries.length === 0 || repeatCount <= 0) return;
-
-  const displayCount = Math.min(repeatCount * entries.length, maxDisplayCount);
-
-  for (let i = 0; i < displayCount; i += 1) {
-    const entry = entries[i % entries.length];
-    showGainPopup(entry.amount, entry.type);
-  }
+function prestigeLevel(type) {
+  if (type === "enhancedAuto") return state.enhancedAutoUnlocked ? 1 : 0;
+  if (type === "enhancedBonus") return state.enhancedBonusUnlocked ? 1 : 0;
+  if (type === "initialLevel") return Math.floor(state.basicInitialLevelBonus / BASIC_INITIAL_INCREMENT);
+  if (type === "costReduction") return state.prestigePurchaseCounts.costReduction || 0;
+  if (type === "premiumAutoMultiplier") return state.premiumAutoLevel;
+  if (type === "manualFinalMultiplier") return state.manualFinalLevel;
+  if (type === "autoPrestige") return state.autoPrestigeUnlocked ? 1 : 0;
+  if (type === "autoBasicUpgrade") return state.autoBasicUnlocked ? 1 : 0;
+  if (type === "prestigePointGain") return state.prestigePointGainLevel;
+  return 0;
 }
-
-function showGainPopups(popupEntries, count) {
-  const standardEntries = popupEntries.filter((entry) => getPopupCategory(entry.type) === "standard");
-  const enhancedEntries = popupEntries.filter((entry) => getPopupCategory(entry.type) === "enhanced");
-
-  showPopupGroupWithLimit(standardEntries, count, MAX_STANDARD_POPUPS_PER_CLICK);
-  showPopupGroupWithLimit(enhancedEntries, count, MAX_ENHANCED_POPUPS_PER_CLICK);
+function updatePrestigeDisplay() {
+  $("prestigeCostText").textContent = fmt(PRESTIGE_COST);
+  const resetPossible = Math.floor(state.points / PRESTIGE_COST);
+  $("prestigeResetButton").disabled = resetPossible < 1;
+  $("prestigeResetButton").textContent = resetPossible >= 1 ? `高級リセット ${fmt(resetPossible)}回 / 高級ポイント +${fmt(resetPossible * getPrestigeGainPerReset())}` : `高級リセットまで ${fmt(PRESTIGE_COST - state.points)} ポイント`;
+  const buttonMap = { enhancedAuto:"prestigeEnhancedAutoButton", enhancedBonus:"prestigeEnhancedBonusButton", initialLevel:"prestigeInitialLevelButton", costReduction:"prestigeCostReductionButton", premiumAutoMultiplier:"prestigePremiumAutoMultiplierButton", manualFinalMultiplier:"prestigeManualFinalMultiplierButton", autoPrestige:"prestigeAutoResetButton", autoBasicUpgrade:"prestigeAutoBasicUpgradeButton", prestigePointGain:"prestigePointGainButton" };
+  PRESTIGE_TYPES.forEach((type) => {
+    const b = $(buttonMap[type]); const cost = getPrestigeCost(type); const level = prestigeLevel(type);
+    let extra = "";
+    if (type === "initialLevel") extra = ` 現在+${fmt(state.basicInitialLevelBonus)}/${BASIC_INITIAL_MAX}`;
+    if (type === "premiumAutoMultiplier") extra = ` 次:${fmtMult(getNextPremiumAutoMultiplier())}倍`;
+    if (type === "manualFinalMultiplier") extra = ` 次:${fmtMult(getNextManualFinalMultiplier())}倍`;
+    if (type === "prestigePointGain") extra = ` 現在:${fmt(getPrestigeGainPerReset())}/回`;
+    b.textContent = `Lv.${fmt(level)} ${PRESTIGE_LABELS[type]}${extra} / 高級ポイント ${fmt(cost)}`;
+    b.disabled = state.prestigePoints < cost || (type === "enhancedAuto" && state.enhancedAutoUnlocked) || (type === "enhancedBonus" && state.enhancedBonusUnlocked) || (type === "autoPrestige" && state.autoPrestigeUnlocked) || (type === "autoBasicUpgrade" && state.autoBasicUnlocked) || (type === "initialLevel" && state.basicInitialLevelBonus >= BASIC_INITIAL_MAX);
+  });
+  $("toggleAutoPrestigeButton").textContent = state.autoPrestigeEnabled ? "ON" : "OFF";
+  $("toggleAutoPrestigeButton").classList.toggle("on", state.autoPrestigeEnabled);
+  $("toggleAutoPrestigeButton").disabled = !state.autoPrestigeUnlocked;
+  els.autoPrestigeTargetInput.disabled = !state.autoPrestigeUnlocked;
+  if (document.activeElement !== els.autoPrestigeTargetInput) els.autoPrestigeTargetInput.value = String(state.autoPrestigeTarget);
+  els.autoPrestigeSettings.classList.toggle("locked-card", !state.autoPrestigeUnlocked);
+  els.autoPrestigeSettings.classList.toggle("unlocked", state.autoPrestigeUnlocked);
 }
-
-function playBonusGlow(isEnhanced) {
-  const glowEffect = document.createElement("span");
-  glowEffect.className = isEnhanced ? "bonus-glow-effect enhanced" : "bonus-glow-effect";
-  glowEffect.setAttribute("aria-hidden", "true");
-
-  const glowImage = document.createElement("img");
-  glowImage.className = "bonus-glow-image";
-  glowImage.src = potatoImage.src;
-  glowImage.alt = "";
-  glowImage.setAttribute("aria-hidden", "true");
-
-  // 発光はクリックの伸縮とは別要素で再生する。
-  // そのため、次のクリックが来ても発光アニメーションはキャンセルされません。
-  potatoButton.append(glowEffect, glowImage);
-
-  const removeGlowElement = (element) => {
-    element.addEventListener("animationend", () => element.remove(), { once: true });
-  };
-
-  removeGlowElement(glowEffect);
-  removeGlowElement(glowImage);
-
-  // animationend が発火しなかった場合の保険
-  setTimeout(() => {
-    glowEffect.remove();
-    glowImage.remove();
-  }, 2000);
+function updateAutoBasicDisplay() {
+  $("autoBasicUpgradeCard").classList.toggle("locked-card", !state.autoBasicUnlocked);
+  $("autoBasicUpgradeCard").classList.toggle("unlocked", state.autoBasicUnlocked);
+  $("toggleAutoBasicUpgradeButton").disabled = !state.autoBasicUnlocked;
+  $("toggleAutoBasicUpgradeButton").textContent = state.autoBasicUnlocked ? (state.autoBasicEnabled ? "基本自動強化: ON" : "基本自動強化: OFF") : "基本自動強化: 未解放";
+  $("toggleAutoBasicUpgradeButton").classList.toggle("on", state.autoBasicEnabled);
+  BASIC_KEYS.forEach((k) => {
+    const c = autoBasicControls[k]; if (!c) return;
+    c.input.disabled = !state.autoBasicUnlocked;
+    c.button.disabled = !state.autoBasicUnlocked;
+    if (document.activeElement !== c.input) c.input.value = String(state.autoBasicSettings[k].targetLevel);
+    c.button.textContent = state.autoBasicSettings[k].enabled ? "ON" : "OFF";
+    c.button.classList.toggle("on", state.autoBasicSettings[k].enabled);
+  });
 }
+function updateBigBangDisplay() {
+  const visible = state.prestigePoints >= BIG_BANG_VISIBLE_THRESHOLD || state.bigBangCount > 0 || state.bigBangPoints > 0;
+  $("bigBangTitle").classList.toggle("hidden-card", !visible); $("bigBangCard").classList.toggle("hidden-card", !visible);
+  const possible = Math.floor(state.prestigePoints / BIG_BANG_COST);
+  $("bigBangResetButton").disabled = possible < 1;
+  $("bigBangResetButton").textContent = possible >= 1 ? `ジャガイモビックバン ${fmt(possible)}回 / BBポイント +${fmt(possible * getBigBangGainPerReset())}` : `ビックバンまで高級ポイント ${fmt(Math.max(0, BIG_BANG_COST - state.prestigePoints))}`;
+  $("bigBangNormalMultiplierButton").textContent = `Lv.${fmt(state.bbNormalMultiplierLevel)} 通常ポイント倍率 +100倍 / BBポイント 1`;
+  $("bigBangPrestigeMultiplierButton").textContent = `Lv.${fmt(state.bbPrestigeMultiplierLevel)} 高級ポイント倍率 +10倍 / BBポイント 1`;
+  const bbCost = getBbPointGainCost();
+  $("bigBangPointGainButton").textContent = `Lv.${fmt(state.bbPointGainLevel)} BBポイント獲得量 +1 現在:${fmt(getBigBangGainPerReset())} / BBポイント ${fmt(bbCost)}`;
+  $("bigBangNormalMultiplierButton").disabled = state.bigBangPoints < 1;
+  $("bigBangPrestigeMultiplierButton").disabled = state.bigBangPoints < 1;
+  $("bigBangPointGainButton").disabled = state.bigBangPoints < bbCost;
+}
+function updateStats() {
+  els.statsContent.innerHTML = `
+    <div class="stat-group"><h3>通貨</h3><div class="stat-grid">
+      ${statRow("所持ポイント", fmtFull(state.points))}${statRow("高級ポイント", fmtFull(state.prestigePoints))}${statRow("BBポイント", fmtFull(state.bigBangPoints))}
+    </div></div>
+    <div class="stat-group"><h3>リセット</h3><div class="stat-grid">
+      ${statRow("高級リセット回数", fmt(state.prestigeResetCount))}${statRow("ジャガイモビックバン回数", fmt(state.bigBangCount))}${statRow("リセット時高級ポイント獲得量", fmt(getPrestigeGainPerReset()))}${statRow("BBポイント獲得量", fmt(getBigBangGainPerReset()))}
+    </div></div>
+    <div class="stat-group"><h3>倍率</h3><div class="stat-grid">
+      ${statRow("高級全基本ポイント倍率", `${fmtMult(state.prestigeBasicMultiplier)}倍`)}${statRow("BB全基本・高級ポイント倍率", `${fmtMult(state.bbAllMultiplier)}倍`)}${statRow("通常ポイントBB倍率", `${fmtMult(getBbNormalMultiplier())}倍`)}${statRow("高級ポイントBB倍率", `${fmtMult(getBbPrestigeMultiplier())}倍`)}${statRow("高級オート倍率", `${fmtMult(state.premiumAutoMultiplier)}倍`)}${statRow("通常クリック最終倍率", `${fmtMult(state.manualFinalMultiplier)}倍`)}
+    </div></div>
+    <div class="stat-group"><h3>解放状態</h3><div class="stat-grid">
+      ${statRow("強化オートクリック", state.enhancedAutoUnlocked ? "解放済み" : "未解放")}${statRow("強化ボーナス", state.enhancedBonusUnlocked ? "解放済み" : "未解放")}${statRow("自動リセット", state.autoPrestigeUnlocked ? (state.autoPrestigeEnabled ? `ON / ${fmt(state.autoPrestigeTarget)}回単位` : "OFF") : "未解放")}${statRow("基本自動強化", state.autoBasicUnlocked ? (state.autoBasicEnabled ? "ON" : "OFF") : "未解放")}${statRow("基本初期値", `+${fmt(state.basicInitialLevelBonus)}`)}${statRow("基本コスト倍率", `${fmtPct(state.basicCostMultiplier)}%`)}
+    </div></div>`;
+}
+function statRow(label, value) { return `<div class="stat-row"><span>${label}</span><span>${value}</span></div>`; }
 
-function calculateManualClickGain() {
-  const finalManualMultiplier = getNormalPointMultiplier() * manualFinalMultiplier;
-  const baseAmount = getClickPower() * finalManualMultiplier;
+function addPoints(amount) { state.points += amount; updateScreen(); checkAutoPrestige(); }
+function showPrestigeTopDisplay() { if (state.prestigePoints <= PRESTIGE_TOP_DISPLAY_THRESHOLD) return; prestigeTopActive = true; clearTimeout(prestigeTopTimer); prestigeTopTimer = setTimeout(() => { prestigeTopActive = false; updateScreen(); }, PRESTIGE_TOP_DISPLAY_DURATION); }
+function hidePrestigeTopDisplay() { prestigeTopActive = false; clearTimeout(prestigeTopTimer); prestigeTopTimer = null; }
+function canBuyBasic(key) {
+  if (state.points < state.basicCosts[key]) return false;
+  if ((key === "enhancedBonusChance" || key === "enhancedBonusMultiplier") && !state.enhancedBonusUnlocked) return false;
+  if (key === "bonusChance" && getBonusChance() >= MAX_BONUS_CHANCE) return false;
+  if (key === "enhancedBonusChance" && getEnhancedBonusChance() >= MAX_BONUS_CHANCE) return false;
+  if (key === "autoInterval" && getAutoInterval() <= MIN_AUTO_INTERVAL) return false;
+  return true;
+}
+function buyBasic(key, options={}) {
+  if (!canBuyBasic(key)) return false;
+  state.points -= state.basicCosts[key]; state.basicLevels[key] += 1; state.basicCosts[key] = getNextBasicCost(key, state.basicCosts[key]);
+  if (key === "autoInterval") startAutoClickLoop();
+  updateScreen(); if (options.save !== false) saveGame(); return true;
+}
+function calculateClickGain() {
+  const manualMultiplier = getNormalPointMultiplier() * state.manualFinalMultiplier;
+  const base = getClickPower() * manualMultiplier;
   const isBonus = Math.random() * 100 < getBonusChance();
-
-  if (!isBonus) {
-    return {
-      totalPerClickCount: baseAmount,
-      popupEntries: [
-        {
-          amount: baseAmount,
-          type: "normal",
-        },
-      ],
-      isBonus: false,
-      isEnhancedBonus: false,
-    };
-  }
-
-  const bonusAmount = getClickPower() * getBonusMultiplier() * finalManualMultiplier;
-  const isEnhancedBonus =
-    enhancedBonusUnlocked && Math.random() * 100 < getEnhancedBonusChance();
-  const popupEntries = [
-    {
-      amount: bonusAmount,
-      type: "bonus",
-    },
-  ];
-  let totalPerClickCount = bonusAmount;
-
-  if (isEnhancedBonus) {
-    const enhancedBonusAmount =
-      getClickPower() *
-      getBonusMultiplier() *
-      getEnhancedBonusMultiplier() *
-      finalManualMultiplier;
-
-    totalPerClickCount += enhancedBonusAmount;
-    popupEntries.push({
-      amount: enhancedBonusAmount,
-      type: "enhanced",
-    });
-  }
-
-  return {
-    totalPerClickCount,
-    popupEntries,
-    isBonus: true,
-    isEnhancedBonus,
-  };
+  if (!isBonus) return {perCount:base, entries:[{amount:base,type:"normal"}], bonus:false, enhanced:false};
+  const bonus = getClickPower() * getBonusMultiplier() * manualMultiplier;
+  const entries = [{amount:bonus,type:"bonus"}]; let total = bonus;
+  const enhanced = state.enhancedBonusUnlocked && Math.random() * 100 < getEnhancedBonusChance();
+  if (enhanced) { const extra = getClickPower() * getBonusMultiplier() * getEnhancedBonusMultiplier() * manualMultiplier; total += extra; entries.push({amount:extra,type:"enhanced"}); }
+  return {perCount:total, entries, bonus:true, enhanced};
 }
-
-function gainManualClickPoints({ showEffects }) {
-  const result = calculateManualClickGain();
-  const clickCount = getClickCount();
-  const totalGainedPoints = result.totalPerClickCount * clickCount;
-
-  addPoints(totalGainedPoints);
-
-  if (showEffects) {
-    showGainPopups(result.popupEntries, clickCount);
-    playPotatoAnimation();
-
-    if (result.isBonus) {
-      playBonusGlow(result.isEnhancedBonus);
-    }
-  }
+function gainManual(showEffects) {
+  const result = calculateClickGain(); const count = getClickCount(); addPoints(result.perCount * count);
+  if (showEffects) { showGainPopups(result.entries, count); playPotatoAnimation(); if (result.bonus) playBonusGlow(result.enhanced); }
 }
-
-function startAutoClickLoop() {
-  if (autoClickTimerId !== null) {
-    clearTimeout(autoClickTimerId);
-  }
-
-  autoClickTimerId = setTimeout(function autoClickTick() {
-    const gainedPoints = getEffectiveAutoClickPower();
-
-    if (gainedPoints > 0) {
-      addPoints(gainedPoints);
-    }
-
-    autoClickTimerId = setTimeout(autoClickTick, getAutoClickInterval());
-  }, getAutoClickInterval());
+function executePrestigeReset() {
+  const count = Math.floor(state.points / PRESTIGE_COST); if (count < 1) return;
+  state.points = 0;
+  state.prestigeResetCount += count;
+  state.prestigePoints += count * getPrestigeGainPerReset();
+  state.prestigeBasicMultiplier += 0.01 * count;
+  resetBasicUpgrades(); restartLoops(); showPrestigeTopDisplay(); updateScreen(); saveGame(true);
 }
-
-function startEnhancedAutoClickLoop() {
-  if (enhancedAutoClickTimerId !== null) {
-    clearInterval(enhancedAutoClickTimerId);
-    enhancedAutoClickTimerId = null;
-  }
-
-  if (!enhancedAutoClickUnlocked) {
-    return;
-  }
-
-  if (enhancedAutoClickTimerId !== null) {
-    clearInterval(enhancedAutoClickTimerId);
-  }
-
-  enhancedAutoClickTimerId = setInterval(() => {
-    gainManualClickPoints({ showEffects: false });
-  }, ENHANCED_AUTO_CLICK_INTERVAL);
+function checkAutoPrestige() {
+  if (!state.autoPrestigeUnlocked || !state.autoPrestigeEnabled) return;
+  if (Math.floor(state.points / PRESTIGE_COST) >= state.autoPrestigeTarget) executePrestigeReset();
 }
-
-function openUpgradePanel() {
-  upgradePanel.classList.add("open");
-  panelOverlay.classList.add("show");
-  upgradePanel.setAttribute("aria-hidden", "false");
+function buyPrestige(type) {
+  const cost = getPrestigeCost(type); if (state.prestigePoints < cost) return;
+  if ((type === "enhancedAuto" && state.enhancedAutoUnlocked) || (type === "enhancedBonus" && state.enhancedBonusUnlocked) || (type === "autoPrestige" && state.autoPrestigeUnlocked) || (type === "autoBasicUpgrade" && state.autoBasicUnlocked)) return;
+  if (type === "initialLevel" && state.basicInitialLevelBonus >= BASIC_INITIAL_MAX) return;
+  state.prestigePoints -= cost; state.prestigePurchaseCounts[type] += 1;
+  if (type === "enhancedAuto") state.enhancedAutoUnlocked = true;
+  if (type === "enhancedBonus") state.enhancedBonusUnlocked = true;
+  if (type === "initialLevel") { state.basicInitialLevelBonus = Math.min(BASIC_INITIAL_MAX, state.basicInitialLevelBonus + BASIC_INITIAL_INCREMENT); BASIC_KEYS.forEach((k) => { state.basicLevels[k] = Math.max(state.basicLevels[k], state.basicInitialLevelBonus); }); }
+  if (type === "costReduction") { state.basicCostMultiplier *= 0.9; BASIC_KEYS.forEach((k) => state.basicCosts[k] = Math.max(1, Math.floor(state.basicCosts[k] * 0.9))); }
+  if (type === "premiumAutoMultiplier") { state.premiumAutoMultiplier = getNextPremiumAutoMultiplier(); state.premiumAutoLevel += 1; }
+  if (type === "manualFinalMultiplier") { state.manualFinalMultiplier = getNextManualFinalMultiplier(); state.manualFinalLevel += 1; }
+  if (type === "autoPrestige") { state.autoPrestigeUnlocked = true; state.autoPrestigeEnabled = true; }
+  if (type === "autoBasicUpgrade") { state.autoBasicUnlocked = true; state.autoBasicEnabled = true; }
+  if (type === "prestigePointGain") state.prestigePointGainLevel += 1;
+  restartLoops(); updateScreen(); saveGame(true); checkAutoPrestige();
 }
-
-function closeUpgradePanel() {
-  upgradePanel.classList.remove("open");
-  panelOverlay.classList.remove("show");
-  upgradePanel.setAttribute("aria-hidden", "true");
-}
-
-function canBuyBasicUpgrade(upgradeKey) {
-  if (points < upgradeCosts[upgradeKey]) return false;
-  if (upgradeKey === "bonusChance" && getBonusChance() >= MAX_BONUS_CHANCE) return false;
-  if (upgradeKey === "enhancedBonusChance" && getEnhancedBonusChance() >= MAX_BONUS_CHANCE) return false;
-  if (upgradeKey === "autoInterval" && getAutoClickInterval() <= MIN_AUTO_CLICK_INTERVAL) return false;
-  if (
-    (upgradeKey === "enhancedBonusChance" || upgradeKey === "enhancedBonusMultiplier") &&
-    !enhancedBonusUnlocked
-  ) {
-    return false;
-  }
-
-  return true;
-}
-
-function buyBasicUpgrade(upgradeKey, options = {}) {
-  if (!canBuyBasicUpgrade(upgradeKey)) return false;
-  points -= upgradeCosts[upgradeKey];
-  upgradeLevels[upgradeKey] += 1;
-  upgradeCosts[upgradeKey] = getNextUpgradeCost(upgradeKey, upgradeCosts[upgradeKey]);
-
-  if (upgradeKey === "autoInterval") {
-    startAutoClickLoop();
-  }
-
-  updateScreen();
-  if (options.save !== false) saveGame();
-  return true;
-}
-
-function syncAutoBasicInputsFromState() {
-  BASIC_UPGRADE_KEYS.forEach((upgradeKey) => {
-    const controls = AUTO_BASIC_CONTROLS[upgradeKey];
-    const setting = autoBasicUpgradeSettings[upgradeKey];
-    if (!controls || !setting) return;
-
-    controls.input.value = String(setting.targetLevel);
-    controls.button.textContent = setting.enabled ? "ON" : "OFF";
-    controls.button.classList.toggle("on", setting.enabled);
-    controls.input.disabled = !autoBasicUpgradeUnlocked;
-    controls.button.disabled = !autoBasicUpgradeUnlocked;
-  });
-}
-
-function updateAutoBasicControls() {
-  autoBasicUpgradeCard.classList.toggle("unlocked", autoBasicUpgradeUnlocked);
-  autoBasicUpgradeCard.classList.toggle("locked-card", !autoBasicUpgradeUnlocked);
-  syncAutoBasicInputsFromState();
-}
-
-function setAutoBasicTarget(upgradeKey, value) {
-  if (!autoBasicUpgradeSettings[upgradeKey]) return;
-  autoBasicUpgradeSettings[upgradeKey].targetLevel = Math.max(0, Math.floor(Number(value) || 0));
-  saveGame();
-}
-
-function toggleAutoBasicTarget(upgradeKey) {
-  if (!autoBasicUpgradeUnlocked || !autoBasicUpgradeSettings[upgradeKey]) return;
-  autoBasicUpgradeSettings[upgradeKey].enabled = !autoBasicUpgradeSettings[upgradeKey].enabled;
-  updateScreen();
-  saveGame(true);
-}
-
-function processAutoBasicUpgrades() {
-  if (!autoBasicUpgradeUnlocked || !autoBasicUpgradeEnabled) return;
-
-  let purchaseCount = 0;
-  let didPurchase = false;
-
-  for (const upgradeKey of BASIC_UPGRADE_KEYS) {
-    const setting = autoBasicUpgradeSettings[upgradeKey];
-    if (!setting || !setting.enabled) continue;
-
-    while (
-      upgradeLevels[upgradeKey] < setting.targetLevel &&
-      canBuyBasicUpgrade(upgradeKey) &&
-      purchaseCount < AUTO_BASIC_PURCHASES_PER_TICK
-    ) {
-      const purchased = buyBasicUpgrade(upgradeKey, { save: false });
-      if (!purchased) break;
-      didPurchase = true;
-      purchaseCount += 1;
-    }
-
-    if (purchaseCount >= AUTO_BASIC_PURCHASES_PER_TICK) break;
-  }
-
-  if (didPurchase) {
-    startAutoClickLoop();
-    updateScreen();
-    saveGame(false);
-  }
-}
-
-function startAutoBasicUpgradeLoop() {
-  if (autoBasicUpgradeTimerId !== null) {
-    clearInterval(autoBasicUpgradeTimerId);
-  }
-
-  autoBasicUpgradeTimerId = setInterval(processAutoBasicUpgrades, AUTO_BASIC_UPGRADE_INTERVAL);
-}
-
-function raiseBasicLevelsToInitialBonus() {
-  BASIC_UPGRADE_KEYS.forEach((upgradeKey) => {
-    upgradeLevels[upgradeKey] = Math.max(upgradeLevels[upgradeKey], basicInitialLevelBonus);
-  });
-}
-
-function reduceCurrentBasicUpgradeCosts() {
-  BASIC_UPGRADE_KEYS.forEach((upgradeKey) => {
-    upgradeCosts[upgradeKey] = Math.max(1, Math.floor(upgradeCosts[upgradeKey] * 0.9));
-  });
-}
-
-function executePrestigeReset(options = {}) {
-  const ignoreCostCheck = options.ignoreCostCheck === true;
-
-  if (!ignoreCostCheck && points < PRESTIGE_COST) return;
-  if (ignoreCostCheck && points < PRESTIGE_COST) return;
-
-  points = 0;
-  prestigeCount += 1;
-  prestigePoints += getPrestigePointGain();
-
-  // 高級リセット時は、選んだ高級アップグレードとは別に必ず +0.01 される。
-  globalPointMultiplier += GLOBAL_POINT_MULTIPLIER_INCREMENT;
-
-  resetBasicUpgrades();
-  startAutoClickLoop();
-  startEnhancedAutoClickLoop();
-  showPrestigeTopDisplay();
-  updateScreen();
-  saveGame(true);
-}
-
-function buyPrestigeUpgrade(prestigeType) {
-  const requiredPrestigePoints = getPrestigeUpgradeCost(prestigeType);
-
-  if (prestigePoints < requiredPrestigePoints) return;
-  if (prestigeType === "enhancedAuto" && enhancedAutoClickUnlocked) return;
-  if (prestigeType === "enhancedBonus" && enhancedBonusUnlocked) return;
-  if (prestigeType === "autoPrestige" && autoPrestigeUnlocked) return;
-  if (prestigeType === "autoBasicUpgrade" && autoBasicUpgradeUnlocked) return;
-  if (
-    prestigeType === "initialLevel" &&
-    basicInitialLevelBonus >= MAX_BASIC_INITIAL_LEVEL_BONUS
-  ) {
-    return;
-  }
-
-  prestigePoints -= requiredPrestigePoints;
-  prestigeUpgradePurchaseCounts[prestigeType] = getPrestigeUpgradePurchaseCount(prestigeType) + 1;
-
-  if (prestigeType === "enhancedAuto") {
-    enhancedAutoClickUnlocked = true;
-    startEnhancedAutoClickLoop();
-  }
-
-  if (prestigeType === "enhancedBonus") {
-    enhancedBonusUnlocked = true;
-  }
-
-  if (prestigeType === "initialLevel") {
-    basicInitialLevelBonus = Math.min(
-      MAX_BASIC_INITIAL_LEVEL_BONUS,
-      basicInitialLevelBonus + BASIC_INITIAL_LEVEL_BONUS_INCREMENT
-    );
-    raiseBasicLevelsToInitialBonus();
-  }
-
-  if (prestigeType === "costReduction") {
-    basicCostMultiplier *= 0.9;
-    reduceCurrentBasicUpgradeCosts();
-  }
-
-  if (prestigeType === "premiumAutoMultiplier") {
-    premiumAutoMultiplier = getNextPremiumAutoMultiplier();
-    premiumAutoMultiplierUpgradeCount += 1;
-  }
-
-  if (prestigeType === "manualFinalMultiplier") {
-    manualFinalMultiplier = getNextManualFinalMultiplier();
-    manualFinalMultiplierUpgradeCount += 1;
-  }
-
-  if (prestigeType === "autoPrestige") {
-    autoPrestigeUnlocked = true;
-    autoPrestigeEnabled = true;
-    checkAutoPrestigeReset();
-  }
-
-  if (prestigeType === "autoBasicUpgrade") {
-    autoBasicUpgradeUnlocked = true;
-    autoBasicUpgradeEnabled = true;
-  }
-
-  if (prestigeType === "prestigePointGain") {
-    prestigePointGainUpgradeCount += 1;
-  }
-
-  startAutoClickLoop();
-  updateScreen();
-  saveGame(true);
-}
-
-function toggleAutoPrestige() {
-  if (!autoPrestigeUnlocked) return;
-  autoPrestigeEnabled = !autoPrestigeEnabled;
-  updateScreen();
-  saveGame(true);
-  checkAutoPrestigeReset();
-}
-
-function toggleAutoBasicUpgrade() {
-  if (!autoBasicUpgradeUnlocked) return;
-  autoBasicUpgradeEnabled = !autoBasicUpgradeEnabled;
-  updateScreen();
-  saveGame(true);
-}
-
-function resetPrestigeLayerForBigBang() {
-  points = 0;
-  prestigeCount = 0;
-  globalPointMultiplier = 1 + bigBangGlobalPointBonus;
-  enhancedAutoClickUnlocked = false;
-  enhancedBonusUnlocked = false;
-  basicInitialLevelBonus = 0;
-  basicCostMultiplier = 1;
-  premiumAutoMultiplier = 1;
-  premiumAutoMultiplierUpgradeCount = 0;
-  manualFinalMultiplier = 1;
-  manualFinalMultiplierUpgradeCount = 0;
-  autoPrestigeUnlocked = false;
-  autoPrestigeEnabled = false;
-  autoBasicUpgradeUnlocked = false;
-  autoBasicUpgradeEnabled = false;
-  autoBasicUpgradeSettings = createAutoBasicUpgradeSettings();
-  prestigePointGainUpgradeCount = 0;
-  prestigeUpgradePurchaseCounts = createPrestigeUpgradePurchaseCounts();
-  resetBasicUpgrades();
-  startAutoClickLoop();
-  startEnhancedAutoClickLoop();
-}
-
 function executeBigBangReset() {
-  if (prestigePoints < BIG_BANG_COST) return;
-
-  const gainedBigBangPoints = getBigBangPointGain();
-  prestigePoints -= BIG_BANG_COST;
-  bigBangPoints += gainedBigBangPoints;
-  bigBangCount += 1;
-  bigBangGlobalPointBonus += BIG_BANG_GLOBAL_POINT_BONUS_INCREMENT;
-
-  resetPrestigeLayerForBigBang();
-  hidePrestigeTopDisplay();
-  updateScreen();
-  saveGame(true);
+  const count = Math.floor(state.prestigePoints / BIG_BANG_COST); if (count < 1) return;
+  const gain = count * getBigBangGainPerReset();
+  state.bigBangPoints += gain; state.bigBangCount += count; state.bbAllMultiplier += 0.1 * count;
+  resetPrestigeLayer(); // 高級ポイントも0にし、高級全基本ポイント倍率も1に戻す
+  hidePrestigeTopDisplay(); restartLoops(); updateScreen(); saveGame(true);
+}
+function buyBigBang(type) {
+  if (type === "normal") { if (state.bigBangPoints < 1) return; state.bigBangPoints -= 1; state.bbNormalMultiplierLevel += 1; }
+  if (type === "prestige") { if (state.bigBangPoints < 1) return; state.bigBangPoints -= 1; state.bbPrestigeMultiplierLevel += 1; }
+  if (type === "gain") { const c = getBbPointGainCost(); if (state.bigBangPoints < c) return; state.bigBangPoints -= c; state.bbPointGainLevel += 1; }
+  updateScreen(); saveGame(true);
 }
 
-function buyBigBangUpgrade(type) {
-  if (type === "normalMultiplier") {
-    if (bigBangPoints < 1) return;
-    bigBangPoints -= 1;
-    bigBangNormalMultiplierUpgradeCount += 1;
-  }
+function playPotatoAnimation() { els.potatoImage.classList.remove("pop"); void els.potatoImage.offsetWidth; els.potatoImage.classList.add("pop"); }
+function playBonusGlow(enhanced) {
+  const glow = document.createElement("span"); glow.className = enhanced ? "bonus-glow-effect enhanced" : "bonus-glow-effect";
+  const img = document.createElement("img"); img.className = "bonus-glow-image"; img.src = els.potatoImage.src; img.alt = "";
+  els.potatoButton.append(glow, img); const remove = () => { glow.remove(); img.remove(); };
+  glow.addEventListener("animationend", remove, {once:true}); setTimeout(remove, 2000);
+}
+function popupCategory(type) { return type === "enhanced" ? "enhanced" : "standard"; }
+function clearPopups() { popupQueues.standard.forEach((p) => p.remove()); popupQueues.enhanced.forEach((p) => p.remove()); popupQueues.standard=[]; popupQueues.enhanced=[]; }
+function enforcePopupLimit(cat) { popupQueues[cat] = popupQueues[cat].filter((p) => p.isConnected); const max = cat === "enhanced" ? MAX_ENHANCED_ON_SCREEN : MAX_STANDARD_ON_SCREEN; while (popupQueues[cat].length > max) { const p = popupQueues[cat].shift(); if (p) p.remove(); } }
+function showPopup(amount, type) { const cat = popupCategory(type); const p = document.createElement("span"); p.className = `gain-popup ${type}`; p.textContent = `+${fmt(amount)}`; p.style.left = `${50 + Math.random()*38 - 19}%`; p.style.top = `${32 + Math.random()*30 - 15}%`; els.potatoButton.append(p); popupQueues[cat].push(p); enforcePopupLimit(cat); const rm = () => { p.remove(); popupQueues[cat] = popupQueues[cat].filter((x) => x.isConnected); }; p.addEventListener("animationend", rm, {once:true}); setTimeout(rm, POPUP_LIFETIME); }
+function showGainPopups(entries, count) { const std = entries.filter((e) => popupCategory(e.type) === "standard"); const enh = entries.filter((e) => popupCategory(e.type) === "enhanced"); for (let i=0; i<Math.min(count*std.length, MAX_STANDARD_PER_CLICK); i++) showPopup(std[i % std.length].amount, std[i % std.length].type); for (let i=0; i<Math.min(count*enh.length, MAX_ENHANCED_PER_CLICK); i++) showPopup(enh[i % enh.length].amount, enh[i % enh.length].type); }
 
-  if (type === "prestigeMultiplier") {
-    if (bigBangPoints < 1) return;
-    bigBangPoints -= 1;
-    bigBangPrestigeMultiplierUpgradeCount += 1;
+function startAutoClickLoop() { clearTimeout(autoClickTimer); autoClickTimer = setTimeout(function tick(){ const gain = getEffectiveAutoClickPower(); if (gain > 0) addPoints(gain); autoClickTimer = setTimeout(tick, getAutoInterval()); }, getAutoInterval()); }
+function startEnhancedAutoLoop() { clearInterval(enhancedAutoTimer); enhancedAutoTimer = null; if (state.enhancedAutoUnlocked) enhancedAutoTimer = setInterval(() => gainManual(false), ENHANCED_AUTO_INTERVAL); }
+function processAutoBasic() {
+  if (!state.autoBasicUnlocked || !state.autoBasicEnabled) return;
+  let purchases = 0, did = false;
+  for (const key of BASIC_KEYS) {
+    const s = state.autoBasicSettings[key]; if (!s.enabled) continue;
+    while (state.basicLevels[key] < s.targetLevel && canBuyBasic(key) && purchases < AUTO_BASIC_PURCHASES_PER_TICK) { if (!buyBasic(key, {save:false})) break; purchases++; did = true; }
+    if (purchases >= AUTO_BASIC_PURCHASES_PER_TICK) break;
   }
+  if (did) { restartLoops(); saveGame(false); }
+}
+function startAutoBasicLoop() { clearInterval(autoBasicTimer); autoBasicTimer = setInterval(processAutoBasic, AUTO_BASIC_INTERVAL); }
+function restartLoops() { startAutoClickLoop(); startEnhancedAutoLoop(); }
 
-  if (type === "pointGain") {
-    const cost = getBigBangPointGainUpgradeCost();
-    if (bigBangPoints < cost) return;
-    bigBangPoints -= cost;
-    bigBangPointGainUpgradeCount += 1;
-  }
+function openPanel(panel) { els.upgradePanel.classList.remove("open"); els.statsPanel.classList.remove("open"); panel.classList.add("open"); els.panelOverlay.classList.add("show"); panel.setAttribute("aria-hidden", "false"); }
+function closePanels() { els.upgradePanel.classList.remove("open"); els.statsPanel.classList.remove("open"); els.panelOverlay.classList.remove("show"); els.upgradePanel.setAttribute("aria-hidden", "true"); els.statsPanel.setAttribute("aria-hidden", "true"); }
+function toggleUpgradePanel() { els.upgradePanel.classList.contains("open") ? closePanels() : openPanel(els.upgradePanel); }
 
-  updateScreen();
-  saveGame(true);
+function buildAutoBasicRows() {
+  els.autoBasicRows.innerHTML = "";
+  BASIC_KEYS.forEach((key) => {
+    const row = document.createElement("div"); row.className = "auto-basic-row";
+    row.innerHTML = `<span>${BASIC_LABELS[key]}</span><label>目標 <input type="number" min="0" step="1" value="0" /></label><button class="mini-button" type="button">OFF</button>`;
+    const input = row.querySelector("input"); const button = row.querySelector("button");
+    input.addEventListener("input", () => { state.autoBasicSettings[key].targetLevel = Math.max(0, Math.floor(num(input.value, 0))); });
+    input.addEventListener("change", () => { state.autoBasicSettings[key].targetLevel = Math.max(0, Math.floor(num(input.value, 0))); saveGame(); updateScreen(); });
+    input.addEventListener("blur", () => { state.autoBasicSettings[key].targetLevel = Math.max(0, Math.floor(num(input.value, 0))); saveGame(); updateScreen(); });
+    button.addEventListener("click", () => { if (!state.autoBasicUnlocked) return; state.autoBasicSettings[key].enabled = !state.autoBasicSettings[key].enabled; updateScreen(); saveGame(true); });
+    els.autoBasicRows.append(row); autoBasicControls[key] = {input, button};
+  });
+}
+function buildDebugFields() {
+  const fields = [
+    ["points","所持ポイント"],["prestigePoints","高級ポイント"],["bigBangPoints","BBポイント"],["prestigeResetCount","リセット回数"],["bigBangCount","ジャガイモビックバン回数"],
+    ...BASIC_KEYS.map((k) => [`basic:${k}`, `基本 ${BASIC_LABELS[k]}`]),
+    ...PRESTIGE_TYPES.map((k) => [`prestige:${k}`, `高級 ${PRESTIGE_LABELS[k]}`]),
+    ["bb:normal","BB 通常ポイント倍率"],["bb:prestige","BB 高級ポイント倍率"],["bb:gain","BBポイント獲得量"]
+  ];
+  els.debugFields.innerHTML = "";
+  fields.forEach(([key,label]) => {
+    const d = document.createElement("label"); d.className = "debug-field"; d.innerHTML = `<span>${label}</span><input data-debug-key="${key}" type="number" step="1" />`; els.debugFields.append(d);
+  });
+}
+function openDebugModal() { fillDebugFields(); els.debugModal.classList.remove("hidden"); }
+function closeDebugModal() { els.debugModal.classList.add("hidden"); }
+function fillDebugFields() {
+  els.debugFields.querySelectorAll("input").forEach((input) => {
+    const key = input.dataset.debugKey;
+    if (key === "points") input.value = Math.floor(state.points);
+    else if (key === "prestigePoints") input.value = Math.floor(state.prestigePoints);
+    else if (key === "bigBangPoints") input.value = Math.floor(state.bigBangPoints);
+    else if (key === "prestigeResetCount") input.value = Math.floor(state.prestigeResetCount);
+    else if (key === "bigBangCount") input.value = Math.floor(state.bigBangCount);
+    else if (key.startsWith("basic:")) input.value = state.basicLevels[key.split(":")[1]];
+    else if (key.startsWith("prestige:")) input.value = prestigeLevel(key.split(":")[1]);
+    else if (key === "bb:normal") input.value = state.bbNormalMultiplierLevel;
+    else if (key === "bb:prestige") input.value = state.bbPrestigeMultiplierLevel;
+    else if (key === "bb:gain") input.value = state.bbPointGainLevel;
+  });
+}
+function applyDebugFields() {
+  els.debugFields.querySelectorAll("input").forEach((input) => {
+    const key = input.dataset.debugKey; const v = Math.max(0, Math.floor(num(input.value, 0)));
+    if (key === "points") state.points = v;
+    else if (key === "prestigePoints") state.prestigePoints = v;
+    else if (key === "bigBangPoints") state.bigBangPoints = v;
+    else if (key === "prestigeResetCount") { state.prestigeResetCount = v; state.prestigeBasicMultiplier = 1 + v * 0.01; }
+    else if (key === "bigBangCount") { state.bigBangCount = v; state.bbAllMultiplier = 1 + v * 0.1; }
+    else if (key.startsWith("basic:")) { const k = key.split(":")[1]; state.basicLevels[k] = v; }
+    else if (key.startsWith("prestige:")) setPrestigeDebugLevel(key.split(":")[1], v);
+    else if (key === "bb:normal") state.bbNormalMultiplierLevel = v;
+    else if (key === "bb:prestige") state.bbPrestigeMultiplierLevel = v;
+    else if (key === "bb:gain") state.bbPointGainLevel = v;
+  });
+  restartLoops(); updateScreen(); saveGame(true); closeDebugModal();
+}
+function setPrestigeDebugLevel(type, v) {
+  state.prestigePurchaseCounts[type] = v;
+  if (type === "enhancedAuto") state.enhancedAutoUnlocked = v > 0;
+  if (type === "enhancedBonus") state.enhancedBonusUnlocked = v > 0;
+  if (type === "initialLevel") state.basicInitialLevelBonus = Math.min(BASIC_INITIAL_MAX, v * BASIC_INITIAL_INCREMENT);
+  if (type === "costReduction") state.basicCostMultiplier = 0.9 ** v;
+  if (type === "premiumAutoMultiplier") { state.premiumAutoLevel = v; state.premiumAutoMultiplier = v === 0 ? 1 : v * 10; }
+  if (type === "manualFinalMultiplier") { state.manualFinalLevel = v; state.manualFinalMultiplier = v === 0 ? 1 : 1 + v * 0.5; }
+  if (type === "autoPrestige") { state.autoPrestigeUnlocked = v > 0; state.autoPrestigeEnabled = state.autoPrestigeEnabled && state.autoPrestigeUnlocked; }
+  if (type === "autoBasicUpgrade") { state.autoBasicUnlocked = v > 0; state.autoBasicEnabled = state.autoBasicEnabled && state.autoBasicUnlocked; }
+  if (type === "prestigePointGain") state.prestigePointGainLevel = v;
+}
+function handleKeydown(e) {
+  const tag = document.activeElement?.tagName;
+  const typing = tag === "INPUT" || tag === "TEXTAREA" || document.activeElement?.isContentEditable;
+  if (e.key === "Tab" && !typing && !els.debugModal.classList.contains("hidden")) return;
+  if (e.key === "Tab" && !typing) { e.preventDefault(); toggleUpgradePanel(); return; }
+  if (e.repeat) return;
+  if (!e.shiftKey) { debugProgress = ""; return; }
+  const key = e.key.toUpperCase(); if (!/^[A-Z]$/.test(key)) return;
+  const expected = DEBUG_COMMAND[debugProgress.length];
+  if (key === expected) { debugProgress += key; if (debugProgress === DEBUG_COMMAND) { debugProgress = ""; openDebugModal(); } return; }
+  debugProgress = key === DEBUG_COMMAND[0] ? key : "";
 }
 
-potatoButton.addEventListener("click", () => {
-  gainManualClickPoints({ showEffects: true });
-});
+function bindEvents() {
+  els.potatoButton.addEventListener("click", () => gainManual(true));
+  BASIC_KEYS.forEach((k) => basicEls[k].button.addEventListener("click", () => buyBasic(k)));
+  $("prestigeResetButton").addEventListener("click", executePrestigeReset);
+  $("prestigeEnhancedAutoButton").addEventListener("click", () => buyPrestige("enhancedAuto"));
+  $("prestigeEnhancedBonusButton").addEventListener("click", () => buyPrestige("enhancedBonus"));
+  $("prestigeInitialLevelButton").addEventListener("click", () => buyPrestige("initialLevel"));
+  $("prestigeCostReductionButton").addEventListener("click", () => buyPrestige("costReduction"));
+  $("prestigePremiumAutoMultiplierButton").addEventListener("click", () => buyPrestige("premiumAutoMultiplier"));
+  $("prestigeManualFinalMultiplierButton").addEventListener("click", () => buyPrestige("manualFinalMultiplier"));
+  $("prestigeAutoResetButton").addEventListener("click", () => buyPrestige("autoPrestige"));
+  $("prestigeAutoBasicUpgradeButton").addEventListener("click", () => buyPrestige("autoBasicUpgrade"));
+  $("prestigePointGainButton").addEventListener("click", () => buyPrestige("prestigePointGain"));
+  $("toggleAutoPrestigeButton").addEventListener("click", () => { if (!state.autoPrestigeUnlocked) return; state.autoPrestigeEnabled = !state.autoPrestigeEnabled; updateScreen(); saveGame(true); checkAutoPrestige(); });
+  els.autoPrestigeTargetInput.addEventListener("input", () => { state.autoPrestigeTarget = Math.max(1, Math.floor(num(els.autoPrestigeTargetInput.value, 1))); });
+  els.autoPrestigeTargetInput.addEventListener("change", () => { state.autoPrestigeTarget = Math.max(1, Math.floor(num(els.autoPrestigeTargetInput.value, 1))); updateScreen(); saveGame(true); checkAutoPrestige(); });
+  $("toggleAutoBasicUpgradeButton").addEventListener("click", () => { if (!state.autoBasicUnlocked) return; state.autoBasicEnabled = !state.autoBasicEnabled; updateScreen(); saveGame(true); });
+  $("bigBangResetButton").addEventListener("click", executeBigBangReset);
+  $("bigBangNormalMultiplierButton").addEventListener("click", () => buyBigBang("normal"));
+  $("bigBangPrestigeMultiplierButton").addEventListener("click", () => buyBigBang("prestige"));
+  $("bigBangPointGainButton").addEventListener("click", () => buyBigBang("gain"));
+  $("manualSaveButton").addEventListener("click", () => saveGame(true));
+  $("deleteSaveButton").addEventListener("click", deleteSaveData);
+  els.menuButton.addEventListener("click", () => openPanel(els.upgradePanel));
+  els.statsButton.addEventListener("click", () => openPanel(els.statsPanel));
+  els.closePanelButton.addEventListener("click", closePanels);
+  els.closeStatsButton.addEventListener("click", closePanels);
+  els.panelOverlay.addEventListener("click", closePanels);
+  els.closeDebugButton.addEventListener("click", closeDebugModal);
+  els.cancelDebugButton.addEventListener("click", closeDebugModal);
+  els.applyDebugButton.addEventListener("click", applyDebugFields);
+  document.addEventListener("keydown", handleKeydown);
+  window.addEventListener("beforeunload", () => saveGame(false));
+}
 
-clickUpgradeButton.addEventListener("click", () => buyBasicUpgrade("clickPower"));
-clickCountUpgradeButton.addEventListener("click", () => buyBasicUpgrade("clickCount"));
-autoClickUpgradeButton.addEventListener("click", () => buyBasicUpgrade("autoClick"));
-autoIntervalUpgradeButton.addEventListener("click", () => buyBasicUpgrade("autoInterval"));
-autoMultiplierUpgradeButton.addEventListener("click", () => buyBasicUpgrade("autoMultiplier"));
-bonusChanceUpgradeButton.addEventListener("click", () => buyBasicUpgrade("bonusChance"));
-bonusMultiplierUpgradeButton.addEventListener("click", () => buyBasicUpgrade("bonusMultiplier"));
-enhancedBonusChanceUpgradeButton.addEventListener("click", () => buyBasicUpgrade("enhancedBonusChance"));
-enhancedBonusMultiplierUpgradeButton.addEventListener("click", () => buyBasicUpgrade("enhancedBonusMultiplier"));
-
-prestigeResetButton.addEventListener("click", executePrestigeReset);
-prestigeEnhancedAutoButton.addEventListener("click", () => buyPrestigeUpgrade("enhancedAuto"));
-prestigeEnhancedBonusButton.addEventListener("click", () => buyPrestigeUpgrade("enhancedBonus"));
-prestigeInitialLevelButton.addEventListener("click", () => buyPrestigeUpgrade("initialLevel"));
-prestigeCostReductionButton.addEventListener("click", () => buyPrestigeUpgrade("costReduction"));
-prestigePremiumAutoMultiplierButton.addEventListener("click", () => buyPrestigeUpgrade("premiumAutoMultiplier"));
-prestigeManualFinalMultiplierButton.addEventListener("click", () => buyPrestigeUpgrade("manualFinalMultiplier"));
-prestigeAutoResetButton.addEventListener("click", () => buyPrestigeUpgrade("autoPrestige"));
-prestigeAutoBasicUpgradeButton.addEventListener("click", () => buyPrestigeUpgrade("autoBasicUpgrade"));
-prestigePointGainButton.addEventListener("click", () => buyPrestigeUpgrade("prestigePointGain"));
-toggleAutoPrestigeButton.addEventListener("click", toggleAutoPrestige);
-toggleAutoBasicUpgradeButton.addEventListener("click", toggleAutoBasicUpgrade);
-bigBangResetButton.addEventListener("click", executeBigBangReset);
-bigBangNormalMultiplierButton.addEventListener("click", () => buyBigBangUpgrade("normalMultiplier"));
-bigBangPrestigeMultiplierButton.addEventListener("click", () => buyBigBangUpgrade("prestigeMultiplier"));
-bigBangPointGainButton.addEventListener("click", () => buyBigBangUpgrade("pointGain"));
-manualSaveButton.addEventListener("click", () => saveGame(true));
-deleteSaveButton.addEventListener("click", deleteSaveData);
-
-BASIC_UPGRADE_KEYS.forEach((upgradeKey) => {
-  const controls = AUTO_BASIC_CONTROLS[upgradeKey];
-  if (!controls) return;
-
-  controls.input.addEventListener("change", () => setAutoBasicTarget(upgradeKey, controls.input.value));
-  controls.input.addEventListener("blur", () => setAutoBasicTarget(upgradeKey, controls.input.value));
-  controls.button.addEventListener("click", () => toggleAutoBasicTarget(upgradeKey));
-});
-
-menuButton.addEventListener("click", openUpgradePanel);
-closePanelButton.addEventListener("click", closeUpgradePanel);
-panelOverlay.addEventListener("click", closeUpgradePanel);
-document.addEventListener("keydown", handleDebugCommand);
-
-resetBasicUpgrades();
-loadGame();
-startAutoClickLoop();
-startEnhancedAutoClickLoop();
-startAutoBasicUpgradeLoop();
-updateScreen();
-setInterval(() => saveGame(false), AUTO_SAVE_INTERVAL);
-window.addEventListener("beforeunload", () => saveGame(false));
+buildAutoBasicRows(); buildDebugFields(); resetBasicUpgrades(); loadGame(); bindEvents(); restartLoops(); startAutoBasicLoop(); updateScreen(); setInterval(() => saveGame(false), AUTO_SAVE_INTERVAL);
