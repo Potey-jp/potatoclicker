@@ -327,9 +327,37 @@ function getBigBangGainPerReset() { return 1 + state.bbPointGainLevel; }
 function getEffectiveAutoClickPower() { return safeMultiply(getAutoClickBase(), getAutoMultiplier(), state.premiumAutoMultiplier, getNormalPointMultiplier()); }
 function getNextPremiumAutoMultiplier() { return state.premiumAutoLevel === 0 ? 10 : state.premiumAutoMultiplier + 10; }
 function getNextManualFinalMultiplier() { return state.manualFinalLevel === 0 ? 1.5 : state.manualFinalMultiplier + 0.5; }
+function getPrestigeCostMultiplier(purchases) {
+  // Lv.15程度まではこれまで通りの加算式。
+  // Lv.15以降は乗数も追加し、後半ほど高級アップグレードのコストが重くなる。
+  if (purchases < 15) return 1;
+  return Math.min(1e12, Math.pow(1.18, purchases - 14));
+}
+
+function applyPrestigeCostMultiplier(baseCost, purchases) {
+  return Math.max(1, Math.floor(safeMultiply(baseCost, getPrestigeCostMultiplier(purchases))));
+}
+
 function getPrestigeCost(type) {
-  if (type === "prestigePointGain") return Math.max(1, Math.floor(getPrestigeGainPerReset() * (state.prestigePointGainLevel / 2)));
-  return (PRESTIGE_BASE_COST[type] || 1) + Math.floor((state.prestigePurchaseCounts[type] || 0) / 2);
+  const purchases = Math.max(0, Math.floor(state.prestigePurchaseCounts?.[type] || 0));
+
+  // 高級アップグレードは種類ごとに個別でコスト上昇。
+  // Lv.15以降からは加算に加えて乗数補正もかかる。
+  const individualGrowth =
+    Math.floor(purchases / 2) +
+    Math.floor(purchases / 4) +
+    Math.floor(purchases / 6) +
+    Math.floor(purchases / 10);
+
+  if (type === "prestigePointGain") {
+    // 高級ポイント獲得量アップグレードもLv.15以降は乗数補正の対象。
+    const level = Math.max(0, Math.floor(state.prestigePointGainLevel || 0));
+    const base = Math.max(1, Math.floor(getPrestigeGainPerReset() * Math.max(1, level / 2)));
+    const extra = Math.floor(purchases / 2) + Math.floor(purchases / 5) + Math.floor(purchases / 10);
+    return applyPrestigeCostMultiplier(safeAdd(base, extra), purchases);
+  }
+
+  return applyPrestigeCostMultiplier(safeAdd(PRESTIGE_BASE_COST[type] || 1, individualGrowth), purchases);
 }
 function getBbPointGainCost() { return Math.max(1, Math.floor(getBigBangGainPerReset() / 1.25 + state.bbPointGainLevel)); }
 
