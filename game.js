@@ -73,6 +73,9 @@ function getStorageScopeKey() {
 }
 const SAVE_KEY = `${SAVE_KEY_BASE}_${getStorageScopeKey()}`;
 const OLD_SAVE_KEYS = ["potatoClickerSaveData_v2", "potatoClickerSaveData_v1", "potatoClickerSaveData"];
+const RESET_MARKER_KEY = `${SAVE_KEY_BASE}_hardResetMarker_${getStorageScopeKey()}`;
+let saveDisabled = false;
+let offlineRewardClaimedThisSession = false;
 const AUTO_SAVE_INTERVAL = 5000;
 const AUTO_BASIC_INTERVAL = 500;
 const AUTO_BASIC_PURCHASES_PER_TICK = 20;
@@ -262,7 +265,19 @@ function getPotatoStorageKeys() {
 }
 
 function purgePotatoStorage() {
-  getPotatoStorageKeys().forEach((key) => localStorage.removeItem(key));
+  try {
+    const keys = [];
+    for (let i = localStorage.length - 1; i >= 0; i -= 1) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      if (key.startsWith(SAVE_KEY_PREFIX) || key.includes("potatoClicker") || key.includes("PotatoClicker")) {
+        keys.push(key);
+      }
+    }
+    keys.forEach((key) => localStorage.removeItem(key));
+  } catch (e) {
+    console.error(e);
+  }
   OLD_SAVE_KEYS.forEach((key) => {
     localStorage.removeItem(key);
     localStorage.removeItem(`${key}_status`);
@@ -271,14 +286,16 @@ function purgePotatoStorage() {
   localStorage.removeItem(`${SAVE_KEY}_status`);
 }
 
-function createSaveData() {
-  const savedAt = pendingOfflineReward && !pendingOfflineReward.claimed ? pendingOfflineReward.savedAt : new Date().toISOString();
+function createSaveData(options = {}) {
+  const savedAt = options.savedAt || new Date().toISOString();
   state.lastSavedAt = savedAt;
-  return JSON.parse(JSON.stringify({ version:6, savedAt, ...state }));
+  return JSON.parse(JSON.stringify({ version:7, savedAt, ...state }));
 }
-function saveGame(show=false) {
+function saveGame(show=false, options = {}) {
+  if (saveDisabled) return;
   try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(createSaveData()));
+    localStorage.setItem(SAVE_KEY, JSON.stringify(createSaveData(options)));
+    localStorage.removeItem(RESET_MARKER_KEY);
     const text = `保存済み ${new Date().toLocaleTimeString("ja-JP", {hour:"2-digit", minute:"2-digit"})}`;
     localStorage.setItem(`${SAVE_KEY}_status`, text);
     if (show) setSaveStatus("保存しました"); else if (els.saveStatusText) els.saveStatusText.textContent = text;
@@ -291,6 +308,15 @@ function setSaveStatus(text) {
   saveStatusTimer = setTimeout(() => { els.saveStatusText.textContent = localStorage.getItem(`${SAVE_KEY}_status`) || "自動保存ON"; }, 1800);
 }
 function loadGame() {
+  const hardResetMarker = localStorage.getItem(RESET_MARKER_KEY);
+  if (hardResetMarker) {
+    assignState(createInitialState());
+    resetBasicUpgrades();
+    pendingOfflineReward = null;
+    if (els.offlineRewardModal) els.offlineRewardModal.classList.add("hidden");
+    setSaveStatus("初期化済み");
+    return;
+  }
   const raw = localStorage.getItem(SAVE_KEY) || OLD_SAVE_KEYS.map((k) => localStorage.getItem(k)).find(Boolean);
   if (!raw) { resetBasicUpgrades(); setSaveStatus("新規データ"); return; }
   try {
@@ -322,6 +348,8 @@ function deleteSaveData() {
   if (!confirm("本当にセーブデータを初期化しますか？\n現在のゲームデータもすべて初期化されます。")) { setSaveStatus("初期化キャンセル"); return; }
   if (!confirm("最終確認です。初期化すると元に戻せません。\n本当にすべて初期化しますか？")) { setSaveStatus("初期化キャンセル"); return; }
 
+  saveDisabled = true;
+
   clearTimeout(autoClickTimer); autoClickTimer = null;
   clearInterval(enhancedAutoTimer); enhancedAutoTimer = null;
   clearInterval(autoBasicTimer); autoBasicTimer = null;
@@ -329,18 +357,28 @@ function deleteSaveData() {
   clearTimeout(saveStatusTimer); saveStatusTimer = null;
 
   purgePotatoStorage();
+  localStorage.setItem(RESET_MARKER_KEY, String(Date.now()));
+
   assignState(createInitialState());
   resetBasicUpgrades();
   clearPopups();
-  pendingOfflineReward = null; if (els.offlineRewardModal) els.offlineRewardModal.classList.add("hidden");
+  pendingOfflineReward = null;
+  offlineRewardClaimedThisSession = true;
+  if (els.offlineRewardModal) els.offlineRewardModal.classList.add("hidden");
   hidePrestigeTopDisplay();
+  updateScreen();
+
+  const initialSave = createSaveData({ savedAt:new Date().toISOString() });
+  localStorage.setItem(SAVE_KEY, JSON.stringify(initialSave));
+  localStorage.setItem(`${SAVE_KEY}_status`, "初期化しました");
+  localStorage.removeItem(RESET_MARKER_KEY);
+
+  saveDisabled = false;
   restartLoops();
   startAutoBasicLoop();
-  updateScreen();
-  purgePotatoStorage();
-  saveGame(false);
   setSaveStatus("初期化しました");
 }
+
 
 function updateScreen() {
   updateTopScore(); updateBasicDisplay(); updatePrestigeDisplay(); updateAutoBasicDisplay(); updateBigBangDisplay(); updateSkinDisplay(); updateAchievementDisplay(); updateStats();
@@ -545,6 +583,7 @@ function calculateOfflineReward(elapsedMs) {
   return { elapsedMs, cappedMs: rewardMinutes * 60_000, rewardMinutes, reward };
 }
 function prepareOfflineReward(savedAt) {
+  if (offlineRewardClaimedThisSession) return;
   if (!savedAt) return;
   const savedTime = new Date(savedAt).getTime();
   if (!Number.isFinite(savedTime)) return;
@@ -567,10 +606,16 @@ function claimOfflineReward() {
   const reward = pendingOfflineReward.reward;
   pendingOfflineReward.claimed = true;
   pendingOfflineReward = null;
+  offlineRewardClaimedThisSession = true;
   if (els.offlineRewardModal) els.offlineRewardModal.classList.add("hidden");
-  state.lastSavedAt = new Date().toISOString();
+
+  const nowIso = new Date().toISOString();
+  state.lastSavedAt = nowIso;
   addPoints(reward);
-  saveGame(true);
+
+  // 受け取り直後に必ず現在時刻で保存する。
+  // これにより、リロードしても同じオフライン時間を再利用できない。
+  saveGame(true, { savedAt:nowIso });
 }
 
 function addPoints(amount) { state.points += amount; if (amount > 0) state.totalPointsEarned += amount; checkAchievements(); updateScreen(); checkAutoPrestige(); }
