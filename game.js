@@ -14,7 +14,15 @@ const BASIC_LABELS = {
   clickPower:"クリック強化", clickCount:"クリック回数強化", autoClick:"オートクリック", autoInterval:"オート間隔短縮", autoMultiplier:"オートクリック倍加", bonusChance:"ボーナス確率", bonusMultiplier:"ボーナス倍率", enhancedBonusChance:"強化ボーナス確率", enhancedBonusMultiplier:"強化ボーナス倍率"
 };
 const BASIC_CONFIG = {
-  clickPower:{baseCost:10,growth:1.85}, clickCount:{baseCost:72,growth:2.00}, autoClick:{baseCost:24,growth:1.95}, autoInterval:{baseCost:145,growth:1.90}, autoMultiplier:{baseCost:290,growth:2.25}, bonusChance:{baseCost:48,growth:1.82}, bonusMultiplier:{baseCost:96,growth:2.12}, enhancedBonusChance:{baseCost:480,growth:1.95}, enhancedBonusMultiplier:{baseCost:760,growth:2.20}
+  clickPower:{baseCost:7,growth:1.55},
+  clickCount:{baseCost:55,growth:1.72},
+  autoClick:{baseCost:18,growth:1.60},
+  autoInterval:{baseCost:100,growth:1.55},
+  autoMultiplier:{baseCost:215,growth:1.92},
+  bonusChance:{baseCost:34,growth:1.52},
+  bonusMultiplier:{baseCost:68,growth:1.78},
+  enhancedBonusChance:{baseCost:330,growth:1.62},
+  enhancedBonusMultiplier:{baseCost:540,growth:1.85}
 };
 const PRESTIGE_TYPES = ["enhancedAuto","enhancedBonus","initialLevel","costReduction","premiumAutoMultiplier","manualFinalMultiplier","autoPrestige","autoBasicUpgrade","prestigePointGain"];
 const PRESTIGE_BASE_COST = { enhancedAuto:1, enhancedBonus:1, initialLevel:1, costReduction:1, premiumAutoMultiplier:1, manualFinalMultiplier:1, autoPrestige:5, autoBasicUpgrade:10, prestigePointGain:1 };
@@ -501,6 +509,7 @@ function loadGame() {
     }
     const previousSavedAt = data.savedAt || data.lastSavedAt || null;
     assignState(data);
+    migrateBasicCostsToCurrentGrowth();
     prepareOfflineReward(previousSavedAt);
     setSaveStatus("ロード済み");
   } catch (e) { resetBasicUpgrades(); setSaveStatus("ロード失敗"); console.error(e); }
@@ -1052,7 +1061,7 @@ function processAutoBasic() {
 function startAutoBasicLoop() { clearInterval(autoBasicTimer); autoBasicTimer = setInterval(processAutoBasic, AUTO_BASIC_INTERVAL); }
 function restartLoops() { startAutoClickLoop(); startEnhancedAutoLoop(); }
 
-function openPanel(panel) { els.upgradePanel.classList.remove("open"); els.statsPanel.classList.remove("open"); els.achievementPanel.classList.remove("open"); els.skinPanel.classList.remove("open"); panel.classList.add("open"); els.panelOverlay.classList.add("show"); panel.setAttribute("aria-hidden", "false"); }
+function openPanel(panel) { initialRender(); els.upgradePanel.classList.remove("open"); els.statsPanel.classList.remove("open"); els.achievementPanel.classList.remove("open"); els.skinPanel.classList.remove("open"); panel.classList.add("open"); els.panelOverlay.classList.add("show"); panel.setAttribute("aria-hidden", "false"); }
 function closePanels() { els.upgradePanel.classList.remove("open"); els.statsPanel.classList.remove("open"); els.achievementPanel.classList.remove("open"); els.skinPanel.classList.remove("open"); els.panelOverlay.classList.remove("show"); els.upgradePanel.setAttribute("aria-hidden", "true"); els.statsPanel.setAttribute("aria-hidden", "true"); els.achievementPanel.setAttribute("aria-hidden", "true"); els.skinPanel.setAttribute("aria-hidden", "true"); }
 function toggleUpgradePanel() { els.upgradePanel.classList.contains("open") ? closePanels() : openPanel(els.upgradePanel); }
 
@@ -1211,11 +1220,16 @@ function bindEvents() {
 }
 
 function initialRender() {
+  sanitizeState();
   migrateBasicCostsToCurrentGrowth();
   updateScreen();
+  document.documentElement.classList.add("game-ready");
 }
 
 buildAutoBasicRows(); buildDebugFields(); buildSkinList(); resetBasicUpgrades(); loadGame(); clearFalseOfflineStart(); checkAchievements({silent:true}); bindEvents(); restartLoops(); startAutoBasicLoop(); initialRender();
 requestAnimationFrame(initialRender);
 setTimeout(initialRender, 0);
+setTimeout(initialRender, 50);
+window.addEventListener("pageshow", initialRender);
+window.addEventListener("focus", initialRender);
 setInterval(() => saveGame(false), AUTO_SAVE_INTERVAL);
