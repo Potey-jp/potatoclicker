@@ -14,7 +14,7 @@ const BASIC_LABELS = {
   clickPower:"クリック強化", clickCount:"クリック回数強化", autoClick:"オートクリック", autoInterval:"オート間隔短縮", autoMultiplier:"オートクリック倍加", bonusChance:"ボーナス確率", bonusMultiplier:"ボーナス倍率", enhancedBonusChance:"強化ボーナス確率", enhancedBonusMultiplier:"強化ボーナス倍率"
 };
 const BASIC_CONFIG = {
-  clickPower:{baseCost:10,growth:1.9}, clickCount:{baseCost:72,growth:2.08}, autoClick:{baseCost:24,growth:2.02}, autoInterval:{baseCost:145,growth:1.98}, autoMultiplier:{baseCost:290,growth:2.45}, bonusChance:{baseCost:48,growth:1.88}, bonusMultiplier:{baseCost:96,growth:2.3}, enhancedBonusChance:{baseCost:480,growth:2.0}, enhancedBonusMultiplier:{baseCost:760,growth:2.4}
+  clickPower:{baseCost:10,growth:1.85}, clickCount:{baseCost:72,growth:2.00}, autoClick:{baseCost:24,growth:1.95}, autoInterval:{baseCost:145,growth:1.90}, autoMultiplier:{baseCost:290,growth:2.25}, bonusChance:{baseCost:48,growth:1.82}, bonusMultiplier:{baseCost:96,growth:2.12}, enhancedBonusChance:{baseCost:480,growth:1.95}, enhancedBonusMultiplier:{baseCost:760,growth:2.20}
 };
 const PRESTIGE_TYPES = ["enhancedAuto","enhancedBonus","initialLevel","costReduction","premiumAutoMultiplier","manualFinalMultiplier","autoPrestige","autoBasicUpgrade","prestigePointGain"];
 const PRESTIGE_BASE_COST = { enhancedAuto:1, enhancedBonus:1, initialLevel:1, costReduction:1, premiumAutoMultiplier:1, manualFinalMultiplier:1, autoPrestige:5, autoBasicUpgrade:10, prestigePointGain:1 };
@@ -276,6 +276,7 @@ function sanitizeState() {
   PRESTIGE_TYPES.forEach((k) => {
     state.prestigePurchaseCounts[k] = clampInteger(state.prestigePurchaseCounts?.[k], 0, MAX_GAME_NUMBER);
   });
+  migrateBasicCostsToCurrentGrowth();
 }
 
 function safeCloneForSave(obj) {
@@ -286,7 +287,26 @@ function safeCloneForSave(obj) {
 }
 
 function getInitialBasicCost(key) { return Math.max(1, Math.floor(safeMultiply(BASIC_CONFIG[key].baseCost, state.basicCostMultiplier))); }
-function getNextBasicCost(key, cost) { return Math.max(1, Math.min(MAX_GAME_NUMBER, Math.floor(safeMultiply(cost, BASIC_CONFIG[key].growth)), Math.ceil(safeMultiply(cost, 1.1)))); }
+function getNextBasicCost(key, cost) {
+  const grownCost = Math.floor(safeMultiply(cost, BASIC_CONFIG[key].growth));
+  const minimumGrowthCost = Math.ceil(safeMultiply(cost, 1.25));
+  return Math.max(1, Math.min(MAX_GAME_NUMBER, Math.max(grownCost, minimumGrowthCost)));
+}
+function getExpectedBasicCostFromPurchases(key) {
+  const purchases = clampInteger(state.basicPurchaseCounts?.[key] || 0, 0, MAX_LEVEL);
+  const initial = getInitialBasicCost(key);
+  if (purchases <= 0) return initial;
+  const growth = Math.max(BASIC_CONFIG[key].growth, 1.25);
+  if (purchases > 500) return MAX_GAME_NUMBER;
+  const expected = Math.floor(initial * Math.pow(growth, purchases));
+  return Math.max(1, Math.min(MAX_GAME_NUMBER, Number.isFinite(expected) ? expected : MAX_GAME_NUMBER));
+}
+function migrateBasicCostsToCurrentGrowth() {
+  BASIC_KEYS.forEach((k) => {
+    const expected = getExpectedBasicCostFromPurchases(k);
+    state.basicCosts[k] = Math.max(1, Math.min(MAX_GAME_NUMBER, Math.max(num(state.basicCosts?.[k], expected), expected)));
+  });
+}
 function resetBasicUpgrades() { BASIC_KEYS.forEach((k) => { state.basicLevels[k] = state.basicInitialLevelBonus; state.basicCosts[k] = getInitialBasicCost(k); }); }
 function resetSkins() { state.unlockedSkins = ["default"]; state.equippedSkin = "default"; }
 function resetPrestigeLayer() {
