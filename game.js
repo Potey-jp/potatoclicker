@@ -14,7 +14,7 @@ const BASIC_LABELS = {
   clickPower:"クリック強化", clickCount:"クリック回数強化", autoClick:"オートクリック", autoInterval:"オート間隔短縮", autoMultiplier:"オートクリック倍加", bonusChance:"ボーナス確率", bonusMultiplier:"ボーナス倍率", enhancedBonusChance:"強化ボーナス確率", enhancedBonusMultiplier:"強化ボーナス倍率"
 };
 const BASIC_CONFIG = {
-  clickPower:{baseCost:8,growth:1.55}, clickCount:{baseCost:60,growth:1.68}, autoClick:{baseCost:20,growth:1.62}, autoInterval:{baseCost:120,growth:1.58}, autoMultiplier:{baseCost:240,growth:1.9}, bonusChance:{baseCost:40,growth:1.5}, bonusMultiplier:{baseCost:80,growth:1.8}, enhancedBonusChance:{baseCost:400,growth:1.55}, enhancedBonusMultiplier:{baseCost:640,growth:1.85}
+  clickPower:{baseCost:10,growth:1.62}, clickCount:{baseCost:72,growth:1.76}, autoClick:{baseCost:24,growth:1.7}, autoInterval:{baseCost:145,growth:1.66}, autoMultiplier:{baseCost:290,growth:2.0}, bonusChance:{baseCost:48,growth:1.58}, bonusMultiplier:{baseCost:96,growth:1.9}, enhancedBonusChance:{baseCost:480,growth:1.64}, enhancedBonusMultiplier:{baseCost:760,growth:1.95}
 };
 const PRESTIGE_TYPES = ["enhancedAuto","enhancedBonus","initialLevel","costReduction","premiumAutoMultiplier","manualFinalMultiplier","autoPrestige","autoBasicUpgrade","prestigePointGain"];
 const PRESTIGE_BASE_COST = { enhancedAuto:1, enhancedBonus:1, initialLevel:1, costReduction:1, premiumAutoMultiplier:1, manualFinalMultiplier:1, autoPrestige:5, autoBasicUpgrade:10, prestigePointGain:1 };
@@ -318,7 +318,9 @@ function getBbPrestigeMultiplier() { return 1 + state.bbPrestigeMultiplierLevel 
 function getSkinConfig(id = state.equippedSkin) { return SKIN_CONFIG.find((skin) => skin.id === id) || SKIN_CONFIG[0]; }
 function getSkinMultiplier() { return getSkinConfig().multiplier; }
 function getAchievementMultiplier() { return 1 + ACHIEVEMENTS.reduce((sum, a) => sum + (state.achievements?.[a.id] ? a.reward : 0), 0); }
-function getNormalPointMultiplier() { return safeMultiply(state.prestigeBasicMultiplier, state.bbAllMultiplier, getBbNormalMultiplier(), getSkinMultiplier(), getAchievementMultiplier()); }
+function getAchievementBonusMultiplierPart() { return Math.max(0, getAchievementMultiplier() - 1); }
+function getCombinedPrestigeAchievementBasicMultiplier() { return safeAdd(state.prestigeBasicMultiplier, getAchievementBonusMultiplierPart()); }
+function getNormalPointMultiplier() { return safeMultiply(getCombinedPrestigeAchievementBasicMultiplier(), state.bbAllMultiplier, getBbNormalMultiplier(), getSkinMultiplier()); }
 function getPrestigePointMultiplier() { return safeMultiply(state.bbAllMultiplier, getBbPrestigeMultiplier()); }
 function getPrestigeGainPerReset() { return Math.max(1, Math.floor(safeMultiply(1 + state.prestigePointGainLevel, getPrestigePointMultiplier()))); }
 function getBigBangGainPerReset() { return 1 + state.bbPointGainLevel; }
@@ -485,7 +487,7 @@ function updateTopScore() {
   } else {
     els.mainScoreLabel.textContent = "ポイント"; els.pointText.textContent = fmt(state.points); els.secondaryScoreArea.classList.add("hidden");
   }
-  els.multiplierFormulaText.textContent = `*${fmtMult(state.prestigeBasicMultiplier)} *${fmtMult(state.bbAllMultiplier)} *${fmtMult(getSkinMultiplier())} *${fmtMult(getAchievementMultiplier())}`;
+  els.multiplierFormulaText.textContent = `*${fmtMult(getCombinedPrestigeAchievementBasicMultiplier())} *${fmtMult(state.bbAllMultiplier)} *${fmtMult(getSkinMultiplier())}`;
 }
 function updateBasicDisplay() {
   const ids = {
@@ -590,7 +592,7 @@ function updateStats() {
       ${statRow("高級リセット回数", fmt(state.prestigeResetCount))}${statRow("ジャガイモビックバン回数", fmt(state.bigBangCount))}${statRow("リセット時高級ポイント獲得量", fmt(getPrestigeGainPerReset()))}${statRow("BBポイント獲得量", fmt(getBigBangGainPerReset()))}
     </div></div>
     <div class="stat-group"><h3>倍率</h3><div class="stat-grid">
-      ${statRow("高級全基本ポイント倍率", `${fmtMult(state.prestigeBasicMultiplier)}倍`)}${statRow("BB全基本・高級ポイント倍率", `${fmtMult(state.bbAllMultiplier)}倍`)}${statRow("スキン基本ポイント倍率", `${fmtMult(getSkinMultiplier())}倍`)}${statRow("アチーブメント倍率", `${fmtMult(getAchievementMultiplier())}倍`)}${statRow("装備中スキン", getSkinConfig().name)}${statRow("スキン自動購入", state.autoSkinEnabled ? `ON / 目標:${getSkinConfig(state.autoSkinTargetId).name}` : "OFF")}${statRow("通常ポイントBB倍率", `${fmtMult(getBbNormalMultiplier())}倍`)}${statRow("高級ポイントBB倍率", `${fmtMult(getBbPrestigeMultiplier())}倍`)}${statRow("高級オート倍率", `${fmtMult(state.premiumAutoMultiplier)}倍`)}${statRow("通常クリック最終倍率", `${fmtMult(state.manualFinalMultiplier)}倍`)}
+      ${statRow("高級全基本ポイント倍率", `${fmtMult(getCombinedPrestigeAchievementBasicMultiplier())}倍`)}${statRow("内訳: 高級リセット分", `${fmtMult(state.prestigeBasicMultiplier)}倍`)}${statRow("内訳: アチーブメント加算分", `+${fmtMult(getAchievementBonusMultiplierPart())}`)}${statRow("BB全基本・高級ポイント倍率", `${fmtMult(state.bbAllMultiplier)}倍`)}${statRow("スキン基本ポイント倍率", `${fmtMult(getSkinMultiplier())}倍`)}${statRow("装備中スキン", getSkinConfig().name)}${statRow("スキン自動購入", state.autoSkinEnabled ? `ON / 目標:${getSkinConfig(state.autoSkinTargetId).name}` : "OFF")}${statRow("通常ポイントBB倍率", `${fmtMult(getBbNormalMultiplier())}倍`)}${statRow("高級ポイントBB倍率", `${fmtMult(getBbPrestigeMultiplier())}倍`)}${statRow("高級オート倍率", `${fmtMult(state.premiumAutoMultiplier)}倍`)}${statRow("通常クリック最終倍率", `${fmtMult(state.manualFinalMultiplier)}倍`)}
     </div></div>
     <div class="stat-group"><h3>解放状態</h3><div class="stat-grid">
       ${statRow("強化オートクリック", state.enhancedAutoUnlocked ? "解放済み" : "未解放")}${statRow("強化ボーナス", state.enhancedBonusUnlocked ? "解放済み" : "未解放")}${statRow("自動リセット", state.autoPrestigeUnlocked ? (state.autoPrestigeEnabled ? `ON / ${fmt(state.autoPrestigeTarget)}回単位` : "OFF") : "未解放")}${statRow("基本自動強化", state.autoBasicUnlocked ? (state.autoBasicEnabled ? "ON" : "OFF") : "未解放")}${statRow("基本初期値", `+${fmt(state.basicInitialLevelBonus)}`)}${statRow("基本コスト倍率", `${fmtPct(state.basicCostMultiplier)}%`)}
@@ -646,7 +648,7 @@ function checkAchievements(options={}) {
 function updateAchievementDisplay() {
   if (!els.achievementList) return;
   const achieved = ACHIEVEMENTS.filter((a) => isAchievementUnlocked(a.id)).length;
-  if (els.achievementSummaryText) els.achievementSummaryText.textContent = `達成数: ${achieved} / ${ACHIEVEMENTS.length}  恒久基本ポイント倍率: ${fmtMult(getAchievementMultiplier())}倍`;
+  if (els.achievementSummaryText) els.achievementSummaryText.textContent = `達成数: ${achieved} / ${ACHIEVEMENTS.length}  高級全基本ポイント倍率への加算: +${fmtMult(getAchievementBonusMultiplierPart())}`;
   els.achievementList.innerHTML = ACHIEVEMENTS.map((a) => {
     const done = isAchievementUnlocked(a.id);
     return `<section class="achievement-card ${done ? "" : "locked-achievement"}"><h3>${a.name}</h3><p>${a.condition}</p><p class="achievement-reward">報酬: 基本ポイント倍率 +${fmtMult(a.reward)}</p><span class="achievement-status">${done ? "達成済み" : "未達成"}</span></section>`;
