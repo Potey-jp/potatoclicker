@@ -287,27 +287,37 @@ function safeCloneForSave(obj) {
 }
 
 function getInitialBasicCost(key) { return Math.max(1, Math.floor(safeMultiply(BASIC_CONFIG[key].baseCost, state.basicCostMultiplier))); }
-function getNextBasicCost(key, cost) {
-  const grownCost = Math.floor(safeMultiply(cost, BASIC_CONFIG[key].growth));
-  const minimumGrowthCost = Math.ceil(safeMultiply(cost, 1.25));
-  return Math.max(1, Math.min(MAX_GAME_NUMBER, Math.max(grownCost, minimumGrowthCost)));
-}
-function getExpectedBasicCostFromPurchases(key) {
-  const purchases = clampInteger(state.basicPurchaseCounts?.[key] || 0, 0, MAX_LEVEL);
+function getBasicCostForLevel(key, level) {
+  const normalizedLevel = clampInteger(level, 0, MAX_LEVEL);
   const initial = getInitialBasicCost(key);
-  if (purchases <= 0) return initial;
-  const growth = Math.max(BASIC_CONFIG[key].growth, 1.25);
-  if (purchases > 500) return MAX_GAME_NUMBER;
-  const expected = Math.floor(initial * Math.pow(growth, purchases));
+  if (normalizedLevel <= 0) return initial;
+  const growth = Math.max(BASIC_CONFIG[key].growth, 1.01);
+  if (normalizedLevel > 500) return MAX_GAME_NUMBER;
+  const expected = Math.floor(initial * Math.pow(growth, normalizedLevel));
   return Math.max(1, Math.min(MAX_GAME_NUMBER, Number.isFinite(expected) ? expected : MAX_GAME_NUMBER));
 }
+function getCurrentBasicCost(key) {
+  return getBasicCostForLevel(key, state.basicLevels?.[key] || 0);
+}
+function getNextBasicCost(key) {
+  return getBasicCostForLevel(key, (state.basicLevels?.[key] || 0) + 1);
+}
 function migrateBasicCostsToCurrentGrowth() {
+  // コストは保存済みの currentCost ではなく、現在レベルから毎回再計算する。
+  // これにより、伸び幅変更・古いセーブ・リセット後の初期レベル補正が必ず反映される。
   BASIC_KEYS.forEach((k) => {
-    const expected = getExpectedBasicCostFromPurchases(k);
-    state.basicCosts[k] = Math.max(1, Math.min(MAX_GAME_NUMBER, Math.max(num(state.basicCosts?.[k], expected), expected)));
+    state.basicLevels[k] = clampInteger(state.basicLevels?.[k], 0, MAX_LEVEL);
+    state.basicPurchaseCounts[k] = clampInteger(state.basicPurchaseCounts?.[k], 0, MAX_GAME_NUMBER);
+    state.basicCosts[k] = getCurrentBasicCost(k);
   });
 }
-function resetBasicUpgrades() { BASIC_KEYS.forEach((k) => { state.basicLevels[k] = state.basicInitialLevelBonus; state.basicCosts[k] = getInitialBasicCost(k); }); }
+function resetBasicUpgrades() {
+  BASIC_KEYS.forEach((k) => {
+    state.basicLevels[k] = state.basicInitialLevelBonus;
+    state.basicPurchaseCounts[k] = state.basicInitialLevelBonus;
+    state.basicCosts[k] = getCurrentBasicCost(k);
+  });
+}
 function resetSkins() { state.unlockedSkins = ["default"]; state.equippedSkin = "default"; }
 function resetPrestigeLayer() {
   state.points = 0; state.prestigePoints = 0; state.prestigeResetCount = 0; state.prestigeBasicMultiplier = 1;
@@ -818,7 +828,7 @@ function canBuyBasic(key) {
 }
 function buyBasic(key, options={}) {
   if (!canBuyBasic(key)) return false;
-  state.points = clampPositive(state.points - state.basicCosts[key], 0); state.basicLevels[key] = clampInteger(state.basicLevels[key] + 1, 0, MAX_LEVEL); state.basicPurchaseCounts[key] = clampInteger((state.basicPurchaseCounts[key] || 0) + 1, 0, MAX_GAME_NUMBER); state.totalBasicUpgradePurchases = clampInteger(state.totalBasicUpgradePurchases + 1, 0, MAX_GAME_NUMBER); state.basicCosts[key] = getNextBasicCost(key, state.basicCosts[key]);
+  state.points = clampPositive(state.points - state.basicCosts[key], 0); state.basicLevels[key] = clampInteger(state.basicLevels[key] + 1, 0, MAX_LEVEL); state.basicPurchaseCounts[key] = clampInteger((state.basicPurchaseCounts[key] || 0) + 1, 0, MAX_GAME_NUMBER); state.totalBasicUpgradePurchases = clampInteger(state.totalBasicUpgradePurchases + 1, 0, MAX_GAME_NUMBER); state.basicCosts[key] = getNextBasicCost(key);
   if (key === "autoInterval") startAutoClickLoop();
   updateScreen(); if (options.save !== false) saveGame(); return true;
 }
@@ -881,8 +891,18 @@ function buyPrestige(type) {
   state.prestigePoints -= cost; state.prestigePurchaseCounts[type] += 1;
   if (type === "enhancedAuto") state.enhancedAutoUnlocked = true;
   if (type === "enhancedBonus") state.enhancedBonusUnlocked = true;
-  if (type === "initialLevel") { state.basicInitialLevelBonus = Math.min(BASIC_INITIAL_MAX, state.basicInitialLevelBonus + BASIC_INITIAL_INCREMENT); BASIC_KEYS.forEach((k) => { state.basicLevels[k] = Math.max(state.basicLevels[k], state.basicInitialLevelBonus); }); }
-  if (type === "costReduction") { state.basicCostMultiplier *= 0.9; BASIC_KEYS.forEach((k) => state.basicCosts[k] = Math.max(1, Math.floor(state.basicCosts[k] * 0.9))); }
+  if (type === "initialLevel") {
+    state.basicInitialLevelBonus = Math.min(BASIC_INITIAL_MAX, state.basicInitialLevelBonus + BASIC_INITIAL_INCREMENT);
+    BASIC_KEYS.forEach((k) => {
+      state.basicLevels[k] = Math.max(state.basicLevels[k], state.basicInitialLevelBonus);
+      state.basicPurchaseCounts[k] = Math.max(state.basicPurchaseCounts[k] || 0, state.basicLevels[k]);
+      state.basicCosts[k] = getCurrentBasicCost(k);
+    });
+  }
+  if (type === "costReduction") {
+    state.basicCostMultiplier *= 0.9;
+    BASIC_KEYS.forEach((k) => state.basicCosts[k] = getCurrentBasicCost(k));
+  }
   if (type === "premiumAutoMultiplier") { state.premiumAutoMultiplier = getNextPremiumAutoMultiplier(); state.premiumAutoLevel += 1; }
   if (type === "manualFinalMultiplier") { state.manualFinalMultiplier = getNextManualFinalMultiplier(); state.manualFinalLevel += 1; }
   if (type === "autoPrestige") { state.autoPrestigeUnlocked = true; state.autoPrestigeEnabled = true; }
