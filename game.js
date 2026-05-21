@@ -14,7 +14,7 @@ const BASIC_LABELS = {
   clickPower:"クリック強化", clickCount:"クリック回数強化", autoClick:"オートクリック", autoInterval:"オート間隔短縮", autoMultiplier:"オートクリック倍加", bonusChance:"ボーナス確率", bonusMultiplier:"ボーナス倍率", enhancedBonusChance:"強化ボーナス確率", enhancedBonusMultiplier:"強化ボーナス倍率"
 };
 const BASIC_CONFIG = {
-  clickPower:{baseCost:10,growth:1.62}, clickCount:{baseCost:72,growth:1.76}, autoClick:{baseCost:24,growth:1.7}, autoInterval:{baseCost:145,growth:1.66}, autoMultiplier:{baseCost:290,growth:2.0}, bonusChance:{baseCost:48,growth:1.58}, bonusMultiplier:{baseCost:96,growth:1.9}, enhancedBonusChance:{baseCost:480,growth:1.64}, enhancedBonusMultiplier:{baseCost:760,growth:1.95}
+  clickPower:{baseCost:10,growth:1.72}, clickCount:{baseCost:72,growth:1.88}, autoClick:{baseCost:24,growth:1.82}, autoInterval:{baseCost:145,growth:1.78}, autoMultiplier:{baseCost:290,growth:2.15}, bonusChance:{baseCost:48,growth:1.68}, bonusMultiplier:{baseCost:96,growth:2.03}, enhancedBonusChance:{baseCost:480,growth:1.75}, enhancedBonusMultiplier:{baseCost:760,growth:2.1}
 };
 const PRESTIGE_TYPES = ["enhancedAuto","enhancedBonus","initialLevel","costReduction","premiumAutoMultiplier","manualFinalMultiplier","autoPrestige","autoBasicUpgrade","prestigePointGain"];
 const PRESTIGE_BASE_COST = { enhancedAuto:1, enhancedBonus:1, initialLevel:1, costReduction:1, premiumAutoMultiplier:1, manualFinalMultiplier:1, autoPrestige:5, autoBasicUpgrade:10, prestigePointGain:1 };
@@ -487,7 +487,28 @@ function updateTopScore() {
   } else {
     els.mainScoreLabel.textContent = "ポイント"; els.pointText.textContent = fmt(state.points); els.secondaryScoreArea.classList.add("hidden");
   }
-  els.multiplierFormulaText.textContent = `*${fmtMult(getCombinedPrestigeAchievementBasicMultiplier())} *${fmtMult(state.bbAllMultiplier)} *${fmtMult(getSkinMultiplier())}`;
+
+  const formulaParts = [];
+  const combinedBasic = getCombinedPrestigeAchievementBasicMultiplier();
+  const bbAll = state.bbAllMultiplier;
+  const bbNormal = getBbNormalMultiplier();
+  const skin = getSkinMultiplier();
+  const changed = (value) => Number.isFinite(value) && Math.abs(value - 1) > 0.000001;
+
+  if (!showPrestige) {
+    if (changed(combinedBasic)) formulaParts.push(`高級基本${fmtMult(combinedBasic)}倍`);
+    if (changed(bbAll)) formulaParts.push(`BB全体${fmtMult(bbAll)}倍`);
+    if (changed(bbNormal)) formulaParts.push(`BB通常${fmtMult(bbNormal)}倍`);
+    if (changed(skin)) formulaParts.push(`スキン${fmtMult(skin)}倍`);
+  }
+
+  if (formulaParts.length > 0) {
+    els.multiplierFormulaText.textContent = `× ${formulaParts.join(" × ")}`;
+    els.multiplierFormulaText.classList.remove("hidden");
+  } else {
+    els.multiplierFormulaText.textContent = "";
+    els.multiplierFormulaText.classList.add("hidden");
+  }
 }
 function updateBasicDisplay() {
   const ids = {
@@ -664,7 +685,7 @@ function formatDurationFromMs(ms) {
   return `${hours}時間${minutes}分`;
 }
 function getOfflineManualPerSecond() {
-  return safeMultiply(getClickPower(), getClickCount(), getNormalPointMultiplier(), state.manualFinalMultiplier);
+  return safeMultiply(0.5, getClickPower(), getClickCount(), getNormalPointMultiplier(), state.manualFinalMultiplier);
 }
 function getOfflineAutoPerSecond() {
   const regularAuto = safeMultiply(getEffectiveAutoClickPower(), (1000 / getAutoInterval()));
