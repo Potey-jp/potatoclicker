@@ -103,6 +103,11 @@ const PRESTIGE_TOP_DISPLAY_DURATION = 10_000;
 const DEBUG_COMMAND = "POTATO";
 const OFFLINE_MINIMUM_MS = 60_000;
 const OFFLINE_MAX_MS = 24 * 60 * 60 * 1000;
+// 極端な強化やデバッグ入力で Infinity / NaN が混ざると、
+// セーブ・ロード・初期化が壊れるため、ゲーム内で扱う最大値を制限する。
+const MAX_GAME_NUMBER = 1e100;
+const MAX_LEVEL = 1_000_000;
+const MAX_RESET_BULK_COUNT = 1_000_000_000;
 
 const basicEls = {};
 BASIC_KEYS.forEach((key) => {
@@ -184,28 +189,101 @@ function assignState(data) {
   BASIC_KEYS.forEach((k) => { state.basicPurchaseCounts[k] = Math.max(0, Math.floor(num(state.basicPurchaseCounts[k], 0))); });
   state.bonusStreak = Math.max(0, Math.floor(num(state.bonusStreak, 0)));
   state.enhancedBonusStreak = Math.max(0, Math.floor(num(state.enhancedBonusStreak, 0)));
+  sanitizeState();
 }
 
 
 
-function num(value, fallback) { return Number.isFinite(Number(value)) ? Number(value) : fallback; }
+function clampNumber(value, fallback = 0, max = MAX_GAME_NUMBER) {
+  const n = Number(value);
+  if (Number.isNaN(n)) return fallback;
+  if (n === Infinity) return max;
+  if (n === -Infinity) return -max;
+  if (!Number.isFinite(n)) return fallback;
+  if (n > max) return max;
+  if (n < -max) return -max;
+  return n;
+}
+function clampPositive(value, fallback = 0, max = MAX_GAME_NUMBER) {
+  return Math.max(0, clampNumber(value, fallback, max));
+}
+function clampInteger(value, fallback = 0, max = MAX_LEVEL) {
+  return Math.max(0, Math.floor(clampNumber(value, fallback, max)));
+}
+function safeAdd(a, b, max = MAX_GAME_NUMBER) {
+  return clampNumber(clampNumber(a, 0, max) + clampNumber(b, 0, max), 0, max);
+}
+function safeMultiply(...values) {
+  let result = 1;
+  for (const value of values) {
+    result *= clampNumber(value, 0, MAX_GAME_NUMBER);
+    if (!Number.isFinite(result) || result > MAX_GAME_NUMBER) return MAX_GAME_NUMBER;
+    if (result < -MAX_GAME_NUMBER) return -MAX_GAME_NUMBER;
+  }
+  return clampNumber(result, 0, MAX_GAME_NUMBER);
+}
+function num(value, fallback) { return clampNumber(value, fallback, MAX_GAME_NUMBER); }
 function fmt(value) {
   const units = ["","K","M","B","T","Qa","Qi","Sx","Sp","Oc","No"];
-  const v = Math.abs(value) < 1e-9 ? 0 : value;
+  const safe = clampNumber(value, 0, MAX_GAME_NUMBER);
+  const v = Math.abs(safe) < 1e-9 ? 0 : safe;
   const sign = v < 0 ? "-" : "";
   let a = Math.abs(v);
   if (a < 1000) return sign + a.toLocaleString("ja-JP", { maximumFractionDigits: Math.abs(a - Math.round(a)) < 1e-9 ? 0 : 2 });
   let i = Math.min(units.length - 1, Math.floor(Math.log10(a) / 3));
   let n = a / 1000 ** i;
+  if (!Number.isFinite(n)) n = 999;
   return sign + n.toLocaleString("ja-JP", { maximumFractionDigits: n >= 100 ? 0 : n >= 10 ? 1 : 2 }) + units[i];
 }
-function fmtFull(value) { return num(value,0).toLocaleString("ja-JP", { maximumFractionDigits: 2 }); }
-function fmtMult(value) { return num(value,0).toFixed(2).replace(/0+$/, "").replace(/\.$/, ""); }
-function fmtSec(ms) { return (ms / 1000).toLocaleString("ja-JP", { minimumFractionDigits:2, maximumFractionDigits:2 }); }
-function fmtPct(value) { return (value * 100).toLocaleString("ja-JP", { maximumFractionDigits:1 }); }
+function fmtFull(value) { return clampNumber(value,0,MAX_GAME_NUMBER).toLocaleString("ja-JP", { maximumFractionDigits: 2 }); }
+function fmtMult(value) { return clampNumber(value,0,MAX_GAME_NUMBER).toFixed(2).replace(/0+$/, "").replace(/\.$/, ""); }
+function fmtSec(ms) { return (clampNumber(ms, 1000, MAX_GAME_NUMBER) / 1000).toLocaleString("ja-JP", { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+function fmtPct(value) { return (clampNumber(value, 0, MAX_GAME_NUMBER) * 100).toLocaleString("ja-JP", { maximumFractionDigits:1 }); }
 
-function getInitialBasicCost(key) { return Math.max(1, Math.floor(BASIC_CONFIG[key].baseCost * state.basicCostMultiplier)); }
-function getNextBasicCost(key, cost) { return Math.max(1, Math.floor(cost * BASIC_CONFIG[key].growth), Math.ceil(cost * 1.1)); }
+function sanitizeState() {
+  state.points = clampPositive(state.points, 0);
+  state.prestigePoints = clampPositive(state.prestigePoints, 0);
+  state.bigBangPoints = clampPositive(state.bigBangPoints, 0);
+  state.prestigeResetCount = clampInteger(state.prestigeResetCount, 0, MAX_GAME_NUMBER);
+  state.bigBangCount = clampInteger(state.bigBangCount, 0, MAX_GAME_NUMBER);
+  state.prestigeBasicMultiplier = Math.max(1, clampNumber(state.prestigeBasicMultiplier, 1));
+  state.bbAllMultiplier = Math.max(1, clampNumber(state.bbAllMultiplier, 1));
+  state.basicCostMultiplier = Math.max(0.000001, clampNumber(state.basicCostMultiplier, 1));
+  state.premiumAutoMultiplier = Math.max(1, clampNumber(state.premiumAutoMultiplier, 1));
+  state.premiumAutoLevel = clampInteger(state.premiumAutoLevel, 0, MAX_LEVEL);
+  state.manualFinalMultiplier = Math.max(1, clampNumber(state.manualFinalMultiplier, 1));
+  state.manualFinalLevel = clampInteger(state.manualFinalLevel, 0, MAX_LEVEL);
+  state.prestigePointGainLevel = clampInteger(state.prestigePointGainLevel, 0, MAX_LEVEL);
+  state.bbNormalMultiplierLevel = clampInteger(state.bbNormalMultiplierLevel, 0, MAX_LEVEL);
+  state.bbPrestigeMultiplierLevel = clampInteger(state.bbPrestigeMultiplierLevel, 0, MAX_LEVEL);
+  state.bbPointGainLevel = clampInteger(state.bbPointGainLevel, 0, MAX_LEVEL);
+  state.totalClicks = clampInteger(state.totalClicks, 0, MAX_GAME_NUMBER);
+  state.totalPointsEarned = clampPositive(state.totalPointsEarned, 0);
+  state.totalPrestigePointsEarned = clampPositive(state.totalPrestigePointsEarned, 0);
+  state.totalBasicUpgradePurchases = clampInteger(state.totalBasicUpgradePurchases, 0, MAX_GAME_NUMBER);
+  state.bonusStreak = clampInteger(state.bonusStreak, 0, MAX_LEVEL);
+  state.enhancedBonusStreak = clampInteger(state.enhancedBonusStreak, 0, MAX_LEVEL);
+  BASIC_KEYS.forEach((k) => {
+    state.basicLevels[k] = clampInteger(state.basicLevels?.[k], 0, MAX_LEVEL);
+    state.basicCosts[k] = Math.max(1, clampNumber(state.basicCosts?.[k], getInitialBasicCost(k)));
+    state.basicPurchaseCounts[k] = clampInteger(state.basicPurchaseCounts?.[k], 0, MAX_GAME_NUMBER);
+    const s = state.autoBasicSettings?.[k] || {};
+    state.autoBasicSettings[k] = { enabled:s.enabled === true, targetLevel:clampInteger(s.targetLevel, 0, MAX_LEVEL) };
+  });
+  PRESTIGE_TYPES.forEach((k) => {
+    state.prestigePurchaseCounts[k] = clampInteger(state.prestigePurchaseCounts?.[k], 0, MAX_GAME_NUMBER);
+  });
+}
+
+function safeCloneForSave(obj) {
+  return JSON.parse(JSON.stringify(obj, (key, value) => {
+    if (typeof value === "number") return clampNumber(value, 0, MAX_GAME_NUMBER);
+    return value;
+  }));
+}
+
+function getInitialBasicCost(key) { return Math.max(1, Math.floor(safeMultiply(BASIC_CONFIG[key].baseCost, state.basicCostMultiplier))); }
+function getNextBasicCost(key, cost) { return Math.max(1, Math.min(MAX_GAME_NUMBER, Math.floor(safeMultiply(cost, BASIC_CONFIG[key].growth)), Math.ceil(safeMultiply(cost, 1.1)))); }
 function resetBasicUpgrades() { BASIC_KEYS.forEach((k) => { state.basicLevels[k] = state.basicInitialLevelBonus; state.basicCosts[k] = getInitialBasicCost(k); }); }
 function resetSkins() { state.unlockedSkins = ["default"]; state.equippedSkin = "default"; }
 function resetPrestigeLayer() {
@@ -238,11 +316,11 @@ function getBbPrestigeMultiplier() { return 1 + state.bbPrestigeMultiplierLevel 
 function getSkinConfig(id = state.equippedSkin) { return SKIN_CONFIG.find((skin) => skin.id === id) || SKIN_CONFIG[0]; }
 function getSkinMultiplier() { return getSkinConfig().multiplier; }
 function getAchievementMultiplier() { return 1 + ACHIEVEMENTS.reduce((sum, a) => sum + (state.achievements?.[a.id] ? a.reward : 0), 0); }
-function getNormalPointMultiplier() { return state.prestigeBasicMultiplier * state.bbAllMultiplier * getBbNormalMultiplier() * getSkinMultiplier() * getAchievementMultiplier(); }
-function getPrestigePointMultiplier() { return state.bbAllMultiplier * getBbPrestigeMultiplier(); }
-function getPrestigeGainPerReset() { return Math.max(1, Math.floor((1 + state.prestigePointGainLevel) * getPrestigePointMultiplier())); }
+function getNormalPointMultiplier() { return safeMultiply(state.prestigeBasicMultiplier, state.bbAllMultiplier, getBbNormalMultiplier(), getSkinMultiplier(), getAchievementMultiplier()); }
+function getPrestigePointMultiplier() { return safeMultiply(state.bbAllMultiplier, getBbPrestigeMultiplier()); }
+function getPrestigeGainPerReset() { return Math.max(1, Math.floor(safeMultiply(1 + state.prestigePointGainLevel, getPrestigePointMultiplier()))); }
 function getBigBangGainPerReset() { return 1 + state.bbPointGainLevel; }
-function getEffectiveAutoClickPower() { return getAutoClickBase() * getAutoMultiplier() * state.premiumAutoMultiplier * getNormalPointMultiplier(); }
+function getEffectiveAutoClickPower() { return safeMultiply(getAutoClickBase(), getAutoMultiplier(), state.premiumAutoMultiplier, getNormalPointMultiplier()); }
 function getNextPremiumAutoMultiplier() { return state.premiumAutoLevel === 0 ? 10 : state.premiumAutoMultiplier + 10; }
 function getNextManualFinalMultiplier() { return state.manualFinalLevel === 0 ? 1.5 : state.manualFinalMultiplier + 0.5; }
 function getPrestigeCost(type) {
@@ -278,6 +356,11 @@ function purgePotatoStorage() {
   } catch (e) {
     console.error(e);
   }
+  if (location.protocol === "file:") {
+    // file:// では同じオリジン扱いの古いテストデータが残りやすいため、
+    // 二重確認後の初期化では localStorage 全体をクリアする。
+    try { localStorage.clear(); } catch (e) { console.error(e); }
+  }
   OLD_SAVE_KEYS.forEach((key) => {
     localStorage.removeItem(key);
     localStorage.removeItem(`${key}_status`);
@@ -287,13 +370,15 @@ function purgePotatoStorage() {
 }
 
 function createSaveData(options = {}) {
+  sanitizeState();
   const savedAt = options.savedAt || new Date().toISOString();
   state.lastSavedAt = savedAt;
-  return JSON.parse(JSON.stringify({ version:7, savedAt, ...state }));
+  return safeCloneForSave({ version:8, savedAt, ...state });
 }
 function saveGame(show=false, options = {}) {
   if (saveDisabled) return;
   try {
+    sanitizeState();
     localStorage.setItem(SAVE_KEY, JSON.stringify(createSaveData(options)));
     localStorage.removeItem(RESET_MARKER_KEY);
     const text = `保存済み ${new Date().toLocaleTimeString("ja-JP", {hour:"2-digit", minute:"2-digit"})}`;
@@ -357,6 +442,7 @@ function deleteSaveData() {
   clearTimeout(saveStatusTimer); saveStatusTimer = null;
 
   purgePotatoStorage();
+  try { sessionStorage.clear(); } catch (e) { console.error(e); }
   localStorage.setItem(RESET_MARKER_KEY, String(Date.now()));
 
   assignState(createInitialState());
@@ -569,17 +655,17 @@ function formatDurationFromMs(ms) {
   return `${hours}時間${minutes}分`;
 }
 function getOfflineManualPerSecond() {
-  return getClickPower() * getClickCount() * getNormalPointMultiplier() * state.manualFinalMultiplier;
+  return safeMultiply(getClickPower(), getClickCount(), getNormalPointMultiplier(), state.manualFinalMultiplier);
 }
 function getOfflineAutoPerSecond() {
-  const regularAuto = getEffectiveAutoClickPower() * (1000 / getAutoInterval());
+  const regularAuto = safeMultiply(getEffectiveAutoClickPower(), (1000 / getAutoInterval()));
   return regularAuto;
 }
 function calculateOfflineReward(elapsedMs) {
   const cappedMs = Math.min(elapsedMs, OFFLINE_MAX_MS);
   const rewardMinutes = Math.floor(cappedMs / 60_000);
   const rewardSeconds = rewardMinutes * 60;
-  const reward = rewardSeconds * (getOfflineManualPerSecond() + getOfflineAutoPerSecond());
+  const reward = safeMultiply(rewardSeconds, safeAdd(getOfflineManualPerSecond(), getOfflineAutoPerSecond()));
   return { elapsedMs, cappedMs: rewardMinutes * 60_000, rewardMinutes, reward };
 }
 function prepareOfflineReward(savedAt) {
@@ -611,6 +697,9 @@ function claimOfflineReward() {
 
   const nowIso = new Date().toISOString();
   state.lastSavedAt = nowIso;
+  // 先に時刻だけでも保存しておき、万一ポイント加算中にエラーが出ても
+  // 同じオフライン報酬が再表示されにくいようにする。
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(createSaveData({ savedAt:nowIso }))); } catch (e) { console.error(e); }
   addPoints(reward);
 
   // 受け取り直後に必ず現在時刻で保存する。
@@ -618,7 +707,13 @@ function claimOfflineReward() {
   saveGame(true, { savedAt:nowIso });
 }
 
-function addPoints(amount) { state.points += amount; if (amount > 0) state.totalPointsEarned += amount; checkAchievements(); updateScreen(); checkAutoPrestige(); }
+function addPoints(amount) {
+  const safeAmount = clampPositive(amount, 0);
+  state.points = safeAdd(state.points, safeAmount);
+  if (safeAmount > 0) state.totalPointsEarned = safeAdd(state.totalPointsEarned, safeAmount);
+  sanitizeState();
+  checkAchievements(); updateScreen(); checkAutoPrestige();
+}
 function showPrestigeTopDisplay() { if (state.prestigePoints <= PRESTIGE_TOP_DISPLAY_THRESHOLD) return; prestigeTopActive = true; clearTimeout(prestigeTopTimer); prestigeTopTimer = setTimeout(() => { prestigeTopActive = false; updateScreen(); }, PRESTIGE_TOP_DISPLAY_DURATION); }
 function hidePrestigeTopDisplay() { prestigeTopActive = false; clearTimeout(prestigeTopTimer); prestigeTopTimer = null; }
 function canBuyBasic(key) {
@@ -631,23 +726,23 @@ function canBuyBasic(key) {
 }
 function buyBasic(key, options={}) {
   if (!canBuyBasic(key)) return false;
-  state.points -= state.basicCosts[key]; state.basicLevels[key] += 1; state.basicPurchaseCounts[key] = (state.basicPurchaseCounts[key] || 0) + 1; state.totalBasicUpgradePurchases += 1; state.basicCosts[key] = getNextBasicCost(key, state.basicCosts[key]);
+  state.points = clampPositive(state.points - state.basicCosts[key], 0); state.basicLevels[key] = clampInteger(state.basicLevels[key] + 1, 0, MAX_LEVEL); state.basicPurchaseCounts[key] = clampInteger((state.basicPurchaseCounts[key] || 0) + 1, 0, MAX_GAME_NUMBER); state.totalBasicUpgradePurchases = clampInteger(state.totalBasicUpgradePurchases + 1, 0, MAX_GAME_NUMBER); state.basicCosts[key] = getNextBasicCost(key, state.basicCosts[key]);
   if (key === "autoInterval") startAutoClickLoop();
   updateScreen(); if (options.save !== false) saveGame(); return true;
 }
 function calculateClickGain() {
   const manualMultiplier = getNormalPointMultiplier() * state.manualFinalMultiplier;
-  const base = getClickPower() * manualMultiplier;
+  const base = safeMultiply(getClickPower(), manualMultiplier);
   const isBonus = Math.random() * 100 < getBonusChance();
   if (!isBonus) return {perCount:base, entries:[{amount:base,type:"normal"}], bonus:false, enhanced:false};
-  const bonus = getClickPower() * getBonusMultiplier() * manualMultiplier;
+  const bonus = safeMultiply(getClickPower(), getBonusMultiplier(), manualMultiplier);
   const entries = [{amount:bonus,type:"bonus"}]; let total = bonus;
   const enhanced = state.enhancedBonusUnlocked && Math.random() * 100 < getEnhancedBonusChance();
-  if (enhanced) { const extra = getClickPower() * getBonusMultiplier() * getEnhancedBonusMultiplier() * manualMultiplier; total += extra; entries.push({amount:extra,type:"enhanced"}); }
+  if (enhanced) { const extra = safeMultiply(getClickPower(), getBonusMultiplier(), getEnhancedBonusMultiplier(), manualMultiplier); total = safeAdd(total, extra); entries.push({amount:extra,type:"enhanced"}); }
   return {perCount:total, entries, bonus:true, enhanced};
 }
 function gainManual(showEffects) {
-  const result = calculateClickGain(); const count = getClickCount(); const totalGain = result.perCount * count;
+  const result = calculateClickGain(); const count = getClickCount(); const totalGain = safeMultiply(result.perCount, count);
   if (showEffects) {
     state.totalClicks += 1;
     state.bonusStreak = result.bonus ? state.bonusStreak + 1 : 0;
@@ -658,7 +753,7 @@ function gainManual(showEffects) {
   if (showEffects) { showGainPopups(result.entries, count); playPotatoAnimation(); if (result.bonus) playBonusGlow(result.enhanced); checkAchievements(); }
 }
 function executePrestigeReset() {
-  const count = Math.floor(state.points / PRESTIGE_COST); if (count < 1) return;
+  const count = Math.min(MAX_RESET_BULK_COUNT, Math.floor(clampPositive(state.points, 0) / PRESTIGE_COST)); if (count < 1) return;
   const now = Date.now();
   if (state.lastPrestigeResetAt) {
     const delta = now - new Date(state.lastPrestigeResetAt).getTime();
@@ -669,11 +764,11 @@ function executePrestigeReset() {
   if (count >= 10) unlockAchievement("prestige10AtOnce");
   state.lastPrestigeResetAt = new Date(now).toISOString();
   state.points = 0;
-  state.prestigeResetCount += count;
-  const prestigeGain = count * getPrestigeGainPerReset();
-  state.prestigePoints += prestigeGain;
-  state.totalPrestigePointsEarned += prestigeGain;
-  state.prestigeBasicMultiplier += 0.01 * count;
+  state.prestigeResetCount = safeAdd(state.prestigeResetCount, count);
+  const prestigeGain = safeMultiply(count, getPrestigeGainPerReset());
+  state.prestigePoints = safeAdd(state.prestigePoints, prestigeGain);
+  state.totalPrestigePointsEarned = safeAdd(state.totalPrestigePointsEarned, prestigeGain);
+  state.prestigeBasicMultiplier = Math.max(1, safeAdd(state.prestigeBasicMultiplier, safeMultiply(0.01, count)));
   resetBasicUpgrades(); resetSkins(); restartLoops(); showPrestigeTopDisplay(); checkAchievements(); updateScreen(); saveGame(true);
 }
 function checkAutoPrestige() {
@@ -697,9 +792,9 @@ function buyPrestige(type) {
   restartLoops(); checkAchievements(); updateScreen(); saveGame(true); checkAutoPrestige();
 }
 function executeBigBangReset() {
-  const count = Math.floor(state.prestigePoints / BIG_BANG_COST); if (count < 1) return;
-  const gain = count * getBigBangGainPerReset();
-  state.bigBangPoints += gain; state.bigBangCount += count; state.bbAllMultiplier += 0.1 * count;
+  const count = Math.min(MAX_RESET_BULK_COUNT, Math.floor(clampPositive(state.prestigePoints, 0) / BIG_BANG_COST)); if (count < 1) return;
+  const gain = safeMultiply(count, getBigBangGainPerReset());
+  state.bigBangPoints = safeAdd(state.bigBangPoints, gain); state.bigBangCount = safeAdd(state.bigBangCount, count); state.bbAllMultiplier = Math.max(1, safeAdd(state.bbAllMultiplier, safeMultiply(0.1, count)));
   resetPrestigeLayer(); // 高級ポイントも0にし、高級全基本ポイント倍率も1に戻す
   unlockAchievement("firstBigBang");
   hidePrestigeTopDisplay(); restartLoops(); checkAchievements(); updateScreen(); saveGame(true);
