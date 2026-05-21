@@ -766,12 +766,19 @@ function gainManual(showEffects) {
 function executePrestigeReset() {
   const count = Math.min(MAX_RESET_BULK_COUNT, Math.floor(clampPositive(state.points, 0) / PRESTIGE_COST)); if (count < 1) return;
   const now = Date.now();
-  if (state.lastPrestigeResetAt) {
-    const delta = now - new Date(state.lastPrestigeResetAt).getTime();
-    if (delta <= 60_000) unlockAchievement("prestigeWithin60");
-    if (delta <= 10_000) unlockAchievement("prestigeWithin10");
+
+  // 「リセットしてから○○以内にもう一度リセットする」系のアチーブメントは、
+  // 1回だけの高級リセットを連続で行った場合のみ判定する。
+  // 一度に複数回まとめてリセットした場合は、時間系アチーブメントの対象外。
+  if (count === 1 && state.lastPrestigeResetAt) {
+    const previousResetTime = new Date(state.lastPrestigeResetAt).getTime();
+    const delta = now - previousResetTime;
+    if (Number.isFinite(delta) && delta >= 0) {
+      if (delta <= 60_000) unlockAchievement("prestigeWithin60");
+      if (delta <= 10_000) unlockAchievement("prestigeWithin10");
+    }
   }
-  if (count >= 2) { unlockAchievement("prestigeWithin60"); unlockAchievement("prestigeWithin10"); }
+
   if (count >= 10) unlockAchievement("prestige10AtOnce");
   state.lastPrestigeResetAt = new Date(now).toISOString();
   state.points = 0;
