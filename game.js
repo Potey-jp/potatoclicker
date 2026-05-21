@@ -107,7 +107,7 @@ const OFFLINE_MINIMUM_MS = 60_000;
 const OFFLINE_MAX_MS = 24 * 60 * 60 * 1000;
 // 極端な強化やデバッグ入力で Infinity / NaN が混ざると、
 // セーブ・ロード・初期化が壊れるため、ゲーム内で扱う最大値を制限する。
-const MAX_GAME_NUMBER = 1e100;
+const MAX_GAME_NUMBER = 1e150;
 const MAX_LEVEL = 1_000_000;
 const MAX_RESET_BULK_COUNT = 1_000_000_000;
 
@@ -226,7 +226,7 @@ function safeMultiply(...values) {
 }
 function num(value, fallback) { return clampNumber(value, fallback, MAX_GAME_NUMBER); }
 function fmt(value) {
-  const units = ["","K","M","B","T","Qa","Qi","Sx","Sp","Oc","No"];
+  const units = ["","K","M","B","T","Qa","Qi","Sx","Sp","Oc","No","Dc","Ud","Dd","Td","Qad","Qid","Sxd","Spd","Ocd","Nod","Vg","Uvg","Dvg","Tvg","Qavg","Qivg","Sxvg","Spvg","Ocvg","Novg","Tg","Utg","Dtg","Ttg","Qatg","Qitg","Sxtg","Sptg","Octg","Notg","Qag","Uqag","Dqag","Tqag","Qaqag","Qiqag","Sxqag","Spqag","Ocqag","Noqag"];
   const safe = clampNumber(value, 0, MAX_GAME_NUMBER);
   const v = Math.abs(safe) < 1e-9 ? 0 : safe;
   const sign = v < 0 ? "-" : "";
