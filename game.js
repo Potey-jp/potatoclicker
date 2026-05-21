@@ -74,6 +74,8 @@ function getStorageScopeKey() {
 const SAVE_KEY = `${SAVE_KEY_BASE}_${getStorageScopeKey()}`;
 const OLD_SAVE_KEYS = ["potatoClickerSaveData_v2", "potatoClickerSaveData_v1", "potatoClickerSaveData"];
 const RESET_MARKER_KEY = `${SAVE_KEY_BASE}_hardResetMarker_${getStorageScopeKey()}`;
+const FORCE_CLEAN_START_KEY = `${SAVE_KEY_BASE}_forceCleanStart_${getStorageScopeKey()}`;
+const OFFLINE_CLAIMED_UNTIL_KEY = `${SAVE_KEY_BASE}_offlineClaimedUntil_${getStorageScopeKey()}`;
 let saveDisabled = false;
 let offlineRewardClaimedThisSession = false;
 const AUTO_SAVE_INTERVAL = 5000;
@@ -393,12 +395,23 @@ function setSaveStatus(text) {
   saveStatusTimer = setTimeout(() => { els.saveStatusText.textContent = localStorage.getItem(`${SAVE_KEY}_status`) || "自動保存ON"; }, 1800);
 }
 function loadGame() {
-  const hardResetMarker = localStorage.getItem(RESET_MARKER_KEY);
+  const hardResetMarker = localStorage.getItem(RESET_MARKER_KEY) || localStorage.getItem(FORCE_CLEAN_START_KEY) || sessionStorage.getItem(FORCE_CLEAN_START_KEY);
   if (hardResetMarker) {
+    // 完全初期化後の再起動時。古い/壊れたセーブは絶対に読まず、
+    // まっさらな state を作ってから現在時刻で保存し直す。
+    saveDisabled = true;
+    purgePotatoStorage();
+    try { sessionStorage.removeItem(FORCE_CLEAN_START_KEY); } catch (e) { console.error(e); }
     assignState(createInitialState());
     resetBasicUpgrades();
+    resetSkins();
+    clearPopups();
     pendingOfflineReward = null;
+    offlineRewardClaimedThisSession = true;
     if (els.offlineRewardModal) els.offlineRewardModal.classList.add("hidden");
+    hidePrestigeTopDisplay();
+    saveDisabled = false;
+    saveGame(false, { savedAt:new Date().toISOString() });
     setSaveStatus("初期化済み");
     return;
   }
@@ -433,6 +446,8 @@ function deleteSaveData() {
   if (!confirm("本当にセーブデータを初期化しますか？\n現在のゲームデータもすべて初期化されます。")) { setSaveStatus("初期化キャンセル"); return; }
   if (!confirm("最終確認です。初期化すると元に戻せません。\n本当にすべて初期化しますか？")) { setSaveStatus("初期化キャンセル"); return; }
 
+  // 重要: 壊れた state がメモリ上に残ったまま自動セーブされるのを防ぐため、
+  // この場で初期セーブを作らず、全削除マーカーを残して強制リロードする。
   saveDisabled = true;
 
   clearTimeout(autoClickTimer); autoClickTimer = null;
@@ -443,26 +458,18 @@ function deleteSaveData() {
 
   purgePotatoStorage();
   try { sessionStorage.clear(); } catch (e) { console.error(e); }
-  localStorage.setItem(RESET_MARKER_KEY, String(Date.now()));
 
-  assignState(createInitialState());
-  resetBasicUpgrades();
-  clearPopups();
-  pendingOfflineReward = null;
-  offlineRewardClaimedThisSession = true;
-  if (els.offlineRewardModal) els.offlineRewardModal.classList.add("hidden");
-  hidePrestigeTopDisplay();
-  updateScreen();
+  const marker = String(Date.now());
+  try {
+    localStorage.setItem(RESET_MARKER_KEY, marker);
+    localStorage.setItem(FORCE_CLEAN_START_KEY, marker);
+    sessionStorage.setItem(FORCE_CLEAN_START_KEY, marker);
+  } catch (e) {
+    console.error(e);
+  }
 
-  const initialSave = createSaveData({ savedAt:new Date().toISOString() });
-  localStorage.setItem(SAVE_KEY, JSON.stringify(initialSave));
-  localStorage.setItem(`${SAVE_KEY}_status`, "初期化しました");
-  localStorage.removeItem(RESET_MARKER_KEY);
-
-  saveDisabled = false;
-  restartLoops();
-  startAutoBasicLoop();
-  setSaveStatus("初期化しました");
+  setSaveStatus("初期化して再読み込みします");
+  window.setTimeout(() => window.location.reload(), 80);
 }
 
 
@@ -672,8 +679,10 @@ function prepareOfflineReward(savedAt) {
   if (offlineRewardClaimedThisSession) return;
   if (!savedAt) return;
   const savedTime = new Date(savedAt).getTime();
+  const claimedUntil = Number(localStorage.getItem(OFFLINE_CLAIMED_UNTIL_KEY) || 0);
   if (!Number.isFinite(savedTime)) return;
-  const elapsedMs = Date.now() - savedTime;
+  const baseTime = Math.max(savedTime, Number.isFinite(claimedUntil) ? claimedUntil : 0);
+  const elapsedMs = Date.now() - baseTime;
   if (elapsedMs < OFFLINE_MINIMUM_MS) return;
   const result = calculateOfflineReward(elapsedMs);
   if (result.rewardMinutes < 1 || result.reward <= 0) return;
@@ -695,10 +704,12 @@ function claimOfflineReward() {
   offlineRewardClaimedThisSession = true;
   if (els.offlineRewardModal) els.offlineRewardModal.classList.add("hidden");
 
-  const nowIso = new Date().toISOString();
+  const now = Date.now();
+  const nowIso = new Date(now).toISOString();
   state.lastSavedAt = nowIso;
-  // 先に時刻だけでも保存しておき、万一ポイント加算中にエラーが出ても
-  // 同じオフライン報酬が再表示されにくいようにする。
+  // 先に専用キーへ受け取り済み時刻を書き込む。ポイント加算や通常セーブが失敗しても、
+  // 次回起動時はこの時刻を基準にするため、同じオフライン時間を再利用できない。
+  try { localStorage.setItem(OFFLINE_CLAIMED_UNTIL_KEY, String(now)); } catch (e) { console.error(e); }
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(createSaveData({ savedAt:nowIso }))); } catch (e) { console.error(e); }
   addPoints(reward);
 
