@@ -2,10 +2,10 @@ const $ = (id) => document.getElementById(id);
 
 const els = {
   scoreArea: $("scoreArea"), mainScoreLabel: $("mainScoreLabel"), secondaryScoreArea: $("secondaryScoreArea"), secondaryScoreLabel: $("secondaryScoreLabel"), secondaryScoreText: $("secondaryScoreText"), pointText: $("pointText"), multiplierFormulaText: $("multiplierFormulaText"),
-  menuButton: $("menuButton"), statsButton: $("statsButton"), closePanelButton: $("closePanelButton"), closeStatsButton: $("closeStatsButton"), upgradePanel: $("upgradePanel"), statsPanel: $("statsPanel"), panelOverlay: $("panelOverlay"), statsContent: $("statsContent"),
+  menuButton: $("menuButton"), statsButton: $("statsButton"), skinButton: $("skinButton"), closePanelButton: $("closePanelButton"), closeStatsButton: $("closeStatsButton"), closeSkinButton: $("closeSkinButton"), upgradePanel: $("upgradePanel"), statsPanel: $("statsPanel"), skinPanel: $("skinPanel"), panelOverlay: $("panelOverlay"), statsContent: $("statsContent"), skinList: $("skinList"), currentSkinNameText: $("currentSkinNameText"), currentSkinMultiplierText: $("currentSkinMultiplierText"),
   potatoButton: $("potatoButton"), potatoImage: $("potatoImage"),
   debugModal: $("debugModal"), debugFields: $("debugFields"), closeDebugButton: $("closeDebugButton"), cancelDebugButton: $("cancelDebugButton"), applyDebugButton: $("applyDebugButton"),
-  saveStatusText: $("saveStatusText"), autoBasicRows: $("autoBasicRows"), autoPrestigeTargetInput: $("autoPrestigeTargetInput"), autoPrestigeSettings: $("autoPrestigeSettings"),
+  saveStatusText: $("saveStatusText"), autoBasicRows: $("autoBasicRows"), autoSkinSettings: $("autoSkinSettings"), autoSkinTargetSelect: $("autoSkinTargetSelect"), toggleAutoSkinButton: $("toggleAutoSkinButton"), autoPrestigeTargetInput: $("autoPrestigeTargetInput"), autoPrestigeSettings: $("autoPrestigeSettings"),
 };
 
 const BASIC_KEYS = ["clickPower","clickCount","autoClick","autoInterval","autoMultiplier","bonusChance","bonusMultiplier","enhancedBonusChance","enhancedBonusMultiplier"];
@@ -13,17 +13,37 @@ const BASIC_LABELS = {
   clickPower:"クリック強化", clickCount:"クリック回数強化", autoClick:"オートクリック", autoInterval:"オート間隔短縮", autoMultiplier:"オートクリック倍加", bonusChance:"ボーナス確率", bonusMultiplier:"ボーナス倍率", enhancedBonusChance:"強化ボーナス確率", enhancedBonusMultiplier:"強化ボーナス倍率"
 };
 const BASIC_CONFIG = {
-  clickPower:{baseCost:10,growth:1.6}, clickCount:{baseCost:75,growth:1.75}, autoClick:{baseCost:25,growth:1.7}, autoInterval:{baseCost:150,growth:1.65}, autoMultiplier:{baseCost:300,growth:2}, bonusChance:{baseCost:50,growth:1.55}, bonusMultiplier:{baseCost:100,growth:1.9}, enhancedBonusChance:{baseCost:500,growth:1.6}, enhancedBonusMultiplier:{baseCost:800,growth:1.95}
+  clickPower:{baseCost:8,growth:1.55}, clickCount:{baseCost:60,growth:1.68}, autoClick:{baseCost:20,growth:1.62}, autoInterval:{baseCost:120,growth:1.58}, autoMultiplier:{baseCost:240,growth:1.9}, bonusChance:{baseCost:40,growth:1.5}, bonusMultiplier:{baseCost:80,growth:1.8}, enhancedBonusChance:{baseCost:400,growth:1.55}, enhancedBonusMultiplier:{baseCost:640,growth:1.85}
 };
 const PRESTIGE_TYPES = ["enhancedAuto","enhancedBonus","initialLevel","costReduction","premiumAutoMultiplier","manualFinalMultiplier","autoPrestige","autoBasicUpgrade","prestigePointGain"];
 const PRESTIGE_BASE_COST = { enhancedAuto:1, enhancedBonus:1, initialLevel:1, costReduction:1, premiumAutoMultiplier:1, manualFinalMultiplier:1, autoPrestige:5, autoBasicUpgrade:10, prestigePointGain:1 };
 const PRESTIGE_LABELS = { enhancedAuto:"強化オートクリック解放", enhancedBonus:"強化ボーナス解放", initialLevel:"基本初期値 +2", costReduction:"基本コスト 0.9倍", premiumAutoMultiplier:"オートクリック高級倍率", manualFinalMultiplier:"通常クリック最終倍率", autoPrestige:"自動リセット解放", autoBasicUpgrade:"基本アップグレード自動強化解放", prestigePointGain:"高級ポイント獲得量 +1" };
 
-const PRESTIGE_COST = 1_000_000;
-const BIG_BANG_COST = 1_000_000;
+const SKIN_CONFIG = [
+  { id:"default", name:"通常ジャガイモ", file:"potato.png", cost:0, multiplier:1 },
+  { id:"haruka10", name:"はるか", file:"haruka 10.avif", cost:10_000, multiplier:1.2 },
+  { id:"guraundopetika9", name:"グラウンドペチカ（デストロイヤー）", file:"guraundopetika (desutoroiya-) 9.avif", cost:40_000, multiplier:1.4 },
+  { id:"tawarayo8", name:"タワラヨーデル", file:"tawarayo-deru 8.avif", cost:150_000, multiplier:1.7 },
+  { id:"sinsia7", name:"シンシア", file:"sinsia 7.avif", cost:500_000, multiplier:2.1 },
+  { id:"nozanrubi6", name:"ノーザンルビー", file:"no-zanrubi- 6.avif", cost:1_500_000, multiplier:2.6 },
+  { id:"redmoon5", name:"レッドムーン", file:"redmoon 5.avif", cost:5_000_000, multiplier:3.2 },
+  { id:"dansyaku4", name:"男爵", file:"dansyaku 4.avif", cost:15_000_000, multiplier:4 },
+  { id:"kitaakari3", name:"キタアカリ", file:"kitaakari 3.avif", cost:50_000_000, multiplier:5 },
+  { id:"mekuin2", name:"メークイン", file:"me-kuin 2.avif", cost:150_000_000, multiplier:6.5 },
+  { id:"inkanomezame1", name:"インカのめざめ", file:"inkanomezame 1.avif", cost:500_000_000, multiplier:8.5 }
+];
+
+const PRESTIGE_COST = 100_000_000;
+const BIG_BANG_COST = 100_000_000;
 const BIG_BANG_VISIBLE_THRESHOLD = 100_000;
-const SAVE_KEY = "potatoClickerSaveData_v2";
-const OLD_SAVE_KEYS = ["potatoClickerSaveData_v1"];
+const SAVE_KEY_PREFIX = "potatoClicker";
+const SAVE_KEY_BASE = "potatoClickerSaveData_v3";
+function getStorageScopeKey() {
+  const scope = location.protocol === "file:" ? location.pathname : `${location.origin}${location.pathname}`;
+  return encodeURIComponent(scope).replace(/%/g, "_").slice(-160) || "default";
+}
+const SAVE_KEY = `${SAVE_KEY_BASE}_${getStorageScopeKey()}`;
+const OLD_SAVE_KEYS = ["potatoClickerSaveData_v2", "potatoClickerSaveData_v1", "potatoClickerSaveData"];
 const AUTO_SAVE_INTERVAL = 5000;
 const AUTO_BASIC_INTERVAL = 500;
 const AUTO_BASIC_PURCHASES_PER_TICK = 20;
@@ -85,9 +105,11 @@ function createInitialState() {
     manualFinalMultiplier:1, manualFinalLevel:0,
     autoPrestigeUnlocked:false, autoPrestigeEnabled:false, autoPrestigeTarget:1,
     autoBasicUnlocked:false, autoBasicEnabled:false, autoBasicSettings:autoSettings,
+    autoSkinEnabled:false, autoSkinTargetId:"default",
     prestigePointGainLevel:0,
     prestigePurchaseCounts:pCounts,
     bbNormalMultiplierLevel:0, bbPrestigeMultiplierLevel:0, bbPointGainLevel:0,
+    unlockedSkins:["default"], equippedSkin:"default",
   };
 }
 
@@ -110,7 +132,15 @@ function assignState(data) {
     state.autoBasicSettings[k] = { enabled:s.enabled === true, targetLevel:Math.max(0, Math.floor(num(s.targetLevel, 0))) };
   });
   PRESTIGE_TYPES.forEach((k) => { state.prestigePurchaseCounts[k] = Math.max(0, Math.floor(num(state.prestigePurchaseCounts?.[k], 0))); });
+  const validSkinIds = SKIN_CONFIG.map((skin) => skin.id);
+  const loadedSkins = Array.isArray(state.unlockedSkins) ? state.unlockedSkins : ["default"];
+  state.unlockedSkins = Array.from(new Set(["default", ...loadedSkins.filter((id) => validSkinIds.includes(id))]));
+  if (!validSkinIds.includes(state.equippedSkin) || !state.unlockedSkins.includes(state.equippedSkin)) state.equippedSkin = "default";
+  if (!validSkinIds.includes(state.autoSkinTargetId)) state.autoSkinTargetId = "default";
+  state.autoSkinEnabled = state.autoSkinEnabled === true;
 }
+
+
 
 function num(value, fallback) { return Number.isFinite(Number(value)) ? Number(value) : fallback; }
 function fmt(value) {
@@ -131,6 +161,7 @@ function fmtPct(value) { return (value * 100).toLocaleString("ja-JP", { maximumF
 function getInitialBasicCost(key) { return Math.max(1, Math.floor(BASIC_CONFIG[key].baseCost * state.basicCostMultiplier)); }
 function getNextBasicCost(key, cost) { return Math.max(1, Math.floor(cost * BASIC_CONFIG[key].growth), Math.ceil(cost * 1.1)); }
 function resetBasicUpgrades() { BASIC_KEYS.forEach((k) => { state.basicLevels[k] = state.basicInitialLevelBonus; state.basicCosts[k] = getInitialBasicCost(k); }); }
+function resetSkins() { state.unlockedSkins = ["default"]; state.equippedSkin = "default"; }
 function resetPrestigeLayer() {
   state.points = 0; state.prestigePoints = 0; state.prestigeResetCount = 0; state.prestigeBasicMultiplier = 1;
   state.enhancedAutoUnlocked = false; state.enhancedBonusUnlocked = false;
@@ -138,11 +169,12 @@ function resetPrestigeLayer() {
   state.premiumAutoMultiplier = 1; state.premiumAutoLevel = 0;
   state.manualFinalMultiplier = 1; state.manualFinalLevel = 0;
   state.autoPrestigeUnlocked = false; state.autoPrestigeEnabled = false; state.autoPrestigeTarget = 1;
-  state.autoBasicUnlocked = false; state.autoBasicEnabled = false;
+  state.autoBasicUnlocked = false; state.autoBasicEnabled = false; state.autoSkinEnabled = false; state.autoSkinTargetId = "default";
   state.prestigePointGainLevel = 0;
   state.autoBasicSettings = createInitialState().autoBasicSettings;
   state.prestigePurchaseCounts = createInitialState().prestigePurchaseCounts;
   resetBasicUpgrades();
+  resetSkins();
 }
 function resetAll() { assignState(createInitialState()); resetBasicUpgrades(); clearPopups(); hidePrestigeTopDisplay(); restartLoops(); updateScreen(); }
 
@@ -157,7 +189,9 @@ function getEnhancedBonusChance() { return Math.min(MAX_BONUS_CHANCE, ENHANCED_B
 function getEnhancedBonusMultiplier() { return ENHANCED_BONUS_MULT_BASE + state.basicLevels.enhancedBonusMultiplier * ENHANCED_BONUS_MULT_PER_LEVEL; }
 function getBbNormalMultiplier() { return 1 + state.bbNormalMultiplierLevel * 100; }
 function getBbPrestigeMultiplier() { return 1 + state.bbPrestigeMultiplierLevel * 10; }
-function getNormalPointMultiplier() { return state.prestigeBasicMultiplier * state.bbAllMultiplier * getBbNormalMultiplier(); }
+function getSkinConfig(id = state.equippedSkin) { return SKIN_CONFIG.find((skin) => skin.id === id) || SKIN_CONFIG[0]; }
+function getSkinMultiplier() { return getSkinConfig().multiplier; }
+function getNormalPointMultiplier() { return state.prestigeBasicMultiplier * state.bbAllMultiplier * getBbNormalMultiplier() * getSkinMultiplier(); }
 function getPrestigePointMultiplier() { return state.bbAllMultiplier * getBbPrestigeMultiplier(); }
 function getPrestigeGainPerReset() { return Math.max(1, Math.floor((1 + state.prestigePointGainLevel) * getPrestigePointMultiplier())); }
 function getBigBangGainPerReset() { return 1 + state.bbPointGainLevel; }
@@ -170,7 +204,30 @@ function getPrestigeCost(type) {
 }
 function getBbPointGainCost() { return Math.max(1, Math.floor(getBigBangGainPerReset() / 1.25 + state.bbPointGainLevel)); }
 
-function createSaveData() { return JSON.parse(JSON.stringify({ version:2, savedAt:new Date().toISOString(), ...state })); }
+function getPotatoStorageKeys() {
+  const keys = [];
+  try {
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(SAVE_KEY_PREFIX)) keys.push(key);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return keys;
+}
+
+function purgePotatoStorage() {
+  getPotatoStorageKeys().forEach((key) => localStorage.removeItem(key));
+  OLD_SAVE_KEYS.forEach((key) => {
+    localStorage.removeItem(key);
+    localStorage.removeItem(`${key}_status`);
+  });
+  localStorage.removeItem(SAVE_KEY);
+  localStorage.removeItem(`${SAVE_KEY}_status`);
+}
+
+function createSaveData() { return JSON.parse(JSON.stringify({ version:4, savedAt:new Date().toISOString(), ...state })); }
 function saveGame(show=false) {
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(createSaveData()));
@@ -214,12 +271,28 @@ function loadGame() {
 function deleteSaveData() {
   if (!confirm("本当にセーブデータを初期化しますか？\n現在のゲームデータもすべて初期化されます。")) { setSaveStatus("初期化キャンセル"); return; }
   if (!confirm("最終確認です。初期化すると元に戻せません。\n本当にすべて初期化しますか？")) { setSaveStatus("初期化キャンセル"); return; }
-  localStorage.removeItem(SAVE_KEY); localStorage.removeItem(`${SAVE_KEY}_status`); OLD_SAVE_KEYS.forEach((k) => localStorage.removeItem(k));
-  resetAll(); saveGame(false); setSaveStatus("初期化しました");
+
+  clearTimeout(autoClickTimer); autoClickTimer = null;
+  clearInterval(enhancedAutoTimer); enhancedAutoTimer = null;
+  clearInterval(autoBasicTimer); autoBasicTimer = null;
+  clearTimeout(prestigeTopTimer); prestigeTopTimer = null;
+  clearTimeout(saveStatusTimer); saveStatusTimer = null;
+
+  purgePotatoStorage();
+  assignState(createInitialState());
+  resetBasicUpgrades();
+  clearPopups();
+  hidePrestigeTopDisplay();
+  restartLoops();
+  startAutoBasicLoop();
+  updateScreen();
+  purgePotatoStorage();
+  saveGame(false);
+  setSaveStatus("初期化しました");
 }
 
 function updateScreen() {
-  updateTopScore(); updateBasicDisplay(); updatePrestigeDisplay(); updateAutoBasicDisplay(); updateBigBangDisplay(); updateStats();
+  updateTopScore(); updateBasicDisplay(); updatePrestigeDisplay(); updateAutoBasicDisplay(); updateBigBangDisplay(); updateSkinDisplay(); updateStats();
 }
 function updateTopScore() {
   const showPrestige = prestigeTopActive && state.prestigePoints > PRESTIGE_TOP_DISPLAY_THRESHOLD;
@@ -230,7 +303,7 @@ function updateTopScore() {
   } else {
     els.mainScoreLabel.textContent = "ポイント"; els.pointText.textContent = fmt(state.points); els.secondaryScoreArea.classList.add("hidden");
   }
-  els.multiplierFormulaText.textContent = `*${fmtMult(state.prestigeBasicMultiplier)} *${fmtMult(state.bbAllMultiplier)}`;
+  els.multiplierFormulaText.textContent = `*${fmtMult(state.prestigeBasicMultiplier)} *${fmtMult(state.bbAllMultiplier)} *${fmtMult(getSkinMultiplier())}`;
 }
 function updateBasicDisplay() {
   const ids = {
@@ -298,6 +371,19 @@ function updateAutoBasicDisplay() {
     c.button.textContent = state.autoBasicSettings[k].enabled ? "ON" : "OFF";
     c.button.classList.toggle("on", state.autoBasicSettings[k].enabled);
   });
+  if (els.autoSkinSettings) {
+    els.autoSkinSettings.classList.toggle("locked-card", !state.autoBasicUnlocked);
+    els.autoSkinSettings.classList.toggle("unlocked", state.autoBasicUnlocked);
+  }
+  if (els.toggleAutoSkinButton) {
+    els.toggleAutoSkinButton.disabled = !state.autoBasicUnlocked;
+    els.toggleAutoSkinButton.textContent = state.autoSkinEnabled ? "スキン自動購入: ON" : "スキン自動購入: OFF";
+    els.toggleAutoSkinButton.classList.toggle("on", state.autoSkinEnabled);
+  }
+  if (els.autoSkinTargetSelect) {
+    els.autoSkinTargetSelect.disabled = !state.autoBasicUnlocked;
+    if (document.activeElement !== els.autoSkinTargetSelect) els.autoSkinTargetSelect.value = state.autoSkinTargetId;
+  }
 }
 function updateBigBangDisplay() {
   const visible = state.prestigePoints >= BIG_BANG_VISIBLE_THRESHOLD || state.bigBangCount > 0 || state.bigBangPoints > 0;
@@ -322,7 +408,7 @@ function updateStats() {
       ${statRow("高級リセット回数", fmt(state.prestigeResetCount))}${statRow("ジャガイモビックバン回数", fmt(state.bigBangCount))}${statRow("リセット時高級ポイント獲得量", fmt(getPrestigeGainPerReset()))}${statRow("BBポイント獲得量", fmt(getBigBangGainPerReset()))}
     </div></div>
     <div class="stat-group"><h3>倍率</h3><div class="stat-grid">
-      ${statRow("高級全基本ポイント倍率", `${fmtMult(state.prestigeBasicMultiplier)}倍`)}${statRow("BB全基本・高級ポイント倍率", `${fmtMult(state.bbAllMultiplier)}倍`)}${statRow("通常ポイントBB倍率", `${fmtMult(getBbNormalMultiplier())}倍`)}${statRow("高級ポイントBB倍率", `${fmtMult(getBbPrestigeMultiplier())}倍`)}${statRow("高級オート倍率", `${fmtMult(state.premiumAutoMultiplier)}倍`)}${statRow("通常クリック最終倍率", `${fmtMult(state.manualFinalMultiplier)}倍`)}
+      ${statRow("高級全基本ポイント倍率", `${fmtMult(state.prestigeBasicMultiplier)}倍`)}${statRow("BB全基本・高級ポイント倍率", `${fmtMult(state.bbAllMultiplier)}倍`)}${statRow("スキン基本ポイント倍率", `${fmtMult(getSkinMultiplier())}倍`)}${statRow("装備中スキン", getSkinConfig().name)}${statRow("スキン自動購入", state.autoSkinEnabled ? `ON / 目標:${getSkinConfig(state.autoSkinTargetId).name}` : "OFF")}${statRow("通常ポイントBB倍率", `${fmtMult(getBbNormalMultiplier())}倍`)}${statRow("高級ポイントBB倍率", `${fmtMult(getBbPrestigeMultiplier())}倍`)}${statRow("高級オート倍率", `${fmtMult(state.premiumAutoMultiplier)}倍`)}${statRow("通常クリック最終倍率", `${fmtMult(state.manualFinalMultiplier)}倍`)}
     </div></div>
     <div class="stat-group"><h3>解放状態</h3><div class="stat-grid">
       ${statRow("強化オートクリック", state.enhancedAutoUnlocked ? "解放済み" : "未解放")}${statRow("強化ボーナス", state.enhancedBonusUnlocked ? "解放済み" : "未解放")}${statRow("自動リセット", state.autoPrestigeUnlocked ? (state.autoPrestigeEnabled ? `ON / ${fmt(state.autoPrestigeTarget)}回単位` : "OFF") : "未解放")}${statRow("基本自動強化", state.autoBasicUnlocked ? (state.autoBasicEnabled ? "ON" : "OFF") : "未解放")}${statRow("基本初期値", `+${fmt(state.basicInitialLevelBonus)}`)}${statRow("基本コスト倍率", `${fmtPct(state.basicCostMultiplier)}%`)}
@@ -368,7 +454,7 @@ function executePrestigeReset() {
   state.prestigeResetCount += count;
   state.prestigePoints += count * getPrestigeGainPerReset();
   state.prestigeBasicMultiplier += 0.01 * count;
-  resetBasicUpgrades(); restartLoops(); showPrestigeTopDisplay(); updateScreen(); saveGame(true);
+  resetBasicUpgrades(); resetSkins(); restartLoops(); showPrestigeTopDisplay(); updateScreen(); saveGame(true);
 }
 function checkAutoPrestige() {
   if (!state.autoPrestigeUnlocked || !state.autoPrestigeEnabled) return;
@@ -404,6 +490,63 @@ function buyBigBang(type) {
   updateScreen(); saveGame(true);
 }
 
+function buildSkinList() {
+  if (!els.skinList) return;
+  els.skinList.innerHTML = "";
+  SKIN_CONFIG.forEach((skin) => {
+    const card = document.createElement("section");
+    card.className = "skin-card";
+    card.dataset.skinId = skin.id;
+    card.innerHTML = `
+      <img class="skin-preview" src="${skin.file}" alt="${skin.name}" />
+      <div class="skin-info">
+        <h3>${skin.name}</h3>
+        <p>コスト: <strong>${skin.cost === 0 ? "初期所持" : `${fmt(skin.cost)} ポイント`}</strong></p>
+        <p>基本ポイント倍率: <strong>${fmtMult(skin.multiplier)}倍</strong></p>
+        <button class="skin-action-button" type="button"></button>
+      </div>`;
+    const button = card.querySelector("button");
+    button.addEventListener("click", () => buyOrEquipSkin(skin.id));
+    els.skinList.append(card);
+  });
+}
+function updateSkinDisplay() {
+  const equipped = getSkinConfig();
+  if (els.currentSkinNameText) els.currentSkinNameText.textContent = equipped.name;
+  if (els.currentSkinMultiplierText) els.currentSkinMultiplierText.textContent = `${fmtMult(equipped.multiplier)}倍`;
+  if (els.potatoImage && els.potatoImage.getAttribute("src") !== equipped.file) els.potatoImage.src = equipped.file;
+  if (!els.skinList) return;
+  els.skinList.querySelectorAll(".skin-card").forEach((card) => {
+    const skin = getSkinConfig(card.dataset.skinId);
+    const owned = state.unlockedSkins.includes(skin.id);
+    const equippedNow = state.equippedSkin === skin.id;
+    const button = card.querySelector("button");
+    card.classList.toggle("equipped", equippedNow);
+    if (equippedNow) {
+      button.textContent = "装備中";
+      button.disabled = true;
+    } else if (owned) {
+      button.textContent = "装備する";
+      button.disabled = false;
+    } else {
+      button.textContent = `購入: ${fmt(skin.cost)} ポイント`;
+      button.disabled = state.points < skin.cost;
+    }
+  });
+}
+function buyOrEquipSkin(id) {
+  const skin = getSkinConfig(id);
+  const owned = state.unlockedSkins.includes(id);
+  if (!owned) {
+    if (state.points < skin.cost) return;
+    state.points -= skin.cost;
+    state.unlockedSkins.push(id);
+  }
+  state.equippedSkin = id;
+  updateScreen();
+  saveGame(true);
+}
+
 function playPotatoAnimation() { els.potatoImage.classList.remove("pop"); void els.potatoImage.offsetWidth; els.potatoImage.classList.add("pop"); }
 function playBonusGlow(enhanced) {
   const glow = document.createElement("span"); glow.className = enhanced ? "bonus-glow-effect enhanced" : "bonus-glow-effect";
@@ -419,6 +562,28 @@ function showGainPopups(entries, count) { const std = entries.filter((e) => popu
 
 function startAutoClickLoop() { clearTimeout(autoClickTimer); autoClickTimer = setTimeout(function tick(){ const gain = getEffectiveAutoClickPower(); if (gain > 0) addPoints(gain); autoClickTimer = setTimeout(tick, getAutoInterval()); }, getAutoInterval()); }
 function startEnhancedAutoLoop() { clearInterval(enhancedAutoTimer); enhancedAutoTimer = null; if (state.enhancedAutoUnlocked) enhancedAutoTimer = setInterval(() => gainManual(false), ENHANCED_AUTO_INTERVAL); }
+function getSkinIndex(id) { return SKIN_CONFIG.findIndex((skin) => skin.id === id); }
+function processAutoSkin() {
+  if (!state.autoBasicUnlocked || !state.autoBasicEnabled || !state.autoSkinEnabled) return false;
+  const targetIndex = getSkinIndex(state.autoSkinTargetId);
+  if (targetIndex <= 0) return false;
+  let did = false;
+  for (let i = 1; i <= targetIndex; i += 1) {
+    const skin = SKIN_CONFIG[i];
+    if (!skin || state.unlockedSkins.includes(skin.id)) continue;
+    if (state.points < skin.cost) break;
+    state.points -= skin.cost;
+    state.unlockedSkins.push(skin.id);
+    state.equippedSkin = skin.id;
+    did = true;
+  }
+  const bestOwnedIndex = Math.max(...state.unlockedSkins.map(getSkinIndex).filter((i) => i >= 0 && i <= targetIndex));
+  if (bestOwnedIndex >= 0 && state.equippedSkin !== SKIN_CONFIG[bestOwnedIndex].id) {
+    state.equippedSkin = SKIN_CONFIG[bestOwnedIndex].id;
+    did = true;
+  }
+  return did;
+}
 function processAutoBasic() {
   if (!state.autoBasicUnlocked || !state.autoBasicEnabled) return;
   let purchases = 0, did = false;
@@ -427,13 +592,14 @@ function processAutoBasic() {
     while (state.basicLevels[key] < s.targetLevel && canBuyBasic(key) && purchases < AUTO_BASIC_PURCHASES_PER_TICK) { if (!buyBasic(key, {save:false})) break; purchases++; did = true; }
     if (purchases >= AUTO_BASIC_PURCHASES_PER_TICK) break;
   }
-  if (did) { restartLoops(); saveGame(false); }
+  if (processAutoSkin()) did = true;
+  if (did) { restartLoops(); updateScreen(); saveGame(false); }
 }
 function startAutoBasicLoop() { clearInterval(autoBasicTimer); autoBasicTimer = setInterval(processAutoBasic, AUTO_BASIC_INTERVAL); }
 function restartLoops() { startAutoClickLoop(); startEnhancedAutoLoop(); }
 
-function openPanel(panel) { els.upgradePanel.classList.remove("open"); els.statsPanel.classList.remove("open"); panel.classList.add("open"); els.panelOverlay.classList.add("show"); panel.setAttribute("aria-hidden", "false"); }
-function closePanels() { els.upgradePanel.classList.remove("open"); els.statsPanel.classList.remove("open"); els.panelOverlay.classList.remove("show"); els.upgradePanel.setAttribute("aria-hidden", "true"); els.statsPanel.setAttribute("aria-hidden", "true"); }
+function openPanel(panel) { els.upgradePanel.classList.remove("open"); els.statsPanel.classList.remove("open"); els.skinPanel.classList.remove("open"); panel.classList.add("open"); els.panelOverlay.classList.add("show"); panel.setAttribute("aria-hidden", "false"); }
+function closePanels() { els.upgradePanel.classList.remove("open"); els.statsPanel.classList.remove("open"); els.skinPanel.classList.remove("open"); els.panelOverlay.classList.remove("show"); els.upgradePanel.setAttribute("aria-hidden", "true"); els.statsPanel.setAttribute("aria-hidden", "true"); els.skinPanel.setAttribute("aria-hidden", "true"); }
 function toggleUpgradePanel() { els.upgradePanel.classList.contains("open") ? closePanels() : openPanel(els.upgradePanel); }
 
 function buildAutoBasicRows() {
@@ -448,6 +614,10 @@ function buildAutoBasicRows() {
     button.addEventListener("click", () => { if (!state.autoBasicUnlocked) return; state.autoBasicSettings[key].enabled = !state.autoBasicSettings[key].enabled; updateScreen(); saveGame(true); });
     els.autoBasicRows.append(row); autoBasicControls[key] = {input, button};
   });
+  if (els.autoSkinTargetSelect) {
+    els.autoSkinTargetSelect.innerHTML = SKIN_CONFIG.map((skin) => `<option value="${skin.id}">${skin.name}まで</option>`).join("");
+    els.autoSkinTargetSelect.addEventListener("change", () => { state.autoSkinTargetId = els.autoSkinTargetSelect.value; updateScreen(); saveGame(true); });
+  }
 }
 function buildDebugFields() {
   const fields = [
@@ -536,6 +706,7 @@ function bindEvents() {
   els.autoPrestigeTargetInput.addEventListener("input", () => { state.autoPrestigeTarget = Math.max(1, Math.floor(num(els.autoPrestigeTargetInput.value, 1))); });
   els.autoPrestigeTargetInput.addEventListener("change", () => { state.autoPrestigeTarget = Math.max(1, Math.floor(num(els.autoPrestigeTargetInput.value, 1))); updateScreen(); saveGame(true); checkAutoPrestige(); });
   $("toggleAutoBasicUpgradeButton").addEventListener("click", () => { if (!state.autoBasicUnlocked) return; state.autoBasicEnabled = !state.autoBasicEnabled; updateScreen(); saveGame(true); });
+  if (els.toggleAutoSkinButton) els.toggleAutoSkinButton.addEventListener("click", () => { if (!state.autoBasicUnlocked) return; state.autoSkinEnabled = !state.autoSkinEnabled; updateScreen(); saveGame(true); });
   $("bigBangResetButton").addEventListener("click", executeBigBangReset);
   $("bigBangNormalMultiplierButton").addEventListener("click", () => buyBigBang("normal"));
   $("bigBangPrestigeMultiplierButton").addEventListener("click", () => buyBigBang("prestige"));
@@ -544,8 +715,10 @@ function bindEvents() {
   $("deleteSaveButton").addEventListener("click", deleteSaveData);
   els.menuButton.addEventListener("click", () => openPanel(els.upgradePanel));
   els.statsButton.addEventListener("click", () => openPanel(els.statsPanel));
+  els.skinButton.addEventListener("click", () => openPanel(els.skinPanel));
   els.closePanelButton.addEventListener("click", closePanels);
   els.closeStatsButton.addEventListener("click", closePanels);
+  els.closeSkinButton.addEventListener("click", closePanels);
   els.panelOverlay.addEventListener("click", closePanels);
   els.closeDebugButton.addEventListener("click", closeDebugModal);
   els.cancelDebugButton.addEventListener("click", closeDebugModal);
@@ -554,4 +727,4 @@ function bindEvents() {
   window.addEventListener("beforeunload", () => saveGame(false));
 }
 
-buildAutoBasicRows(); buildDebugFields(); resetBasicUpgrades(); loadGame(); bindEvents(); restartLoops(); startAutoBasicLoop(); updateScreen(); setInterval(() => saveGame(false), AUTO_SAVE_INTERVAL);
+buildAutoBasicRows(); buildDebugFields(); buildSkinList(); resetBasicUpgrades(); loadGame(); bindEvents(); restartLoops(); startAutoBasicLoop(); updateScreen(); setInterval(() => saveGame(false), AUTO_SAVE_INTERVAL);

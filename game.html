@@ -100,9 +100,9 @@
 
       <section class="upgrade-card premium-card">
         <h3>高級リセット</h3>
-        <p><span id="prestigeCostText">1M</span> ポイントごとに1回分リセットできます。実行回数分だけ高級ポイントを獲得します。</p>
+        <p><span id="prestigeCostText">100M</span> ポイントごとに1回分リセットできます。実行回数分だけ高級ポイントを獲得します。</p>
         <p class="premium-note">リセット1回ごとに「高級全基本ポイント倍率」が +0.01 されます。</p>
-        <button id="prestigeResetButton" class="upgrade-button premium-button prestige-reset-button" type="button">高級リセットまで 1M ポイント</button>
+        <button id="prestigeResetButton" class="upgrade-button premium-button prestige-reset-button" type="button">高級リセットまで 100M ポイント</button>
       </section>
 
       <section class="upgrade-card premium-card">
@@ -129,15 +129,21 @@
         <p class="premium-note">各基本アップグレードに「このレベル以下なら自動で強化する」目標レベルとON/OFFを設定できます。</p>
         <button id="toggleAutoBasicUpgradeButton" class="upgrade-button premium-button" type="button">基本自動強化: 未解放</button>
         <div id="autoBasicRows" class="auto-basic-settings"></div>
+        <div id="autoSkinSettings" class="auto-basic-settings locked-card">
+          <h4>スキン自動購入</h4>
+          <p class="premium-note">目標スキンまで、必要ポイントが足りた順に自動購入して装備します。高級リセット・ビックバンでは購入済みスキンも初期化されます。</p>
+          <label>目標スキン <select id="autoSkinTargetSelect"></select></label>
+          <button id="toggleAutoSkinButton" class="mini-button" type="button">スキン自動購入: OFF</button>
+        </div>
       </section>
 
       <p id="bigBangTitle" class="upgrade-section-title big-bang-title hidden-card">ジャガイモビックバン</p>
 
       <section id="bigBangCard" class="upgrade-card big-bang-card hidden-card">
         <h3>ジャガイモビックバン</h3>
-        <p>高級ポイントを 1,000,000 以上所持している時、100万ごとに1回分ビックバンできます。</p>
+        <p>高級ポイントを 100,000,000 以上所持している時、1億ごとに1回分ビックバンできます。</p>
         <p class="premium-note">ビックバン1回ごとに「BB全基本・高級ポイント倍率」が +0.1 されます。実行時、高級ポイント・基本アップグレード・高級アップグレードはリセットされます。</p>
-        <button id="bigBangResetButton" class="upgrade-button big-bang-button" type="button">ビックバンまで高級ポイント 1M</button>
+        <button id="bigBangResetButton" class="upgrade-button big-bang-button" type="button">ビックバンまで高級ポイント 100M</button>
         <div class="premium-actions">
           <button id="bigBangNormalMultiplierButton" class="upgrade-button big-bang-button" type="button"></button>
           <button id="bigBangPrestigeMultiplierButton" class="upgrade-button big-bang-button" type="button"></button>
@@ -162,6 +168,18 @@
     <div id="statsContent" class="stats-content"></div>
   </aside>
 
+  <aside id="skinPanel" class="side-panel skin-panel" aria-hidden="true">
+    <div class="panel-header">
+      <h2>スキン</h2>
+      <button id="closeSkinButton" class="close-button" type="button">×</button>
+    </div>
+    <div class="skin-current-card">
+      <p>現在のスキン: <strong id="currentSkinNameText">通常ジャガイモ</strong></p>
+      <p>スキン基本ポイント倍率: <strong id="currentSkinMultiplierText">1倍</strong></p>
+    </div>
+    <div id="skinList" class="skin-list"></div>
+  </aside>
+
   <div id="panelOverlay" class="panel-overlay"></div>
 
   <main class="game-area">
@@ -170,6 +188,8 @@
       <img id="potatoImage" src="potato.png" alt="ジャガイモ" class="potato-image" />
     </button>
   </main>
+
+  <button id="skinButton" class="skin-floating-button" type="button" aria-label="スキンメニューを開く">🥔 スキン</button>
 
   <div id="debugModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
     <div class="debug-modal">
