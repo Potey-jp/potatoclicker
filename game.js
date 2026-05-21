@@ -537,6 +537,9 @@ function deleteSaveData() {
 
 
 function updateScreen() {
+  // 表示前に必ずコストを現在レベルから再計算する。
+  // 初回表示時だけ HTML 側の固定値や古い保存済み cost が見える問題を防ぐ。
+  migrateBasicCostsToCurrentGrowth();
   updateTopScore(); updateBasicDisplay(); updatePrestigeDisplay(); updateAutoBasicDisplay(); updateBigBangDisplay(); updateSkinDisplay(); updateAchievementDisplay(); updateStats();
 }
 function updateTopScore() {
@@ -1207,4 +1210,12 @@ function bindEvents() {
   });
 }
 
-buildAutoBasicRows(); buildDebugFields(); buildSkinList(); resetBasicUpgrades(); loadGame(); clearFalseOfflineStart(); checkAchievements({silent:true}); bindEvents(); restartLoops(); startAutoBasicLoop(); updateScreen(); setInterval(() => saveGame(false), AUTO_SAVE_INTERVAL);
+function initialRender() {
+  migrateBasicCostsToCurrentGrowth();
+  updateScreen();
+}
+
+buildAutoBasicRows(); buildDebugFields(); buildSkinList(); resetBasicUpgrades(); loadGame(); clearFalseOfflineStart(); checkAchievements({silent:true}); bindEvents(); restartLoops(); startAutoBasicLoop(); initialRender();
+requestAnimationFrame(initialRender);
+setTimeout(initialRender, 0);
+setInterval(() => saveGame(false), AUTO_SAVE_INTERVAL);
