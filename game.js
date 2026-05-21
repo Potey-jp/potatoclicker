@@ -582,8 +582,12 @@ function updateBasicDisplay() {
   $("enhancedBonusMultiplierCard").classList.toggle("locked-card", !state.enhancedBonusUnlocked);
   $("enhancedBonusMultiplierCard").classList.toggle("unlocked", state.enhancedBonusUnlocked);
   BASIC_KEYS.forEach((k) => {
+    // 表示・購入判定・保存で必ず同じコストを使う。
+    // 保存済み currentCost を直接表示すると、ポイント変動時の sanitize で表示が変わる原因になる。
+    const currentCost = getCurrentBasicCost(k);
+    state.basicCosts[k] = currentCost;
     if (basicEls[k].level) basicEls[k].level.textContent = fmt(state.basicLevels[k]);
-    if (basicEls[k].cost) basicEls[k].cost.textContent = fmt(state.basicCosts[k]);
+    if (basicEls[k].cost) basicEls[k].cost.textContent = fmt(currentCost);
     if (basicEls[k].button) basicEls[k].button.disabled = !canBuyBasic(k);
   });
 }
@@ -819,7 +823,9 @@ function addPoints(amount) {
 function showPrestigeTopDisplay() { if (state.prestigePoints <= PRESTIGE_TOP_DISPLAY_THRESHOLD) return; prestigeTopActive = true; clearTimeout(prestigeTopTimer); prestigeTopTimer = setTimeout(() => { prestigeTopActive = false; updateScreen(); }, PRESTIGE_TOP_DISPLAY_DURATION); }
 function hidePrestigeTopDisplay() { prestigeTopActive = false; clearTimeout(prestigeTopTimer); prestigeTopTimer = null; }
 function canBuyBasic(key) {
-  if (state.points < state.basicCosts[key]) return false;
+  const currentCost = getCurrentBasicCost(key);
+  state.basicCosts[key] = currentCost;
+  if (state.points < currentCost) return false;
   if ((key === "enhancedBonusChance" || key === "enhancedBonusMultiplier") && !state.enhancedBonusUnlocked) return false;
   if (key === "bonusChance" && getBonusChance() >= MAX_BONUS_CHANCE) return false;
   if (key === "enhancedBonusChance" && getEnhancedBonusChance() >= MAX_BONUS_CHANCE) return false;
@@ -827,8 +833,16 @@ function canBuyBasic(key) {
   return true;
 }
 function buyBasic(key, options={}) {
+  const purchaseCost = getCurrentBasicCost(key);
+  state.basicCosts[key] = purchaseCost;
   if (!canBuyBasic(key)) return false;
-  state.points = clampPositive(state.points - state.basicCosts[key], 0); state.basicLevels[key] = clampInteger(state.basicLevels[key] + 1, 0, MAX_LEVEL); state.basicPurchaseCounts[key] = clampInteger((state.basicPurchaseCounts[key] || 0) + 1, 0, MAX_GAME_NUMBER); state.totalBasicUpgradePurchases = clampInteger(state.totalBasicUpgradePurchases + 1, 0, MAX_GAME_NUMBER); state.basicCosts[key] = getNextBasicCost(key);
+  // 購入に使うコストと表示コストを同一関数に統一。
+  // レベル加算後の次回表示は「新しい現在レベルのコスト」。
+  state.points = clampPositive(state.points - purchaseCost, 0);
+  state.basicLevels[key] = clampInteger(state.basicLevels[key] + 1, 0, MAX_LEVEL);
+  state.basicPurchaseCounts[key] = clampInteger((state.basicPurchaseCounts[key] || 0) + 1, 0, MAX_GAME_NUMBER);
+  state.totalBasicUpgradePurchases = clampInteger(state.totalBasicUpgradePurchases + 1, 0, MAX_GAME_NUMBER);
+  state.basicCosts[key] = getCurrentBasicCost(key);
   if (key === "autoInterval") startAutoClickLoop();
   updateScreen(); if (options.save !== false) saveGame(); return true;
 }
