@@ -2,7 +2,7 @@ const $ = (id) => document.getElementById(id);
 
 const els = {
   scoreArea: $("scoreArea"), mainScoreLabel: $("mainScoreLabel"), secondaryScoreArea: $("secondaryScoreArea"), secondaryScoreLabel: $("secondaryScoreLabel"), secondaryScoreText: $("secondaryScoreText"), pointText: $("pointText"), multiplierFormulaText: $("multiplierFormulaText"),
-  menuButton: $("menuButton"), statsButton: $("statsButton"), skinButton: $("skinButton"), closePanelButton: $("closePanelButton"), closeStatsButton: $("closeStatsButton"), closeSkinButton: $("closeSkinButton"), upgradePanel: $("upgradePanel"), statsPanel: $("statsPanel"), skinPanel: $("skinPanel"), panelOverlay: $("panelOverlay"), statsContent: $("statsContent"), skinList: $("skinList"), currentSkinNameText: $("currentSkinNameText"), currentSkinMultiplierText: $("currentSkinMultiplierText"),
+  menuButton: $("menuButton"), statsButton: $("statsButton"), achievementButton: $("achievementButton"), skinButton: $("skinButton"), closePanelButton: $("closePanelButton"), closeStatsButton: $("closeStatsButton"), closeAchievementButton: $("closeAchievementButton"), closeSkinButton: $("closeSkinButton"), upgradePanel: $("upgradePanel"), statsPanel: $("statsPanel"), achievementPanel: $("achievementPanel"), skinPanel: $("skinPanel"), panelOverlay: $("panelOverlay"), statsContent: $("statsContent"), achievementList: $("achievementList"), achievementSummaryText: $("achievementSummaryText"), achievementToastContainer: $("achievementToastContainer"), skinList: $("skinList"), currentSkinNameText: $("currentSkinNameText"), currentSkinMultiplierText: $("currentSkinMultiplierText"),
   potatoButton: $("potatoButton"), potatoImage: $("potatoImage"),
   debugModal: $("debugModal"), debugFields: $("debugFields"), closeDebugButton: $("closeDebugButton"), cancelDebugButton: $("cancelDebugButton"), applyDebugButton: $("applyDebugButton"),
   offlineRewardModal: $("offlineRewardModal"), offlineDurationText: $("offlineDurationText"), offlineCappedDurationText: $("offlineCappedDurationText"), offlineRewardText: $("offlineRewardText"), claimOfflineRewardButton: $("claimOfflineRewardButton"),
@@ -32,6 +32,34 @@ const SKIN_CONFIG = [
   { id:"kitaakari3", name:"キタアカリ", file:"kitaakari 3.avif", cost:50_000_000, multiplier:5 },
   { id:"mekuin2", name:"メークイン", file:"me-kuin 2.avif", cost:150_000_000, multiplier:6.5 },
   { id:"inkanomezame1", name:"インカのめざめ", file:"inkanomezame 1.avif", cost:500_000_000, multiplier:8.5 }
+];
+
+
+const ACHIEVEMENTS = [
+  { id:"firstClick", name:"初めてのじゃがいも", condition:"初めてじゃがいもをクリックする", reward:0.01 },
+  { id:"click100", name:"じゃがいも餅", condition:"じゃがいもを100回クリックする", reward:0.01 },
+  { id:"click10000", name:"ポテト団子", condition:"じゃがいもを1万回クリックする", reward:0.01 },
+  { id:"points100", name:"家庭栽培", condition:"累計100ポイント獲得する", reward:0.01 },
+  { id:"points10000", name:"家庭菜園", condition:"累計1万ポイント獲得する", reward:0.01 },
+  { id:"points1000000", name:"じゃがいも農園", condition:"累計100万ポイント獲得する", reward:0.01 },
+  { id:"points100000000", name:"じゃがいも帝国", condition:"累計1億ポイント獲得する", reward:0.01 },
+  { id:"firstUpgrade", name:"初めてのアップグレード", condition:"初めて基本アップグレードを購入する", reward:0.01 },
+  { id:"hybrid", name:"ハイブリッド", condition:"全ての基本アップグレードを最低一つずつ購入する", reward:0.01 },
+  { id:"upgrade50", name:"じゃがいもツール", condition:"基本アップグレードを合計50レベル購入する", reward:0.01 },
+  { id:"upgrade100", name:"ポテトハーベスター", condition:"基本アップグレードを合計100レベル購入する", reward:0.01 },
+  { id:"upgrade500", name:"じゃがいも収穫用人工知能", condition:"基本アップグレードを合計500レベル購入する", reward:0.05 },
+  { id:"skinBuy", name:"イメチェン", condition:"スキンを購入する", reward:0.01 },
+  { id:"bonusStreak5", name:"運も実力のうち", condition:"5回連続でボーナスを引き当てる", reward:0.05 },
+  { id:"clickGain10000", name:"大豊作", condition:"一度のクリックで1万ポイントを獲得する", reward:0.05 },
+  { id:"firstPrestige", name:"はじめてのリセット", condition:"初めて高級リセットを行う", reward:0.01 },
+  { id:"automation", name:"全自動化", condition:"強化オートクリック・自動リセット・基本アップグレード自動強化を購入する", reward:0.05 },
+  { id:"enhancedStreak5", name:"奇跡のじゃがいも", condition:"5回連続で追加ボーナスを引き当てる", reward:0.1 },
+  { id:"prestigePoint10", name:"ブランドじゃがいも", condition:"累計10高級ポイントを獲得する", reward:0.1 },
+  { id:"prestigeWithin60", name:"早くなってきた", condition:"リセットしてから1分以内にもう一度リセットする", reward:0.5 },
+  { id:"prestige10AtOnce", name:"何回でも", condition:"一度に10回リセットする", reward:0.15 },
+  { id:"prestigeWithin10", name:"光速じゃがいも", condition:"リセットしてから10秒以内にもう一度リセットする", reward:1 },
+  { id:"prestigePoint100", name:"新しい時代", condition:"100高級ポイント保有する", reward:0.5 },
+  { id:"firstBigBang", name:"じゃがいもの新たな誕生", condition:"ジャガイモビックバンする", reward:5 }
 ];
 
 const PRESTIGE_COST = 100_000_000;
@@ -114,6 +142,7 @@ function createInitialState() {
     prestigePurchaseCounts:pCounts,
     bbNormalMultiplierLevel:0, bbPrestigeMultiplierLevel:0, bbPointGainLevel:0,
     unlockedSkins:["default"], equippedSkin:"default",
+    achievements:{}, totalClicks:0, totalPointsEarned:0, totalPrestigePointsEarned:0, totalBasicUpgradePurchases:0, basicPurchaseCounts:{}, bonusStreak:0, enhancedBonusStreak:0, lastPrestigeResetAt:null,
     lastSavedAt:null,
   };
 }
@@ -143,6 +172,15 @@ function assignState(data) {
   if (!validSkinIds.includes(state.equippedSkin) || !state.unlockedSkins.includes(state.equippedSkin)) state.equippedSkin = "default";
   if (!validSkinIds.includes(state.autoSkinTargetId)) state.autoSkinTargetId = "default";
   state.autoSkinEnabled = state.autoSkinEnabled === true;
+  state.achievements = state.achievements && typeof state.achievements === "object" ? state.achievements : {};
+  state.totalClicks = Math.max(0, Math.floor(num(state.totalClicks, 0)));
+  state.totalPointsEarned = Math.max(0, num(state.totalPointsEarned, 0));
+  state.totalPrestigePointsEarned = Math.max(0, num(state.totalPrestigePointsEarned, state.prestigePoints || 0));
+  state.totalBasicUpgradePurchases = Math.max(0, Math.floor(num(state.totalBasicUpgradePurchases, 0)));
+  state.basicPurchaseCounts = state.basicPurchaseCounts && typeof state.basicPurchaseCounts === "object" ? state.basicPurchaseCounts : {};
+  BASIC_KEYS.forEach((k) => { state.basicPurchaseCounts[k] = Math.max(0, Math.floor(num(state.basicPurchaseCounts[k], 0))); });
+  state.bonusStreak = Math.max(0, Math.floor(num(state.bonusStreak, 0)));
+  state.enhancedBonusStreak = Math.max(0, Math.floor(num(state.enhancedBonusStreak, 0)));
 }
 
 
@@ -196,7 +234,8 @@ function getBbNormalMultiplier() { return 1 + state.bbNormalMultiplierLevel * 10
 function getBbPrestigeMultiplier() { return 1 + state.bbPrestigeMultiplierLevel * 10; }
 function getSkinConfig(id = state.equippedSkin) { return SKIN_CONFIG.find((skin) => skin.id === id) || SKIN_CONFIG[0]; }
 function getSkinMultiplier() { return getSkinConfig().multiplier; }
-function getNormalPointMultiplier() { return state.prestigeBasicMultiplier * state.bbAllMultiplier * getBbNormalMultiplier() * getSkinMultiplier(); }
+function getAchievementMultiplier() { return 1 + ACHIEVEMENTS.reduce((sum, a) => sum + (state.achievements?.[a.id] ? a.reward : 0), 0); }
+function getNormalPointMultiplier() { return state.prestigeBasicMultiplier * state.bbAllMultiplier * getBbNormalMultiplier() * getSkinMultiplier() * getAchievementMultiplier(); }
 function getPrestigePointMultiplier() { return state.bbAllMultiplier * getBbPrestigeMultiplier(); }
 function getPrestigeGainPerReset() { return Math.max(1, Math.floor((1 + state.prestigePointGainLevel) * getPrestigePointMultiplier())); }
 function getBigBangGainPerReset() { return 1 + state.bbPointGainLevel; }
@@ -235,7 +274,7 @@ function purgePotatoStorage() {
 function createSaveData() {
   const savedAt = pendingOfflineReward && !pendingOfflineReward.claimed ? pendingOfflineReward.savedAt : new Date().toISOString();
   state.lastSavedAt = savedAt;
-  return JSON.parse(JSON.stringify({ version:5, savedAt, ...state }));
+  return JSON.parse(JSON.stringify({ version:6, savedAt, ...state }));
 }
 function saveGame(show=false) {
   try {
@@ -304,7 +343,7 @@ function deleteSaveData() {
 }
 
 function updateScreen() {
-  updateTopScore(); updateBasicDisplay(); updatePrestigeDisplay(); updateAutoBasicDisplay(); updateBigBangDisplay(); updateSkinDisplay(); updateStats();
+  updateTopScore(); updateBasicDisplay(); updatePrestigeDisplay(); updateAutoBasicDisplay(); updateBigBangDisplay(); updateSkinDisplay(); updateAchievementDisplay(); updateStats();
 }
 function updateTopScore() {
   const showPrestige = prestigeTopActive && state.prestigePoints > PRESTIGE_TOP_DISPLAY_THRESHOLD;
@@ -315,7 +354,7 @@ function updateTopScore() {
   } else {
     els.mainScoreLabel.textContent = "ポイント"; els.pointText.textContent = fmt(state.points); els.secondaryScoreArea.classList.add("hidden");
   }
-  els.multiplierFormulaText.textContent = `*${fmtMult(state.prestigeBasicMultiplier)} *${fmtMult(state.bbAllMultiplier)} *${fmtMult(getSkinMultiplier())}`;
+  els.multiplierFormulaText.textContent = `*${fmtMult(state.prestigeBasicMultiplier)} *${fmtMult(state.bbAllMultiplier)} *${fmtMult(getSkinMultiplier())} *${fmtMult(getAchievementMultiplier())}`;
 }
 function updateBasicDisplay() {
   const ids = {
@@ -420,13 +459,68 @@ function updateStats() {
       ${statRow("高級リセット回数", fmt(state.prestigeResetCount))}${statRow("ジャガイモビックバン回数", fmt(state.bigBangCount))}${statRow("リセット時高級ポイント獲得量", fmt(getPrestigeGainPerReset()))}${statRow("BBポイント獲得量", fmt(getBigBangGainPerReset()))}
     </div></div>
     <div class="stat-group"><h3>倍率</h3><div class="stat-grid">
-      ${statRow("高級全基本ポイント倍率", `${fmtMult(state.prestigeBasicMultiplier)}倍`)}${statRow("BB全基本・高級ポイント倍率", `${fmtMult(state.bbAllMultiplier)}倍`)}${statRow("スキン基本ポイント倍率", `${fmtMult(getSkinMultiplier())}倍`)}${statRow("装備中スキン", getSkinConfig().name)}${statRow("スキン自動購入", state.autoSkinEnabled ? `ON / 目標:${getSkinConfig(state.autoSkinTargetId).name}` : "OFF")}${statRow("通常ポイントBB倍率", `${fmtMult(getBbNormalMultiplier())}倍`)}${statRow("高級ポイントBB倍率", `${fmtMult(getBbPrestigeMultiplier())}倍`)}${statRow("高級オート倍率", `${fmtMult(state.premiumAutoMultiplier)}倍`)}${statRow("通常クリック最終倍率", `${fmtMult(state.manualFinalMultiplier)}倍`)}
+      ${statRow("高級全基本ポイント倍率", `${fmtMult(state.prestigeBasicMultiplier)}倍`)}${statRow("BB全基本・高級ポイント倍率", `${fmtMult(state.bbAllMultiplier)}倍`)}${statRow("スキン基本ポイント倍率", `${fmtMult(getSkinMultiplier())}倍`)}${statRow("アチーブメント倍率", `${fmtMult(getAchievementMultiplier())}倍`)}${statRow("装備中スキン", getSkinConfig().name)}${statRow("スキン自動購入", state.autoSkinEnabled ? `ON / 目標:${getSkinConfig(state.autoSkinTargetId).name}` : "OFF")}${statRow("通常ポイントBB倍率", `${fmtMult(getBbNormalMultiplier())}倍`)}${statRow("高級ポイントBB倍率", `${fmtMult(getBbPrestigeMultiplier())}倍`)}${statRow("高級オート倍率", `${fmtMult(state.premiumAutoMultiplier)}倍`)}${statRow("通常クリック最終倍率", `${fmtMult(state.manualFinalMultiplier)}倍`)}
     </div></div>
     <div class="stat-group"><h3>解放状態</h3><div class="stat-grid">
       ${statRow("強化オートクリック", state.enhancedAutoUnlocked ? "解放済み" : "未解放")}${statRow("強化ボーナス", state.enhancedBonusUnlocked ? "解放済み" : "未解放")}${statRow("自動リセット", state.autoPrestigeUnlocked ? (state.autoPrestigeEnabled ? `ON / ${fmt(state.autoPrestigeTarget)}回単位` : "OFF") : "未解放")}${statRow("基本自動強化", state.autoBasicUnlocked ? (state.autoBasicEnabled ? "ON" : "OFF") : "未解放")}${statRow("基本初期値", `+${fmt(state.basicInitialLevelBonus)}`)}${statRow("基本コスト倍率", `${fmtPct(state.basicCostMultiplier)}%`)}
     </div></div>`;
 }
 function statRow(label, value) { return `<div class="stat-row"><span>${label}</span><span>${value}</span></div>`; }
+
+
+function isAchievementUnlocked(id) { return state.achievements?.[id] === true; }
+function unlockAchievement(id, silent=false) {
+  if (isAchievementUnlocked(id)) return false;
+  const achievement = ACHIEVEMENTS.find((a) => a.id === id);
+  if (!achievement) return false;
+  state.achievements[id] = true;
+  if (!silent) showAchievementToast(achievement);
+  updateAchievementDisplay();
+  return true;
+}
+function showAchievementToast(achievement) {
+  if (!els.achievementToastContainer) return;
+  const toast = document.createElement("div");
+  toast.className = "achievement-toast";
+  toast.innerHTML = `<strong>🏆 アチーブメント達成</strong><span>${achievement.name} / 基本ポイント倍率 +${fmtMult(achievement.reward)}</span>`;
+  els.achievementToastContainer.append(toast);
+  const remove = () => toast.remove();
+  toast.addEventListener("animationend", remove, {once:true});
+  setTimeout(remove, 4600);
+}
+function checkAchievements(options={}) {
+  const silent = options.silent === true;
+  const unlock = (id, condition) => { if (condition) unlockAchievement(id, silent); };
+  unlock("firstClick", state.totalClicks >= 1);
+  unlock("click100", state.totalClicks >= 100);
+  unlock("click10000", state.totalClicks >= 10000);
+  unlock("points100", state.totalPointsEarned >= 100);
+  unlock("points10000", state.totalPointsEarned >= 10000);
+  unlock("points1000000", state.totalPointsEarned >= 1_000_000);
+  unlock("points100000000", state.totalPointsEarned >= 100_000_000);
+  unlock("firstUpgrade", state.totalBasicUpgradePurchases >= 1);
+  unlock("hybrid", BASIC_KEYS.every((k) => (state.basicPurchaseCounts?.[k] || 0) >= 1));
+  unlock("upgrade50", state.totalBasicUpgradePurchases >= 50);
+  unlock("upgrade100", state.totalBasicUpgradePurchases >= 100);
+  unlock("upgrade500", state.totalBasicUpgradePurchases >= 500);
+  unlock("skinBuy", state.unlockedSkins.length > 1);
+  unlock("bonusStreak5", state.bonusStreak >= 5);
+  unlock("enhancedStreak5", state.enhancedBonusStreak >= 5);
+  unlock("firstPrestige", state.prestigeResetCount >= 1);
+  unlock("automation", state.enhancedAutoUnlocked && state.autoPrestigeUnlocked && state.autoBasicUnlocked);
+  unlock("prestigePoint10", state.totalPrestigePointsEarned >= 10 || state.prestigePoints >= 10);
+  unlock("prestigePoint100", state.prestigePoints >= 100);
+  unlock("firstBigBang", state.bigBangCount >= 1);
+}
+function updateAchievementDisplay() {
+  if (!els.achievementList) return;
+  const achieved = ACHIEVEMENTS.filter((a) => isAchievementUnlocked(a.id)).length;
+  if (els.achievementSummaryText) els.achievementSummaryText.textContent = `達成数: ${achieved} / ${ACHIEVEMENTS.length}  恒久基本ポイント倍率: ${fmtMult(getAchievementMultiplier())}倍`;
+  els.achievementList.innerHTML = ACHIEVEMENTS.map((a) => {
+    const done = isAchievementUnlocked(a.id);
+    return `<section class="achievement-card ${done ? "" : "locked-achievement"}"><h3>${a.name}</h3><p>${a.condition}</p><p class="achievement-reward">報酬: 基本ポイント倍率 +${fmtMult(a.reward)}</p><span class="achievement-status">${done ? "達成済み" : "未達成"}</span></section>`;
+  }).join("");
+}
 
 function formatDurationFromMs(ms) {
   const totalMinutes = Math.floor(ms / 60_000);
@@ -474,11 +568,12 @@ function claimOfflineReward() {
   pendingOfflineReward.claimed = true;
   pendingOfflineReward = null;
   if (els.offlineRewardModal) els.offlineRewardModal.classList.add("hidden");
+  state.lastSavedAt = new Date().toISOString();
   addPoints(reward);
   saveGame(true);
 }
 
-function addPoints(amount) { state.points += amount; updateScreen(); checkAutoPrestige(); }
+function addPoints(amount) { state.points += amount; if (amount > 0) state.totalPointsEarned += amount; checkAchievements(); updateScreen(); checkAutoPrestige(); }
 function showPrestigeTopDisplay() { if (state.prestigePoints <= PRESTIGE_TOP_DISPLAY_THRESHOLD) return; prestigeTopActive = true; clearTimeout(prestigeTopTimer); prestigeTopTimer = setTimeout(() => { prestigeTopActive = false; updateScreen(); }, PRESTIGE_TOP_DISPLAY_DURATION); }
 function hidePrestigeTopDisplay() { prestigeTopActive = false; clearTimeout(prestigeTopTimer); prestigeTopTimer = null; }
 function canBuyBasic(key) {
@@ -491,7 +586,7 @@ function canBuyBasic(key) {
 }
 function buyBasic(key, options={}) {
   if (!canBuyBasic(key)) return false;
-  state.points -= state.basicCosts[key]; state.basicLevels[key] += 1; state.basicCosts[key] = getNextBasicCost(key, state.basicCosts[key]);
+  state.points -= state.basicCosts[key]; state.basicLevels[key] += 1; state.basicPurchaseCounts[key] = (state.basicPurchaseCounts[key] || 0) + 1; state.totalBasicUpgradePurchases += 1; state.basicCosts[key] = getNextBasicCost(key, state.basicCosts[key]);
   if (key === "autoInterval") startAutoClickLoop();
   updateScreen(); if (options.save !== false) saveGame(); return true;
 }
@@ -507,16 +602,34 @@ function calculateClickGain() {
   return {perCount:total, entries, bonus:true, enhanced};
 }
 function gainManual(showEffects) {
-  const result = calculateClickGain(); const count = getClickCount(); addPoints(result.perCount * count);
-  if (showEffects) { showGainPopups(result.entries, count); playPotatoAnimation(); if (result.bonus) playBonusGlow(result.enhanced); }
+  const result = calculateClickGain(); const count = getClickCount(); const totalGain = result.perCount * count;
+  if (showEffects) {
+    state.totalClicks += 1;
+    state.bonusStreak = result.bonus ? state.bonusStreak + 1 : 0;
+    state.enhancedBonusStreak = result.enhanced ? state.enhancedBonusStreak + 1 : 0;
+    if (totalGain >= 10_000) unlockAchievement("clickGain10000");
+  }
+  addPoints(totalGain);
+  if (showEffects) { showGainPopups(result.entries, count); playPotatoAnimation(); if (result.bonus) playBonusGlow(result.enhanced); checkAchievements(); }
 }
 function executePrestigeReset() {
   const count = Math.floor(state.points / PRESTIGE_COST); if (count < 1) return;
+  const now = Date.now();
+  if (state.lastPrestigeResetAt) {
+    const delta = now - new Date(state.lastPrestigeResetAt).getTime();
+    if (delta <= 60_000) unlockAchievement("prestigeWithin60");
+    if (delta <= 10_000) unlockAchievement("prestigeWithin10");
+  }
+  if (count >= 2) { unlockAchievement("prestigeWithin60"); unlockAchievement("prestigeWithin10"); }
+  if (count >= 10) unlockAchievement("prestige10AtOnce");
+  state.lastPrestigeResetAt = new Date(now).toISOString();
   state.points = 0;
   state.prestigeResetCount += count;
-  state.prestigePoints += count * getPrestigeGainPerReset();
+  const prestigeGain = count * getPrestigeGainPerReset();
+  state.prestigePoints += prestigeGain;
+  state.totalPrestigePointsEarned += prestigeGain;
   state.prestigeBasicMultiplier += 0.01 * count;
-  resetBasicUpgrades(); resetSkins(); restartLoops(); showPrestigeTopDisplay(); updateScreen(); saveGame(true);
+  resetBasicUpgrades(); resetSkins(); restartLoops(); showPrestigeTopDisplay(); checkAchievements(); updateScreen(); saveGame(true);
 }
 function checkAutoPrestige() {
   if (!state.autoPrestigeUnlocked || !state.autoPrestigeEnabled) return;
@@ -536,14 +649,15 @@ function buyPrestige(type) {
   if (type === "autoPrestige") { state.autoPrestigeUnlocked = true; state.autoPrestigeEnabled = true; }
   if (type === "autoBasicUpgrade") { state.autoBasicUnlocked = true; state.autoBasicEnabled = true; }
   if (type === "prestigePointGain") state.prestigePointGainLevel += 1;
-  restartLoops(); updateScreen(); saveGame(true); checkAutoPrestige();
+  restartLoops(); checkAchievements(); updateScreen(); saveGame(true); checkAutoPrestige();
 }
 function executeBigBangReset() {
   const count = Math.floor(state.prestigePoints / BIG_BANG_COST); if (count < 1) return;
   const gain = count * getBigBangGainPerReset();
   state.bigBangPoints += gain; state.bigBangCount += count; state.bbAllMultiplier += 0.1 * count;
   resetPrestigeLayer(); // 高級ポイントも0にし、高級全基本ポイント倍率も1に戻す
-  hidePrestigeTopDisplay(); restartLoops(); updateScreen(); saveGame(true);
+  unlockAchievement("firstBigBang");
+  hidePrestigeTopDisplay(); restartLoops(); checkAchievements(); updateScreen(); saveGame(true);
 }
 function buyBigBang(type) {
   if (type === "normal") { if (state.bigBangPoints < 1) return; state.bigBangPoints -= 1; state.bbNormalMultiplierLevel += 1; }
@@ -603,6 +717,7 @@ function buyOrEquipSkin(id) {
     if (state.points < skin.cost) return;
     state.points -= skin.cost;
     state.unlockedSkins.push(id);
+    unlockAchievement("skinBuy");
   }
   state.equippedSkin = id;
   updateScreen();
@@ -636,6 +751,7 @@ function processAutoSkin() {
     if (state.points < skin.cost) break;
     state.points -= skin.cost;
     state.unlockedSkins.push(skin.id);
+    unlockAchievement("skinBuy");
     state.equippedSkin = skin.id;
     did = true;
   }
@@ -660,8 +776,8 @@ function processAutoBasic() {
 function startAutoBasicLoop() { clearInterval(autoBasicTimer); autoBasicTimer = setInterval(processAutoBasic, AUTO_BASIC_INTERVAL); }
 function restartLoops() { startAutoClickLoop(); startEnhancedAutoLoop(); }
 
-function openPanel(panel) { els.upgradePanel.classList.remove("open"); els.statsPanel.classList.remove("open"); els.skinPanel.classList.remove("open"); panel.classList.add("open"); els.panelOverlay.classList.add("show"); panel.setAttribute("aria-hidden", "false"); }
-function closePanels() { els.upgradePanel.classList.remove("open"); els.statsPanel.classList.remove("open"); els.skinPanel.classList.remove("open"); els.panelOverlay.classList.remove("show"); els.upgradePanel.setAttribute("aria-hidden", "true"); els.statsPanel.setAttribute("aria-hidden", "true"); els.skinPanel.setAttribute("aria-hidden", "true"); }
+function openPanel(panel) { els.upgradePanel.classList.remove("open"); els.statsPanel.classList.remove("open"); els.achievementPanel.classList.remove("open"); els.skinPanel.classList.remove("open"); panel.classList.add("open"); els.panelOverlay.classList.add("show"); panel.setAttribute("aria-hidden", "false"); }
+function closePanels() { els.upgradePanel.classList.remove("open"); els.statsPanel.classList.remove("open"); els.achievementPanel.classList.remove("open"); els.skinPanel.classList.remove("open"); els.panelOverlay.classList.remove("show"); els.upgradePanel.setAttribute("aria-hidden", "true"); els.statsPanel.setAttribute("aria-hidden", "true"); els.achievementPanel.setAttribute("aria-hidden", "true"); els.skinPanel.setAttribute("aria-hidden", "true"); }
 function toggleUpgradePanel() { els.upgradePanel.classList.contains("open") ? closePanels() : openPanel(els.upgradePanel); }
 
 function buildAutoBasicRows() {
@@ -778,9 +894,11 @@ function bindEvents() {
   $("deleteSaveButton").addEventListener("click", deleteSaveData);
   els.menuButton.addEventListener("click", () => openPanel(els.upgradePanel));
   els.statsButton.addEventListener("click", () => openPanel(els.statsPanel));
+  els.achievementButton.addEventListener("click", () => openPanel(els.achievementPanel));
   els.skinButton.addEventListener("click", () => openPanel(els.skinPanel));
   els.closePanelButton.addEventListener("click", closePanels);
   els.closeStatsButton.addEventListener("click", closePanels);
+  els.closeAchievementButton.addEventListener("click", closePanels);
   els.closeSkinButton.addEventListener("click", closePanels);
   els.panelOverlay.addEventListener("click", closePanels);
   els.closeDebugButton.addEventListener("click", closeDebugModal);
@@ -790,4 +908,4 @@ function bindEvents() {
   window.addEventListener("beforeunload", () => saveGame(false));
 }
 
-buildAutoBasicRows(); buildDebugFields(); buildSkinList(); resetBasicUpgrades(); loadGame(); bindEvents(); restartLoops(); startAutoBasicLoop(); updateScreen(); setInterval(() => saveGame(false), AUTO_SAVE_INTERVAL);
+buildAutoBasicRows(); buildDebugFields(); buildSkinList(); resetBasicUpgrades(); loadGame(); checkAchievements({silent:true}); bindEvents(); restartLoops(); startAutoBasicLoop(); updateScreen(); setInterval(() => saveGame(false), AUTO_SAVE_INTERVAL);

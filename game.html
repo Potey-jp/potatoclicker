@@ -11,6 +11,7 @@
     <div class="top-buttons">
       <button id="menuButton" class="menu-button" type="button" aria-label="アップグレードメニューを開く">☰</button>
       <button id="statsButton" class="menu-button stats-button" type="button" aria-label="統計メニューを開く">📊</button>
+      <button id="achievementButton" class="menu-button achievement-button" type="button" aria-label="アチーブメントメニューを開く">🏆</button>
     </div>
 
     <div id="scoreArea" class="score-area">
@@ -168,6 +169,20 @@
     <div id="statsContent" class="stats-content"></div>
   </aside>
 
+
+
+  <aside id="achievementPanel" class="side-panel achievement-panel" aria-hidden="true">
+    <div class="panel-header">
+      <h2>アチーブメント</h2>
+      <button id="closeAchievementButton" class="close-button" type="button">×</button>
+    </div>
+    <div class="achievement-summary-card">
+      <p id="achievementSummaryText">達成数: 0 / 0</p>
+      <p>達成するたびに、リセットやビックバンで消えない恒久的な基本ポイント倍率を得ます。</p>
+    </div>
+    <div id="achievementList" class="achievement-list"></div>
+  </aside>
+
   <aside id="skinPanel" class="side-panel skin-panel" aria-hidden="true">
     <div class="panel-header">
       <h2>スキン</h2>
@@ -190,6 +205,7 @@
   </main>
 
   <button id="skinButton" class="skin-floating-button" type="button" aria-label="スキンメニューを開く">🥔 スキン</button>
+  <div id="achievementToastContainer" class="achievement-toast-container" aria-live="polite"></div>
 
   <div id="debugModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
     <div class="debug-modal">
