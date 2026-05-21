@@ -14,7 +14,7 @@ const BASIC_LABELS = {
   clickPower:"クリック強化", clickCount:"クリック回数強化", autoClick:"オートクリック", autoInterval:"オート間隔短縮", autoMultiplier:"オートクリック倍加", bonusChance:"ボーナス確率", bonusMultiplier:"ボーナス倍率", enhancedBonusChance:"強化ボーナス確率", enhancedBonusMultiplier:"強化ボーナス倍率"
 };
 const BASIC_CONFIG = {
-  clickPower:{baseCost:10,growth:1.72}, clickCount:{baseCost:72,growth:1.88}, autoClick:{baseCost:24,growth:1.82}, autoInterval:{baseCost:145,growth:1.78}, autoMultiplier:{baseCost:290,growth:2.15}, bonusChance:{baseCost:48,growth:1.68}, bonusMultiplier:{baseCost:96,growth:2.03}, enhancedBonusChance:{baseCost:480,growth:1.75}, enhancedBonusMultiplier:{baseCost:760,growth:2.1}
+  clickPower:{baseCost:10,growth:1.9}, clickCount:{baseCost:72,growth:2.08}, autoClick:{baseCost:24,growth:2.02}, autoInterval:{baseCost:145,growth:1.98}, autoMultiplier:{baseCost:290,growth:2.45}, bonusChance:{baseCost:48,growth:1.88}, bonusMultiplier:{baseCost:96,growth:2.3}, enhancedBonusChance:{baseCost:480,growth:2.0}, enhancedBonusMultiplier:{baseCost:760,growth:2.4}
 };
 const PRESTIGE_TYPES = ["enhancedAuto","enhancedBonus","initialLevel","costReduction","premiumAutoMultiplier","manualFinalMultiplier","autoPrestige","autoBasicUpgrade","prestigePointGain"];
 const PRESTIGE_BASE_COST = { enhancedAuto:1, enhancedBonus:1, initialLevel:1, costReduction:1, premiumAutoMultiplier:1, manualFinalMultiplier:1, autoPrestige:5, autoBasicUpgrade:10, prestigePointGain:1 };
