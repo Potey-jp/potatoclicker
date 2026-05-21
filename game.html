@@ -206,6 +206,25 @@
     </div>
   </div>
 
+
+  <div id="offlineRewardModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="debug-modal offline-reward-modal">
+      <div class="panel-header">
+        <h2>オフライン報酬</h2>
+      </div>
+      <p class="premium-note">ゲームを開いていない間の報酬を計算しました。</p>
+      <div class="offline-reward-summary">
+        <p>オフライン時間: <strong id="offlineDurationText">0分</strong></p>
+        <p>計算対象時間: <strong id="offlineCappedDurationText">0分</strong></p>
+        <p>報酬: <strong id="offlineRewardText">0</strong> ポイント</p>
+      </div>
+      <p class="premium-note">最大24時間分まで、1分単位で「毎秒1通常クリック + オートクリック分」を受け取れます。</p>
+      <div class="debug-actions">
+        <button id="claimOfflineRewardButton" class="upgrade-button utility-button" type="button">受け取る</button>
+      </div>
+    </div>
+  </div>
+
   <script src="game.js"></script>
 </body>
 </html>

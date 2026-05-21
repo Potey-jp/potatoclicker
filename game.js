@@ -5,6 +5,7 @@ const els = {
   menuButton: $("menuButton"), statsButton: $("statsButton"), skinButton: $("skinButton"), closePanelButton: $("closePanelButton"), closeStatsButton: $("closeStatsButton"), closeSkinButton: $("closeSkinButton"), upgradePanel: $("upgradePanel"), statsPanel: $("statsPanel"), skinPanel: $("skinPanel"), panelOverlay: $("panelOverlay"), statsContent: $("statsContent"), skinList: $("skinList"), currentSkinNameText: $("currentSkinNameText"), currentSkinMultiplierText: $("currentSkinMultiplierText"),
   potatoButton: $("potatoButton"), potatoImage: $("potatoImage"),
   debugModal: $("debugModal"), debugFields: $("debugFields"), closeDebugButton: $("closeDebugButton"), cancelDebugButton: $("cancelDebugButton"), applyDebugButton: $("applyDebugButton"),
+  offlineRewardModal: $("offlineRewardModal"), offlineDurationText: $("offlineDurationText"), offlineCappedDurationText: $("offlineCappedDurationText"), offlineRewardText: $("offlineRewardText"), claimOfflineRewardButton: $("claimOfflineRewardButton"),
   saveStatusText: $("saveStatusText"), autoBasicRows: $("autoBasicRows"), autoSkinSettings: $("autoSkinSettings"), autoSkinTargetSelect: $("autoSkinTargetSelect"), toggleAutoSkinButton: $("toggleAutoSkinButton"), autoPrestigeTargetInput: $("autoPrestigeTargetInput"), autoPrestigeSettings: $("autoPrestigeSettings"),
 };
 
@@ -69,6 +70,8 @@ const MAX_ENHANCED_ON_SCREEN = 40;
 const PRESTIGE_TOP_DISPLAY_THRESHOLD = 100;
 const PRESTIGE_TOP_DISPLAY_DURATION = 10_000;
 const DEBUG_COMMAND = "POTATO";
+const OFFLINE_MINIMUM_MS = 60_000;
+const OFFLINE_MAX_MS = 24 * 60 * 60 * 1000;
 
 const basicEls = {};
 BASIC_KEYS.forEach((key) => {
@@ -87,6 +90,7 @@ let prestigeTopTimer = null;
 let prestigeTopActive = false;
 let debugProgress = "";
 let saveStatusTimer = null;
+let pendingOfflineReward = null;
 const popupQueues = { standard: [], enhanced: [] };
 const autoBasicControls = {};
 
@@ -110,6 +114,7 @@ function createInitialState() {
     prestigePurchaseCounts:pCounts,
     bbNormalMultiplierLevel:0, bbPrestigeMultiplierLevel:0, bbPointGainLevel:0,
     unlockedSkins:["default"], equippedSkin:"default",
+    lastSavedAt:null,
   };
 }
 
@@ -176,7 +181,7 @@ function resetPrestigeLayer() {
   resetBasicUpgrades();
   resetSkins();
 }
-function resetAll() { assignState(createInitialState()); resetBasicUpgrades(); clearPopups(); hidePrestigeTopDisplay(); restartLoops(); updateScreen(); }
+function resetAll() { assignState(createInitialState()); resetBasicUpgrades(); clearPopups(); pendingOfflineReward = null; if (els.offlineRewardModal) els.offlineRewardModal.classList.add("hidden"); hidePrestigeTopDisplay(); restartLoops(); updateScreen(); }
 
 function getClickPower() { return 1 + state.basicLevels.clickPower; }
 function getClickCount() { return 1 + state.basicLevels.clickCount; }
@@ -227,7 +232,11 @@ function purgePotatoStorage() {
   localStorage.removeItem(`${SAVE_KEY}_status`);
 }
 
-function createSaveData() { return JSON.parse(JSON.stringify({ version:4, savedAt:new Date().toISOString(), ...state })); }
+function createSaveData() {
+  const savedAt = pendingOfflineReward && !pendingOfflineReward.claimed ? pendingOfflineReward.savedAt : new Date().toISOString();
+  state.lastSavedAt = savedAt;
+  return JSON.parse(JSON.stringify({ version:5, savedAt, ...state }));
+}
 function saveGame(show=false) {
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(createSaveData()));
@@ -264,7 +273,9 @@ function loadGame() {
       data.basicCosts = data.upgradeCosts;
       data.prestigePurchaseCounts = data.prestigeUpgradePurchaseCounts;
     }
+    const previousSavedAt = data.savedAt || data.lastSavedAt || null;
     assignState(data);
+    prepareOfflineReward(previousSavedAt);
     setSaveStatus("ロード済み");
   } catch (e) { resetBasicUpgrades(); setSaveStatus("ロード失敗"); console.error(e); }
 }
@@ -282,6 +293,7 @@ function deleteSaveData() {
   assignState(createInitialState());
   resetBasicUpgrades();
   clearPopups();
+  pendingOfflineReward = null; if (els.offlineRewardModal) els.offlineRewardModal.classList.add("hidden");
   hidePrestigeTopDisplay();
   restartLoops();
   startAutoBasicLoop();
@@ -415,6 +427,56 @@ function updateStats() {
     </div></div>`;
 }
 function statRow(label, value) { return `<div class="stat-row"><span>${label}</span><span>${value}</span></div>`; }
+
+function formatDurationFromMs(ms) {
+  const totalMinutes = Math.floor(ms / 60_000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours <= 0) return `${minutes}分`;
+  if (minutes <= 0) return `${hours}時間`;
+  return `${hours}時間${minutes}分`;
+}
+function getOfflineManualPerSecond() {
+  return getClickPower() * getClickCount() * getNormalPointMultiplier() * state.manualFinalMultiplier;
+}
+function getOfflineAutoPerSecond() {
+  const regularAuto = getEffectiveAutoClickPower() * (1000 / getAutoInterval());
+  return regularAuto;
+}
+function calculateOfflineReward(elapsedMs) {
+  const cappedMs = Math.min(elapsedMs, OFFLINE_MAX_MS);
+  const rewardMinutes = Math.floor(cappedMs / 60_000);
+  const rewardSeconds = rewardMinutes * 60;
+  const reward = rewardSeconds * (getOfflineManualPerSecond() + getOfflineAutoPerSecond());
+  return { elapsedMs, cappedMs: rewardMinutes * 60_000, rewardMinutes, reward };
+}
+function prepareOfflineReward(savedAt) {
+  if (!savedAt) return;
+  const savedTime = new Date(savedAt).getTime();
+  if (!Number.isFinite(savedTime)) return;
+  const elapsedMs = Date.now() - savedTime;
+  if (elapsedMs < OFFLINE_MINIMUM_MS) return;
+  const result = calculateOfflineReward(elapsedMs);
+  if (result.rewardMinutes < 1 || result.reward <= 0) return;
+  pendingOfflineReward = { ...result, savedAt, claimed:false };
+  showOfflineRewardModal();
+}
+function showOfflineRewardModal() {
+  if (!pendingOfflineReward || !els.offlineRewardModal) return;
+  els.offlineDurationText.textContent = formatDurationFromMs(pendingOfflineReward.elapsedMs);
+  els.offlineCappedDurationText.textContent = formatDurationFromMs(pendingOfflineReward.cappedMs);
+  els.offlineRewardText.textContent = fmt(pendingOfflineReward.reward);
+  els.offlineRewardModal.classList.remove("hidden");
+}
+function claimOfflineReward() {
+  if (!pendingOfflineReward || pendingOfflineReward.claimed) return;
+  const reward = pendingOfflineReward.reward;
+  pendingOfflineReward.claimed = true;
+  pendingOfflineReward = null;
+  if (els.offlineRewardModal) els.offlineRewardModal.classList.add("hidden");
+  addPoints(reward);
+  saveGame(true);
+}
 
 function addPoints(amount) { state.points += amount; updateScreen(); checkAutoPrestige(); }
 function showPrestigeTopDisplay() { if (state.prestigePoints <= PRESTIGE_TOP_DISPLAY_THRESHOLD) return; prestigeTopActive = true; clearTimeout(prestigeTopTimer); prestigeTopTimer = setTimeout(() => { prestigeTopActive = false; updateScreen(); }, PRESTIGE_TOP_DISPLAY_DURATION); }
@@ -691,6 +753,7 @@ function handleKeydown(e) {
 
 function bindEvents() {
   els.potatoButton.addEventListener("click", () => gainManual(true));
+  if (els.claimOfflineRewardButton) els.claimOfflineRewardButton.addEventListener("click", claimOfflineReward);
   BASIC_KEYS.forEach((k) => basicEls[k].button.addEventListener("click", () => buyBasic(k)));
   $("prestigeResetButton").addEventListener("click", executePrestigeReset);
   $("prestigeEnhancedAutoButton").addEventListener("click", () => buyPrestige("enhancedAuto"));
