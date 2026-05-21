@@ -76,6 +76,7 @@ const OLD_SAVE_KEYS = ["potatoClickerSaveData_v2", "potatoClickerSaveData_v1", "
 const RESET_MARKER_KEY = `${SAVE_KEY_BASE}_hardResetMarker_${getStorageScopeKey()}`;
 const FORCE_CLEAN_START_KEY = `${SAVE_KEY_BASE}_forceCleanStart_${getStorageScopeKey()}`;
 const OFFLINE_CLAIMED_UNTIL_KEY = `${SAVE_KEY_BASE}_offlineClaimedUntil_${getStorageScopeKey()}`;
+const OFFLINE_LEFT_AT_KEY = `${SAVE_KEY_BASE}_offlineLeftAt_${getStorageScopeKey()}`;
 let saveDisabled = false;
 let offlineRewardClaimedThisSession = false;
 const AUTO_SAVE_INTERVAL = 5000;
@@ -399,6 +400,8 @@ function purgePotatoStorage() {
   });
   localStorage.removeItem(SAVE_KEY);
   localStorage.removeItem(`${SAVE_KEY}_status`);
+  localStorage.removeItem(OFFLINE_CLAIMED_UNTIL_KEY);
+  localStorage.removeItem(OFFLINE_LEFT_AT_KEY);
 }
 
 function createSaveData(options = {}) {
@@ -728,16 +731,20 @@ function calculateOfflineReward(elapsedMs) {
 }
 function prepareOfflineReward(savedAt) {
   if (offlineRewardClaimedThisSession) return;
-  if (!savedAt) return;
-  const savedTime = new Date(savedAt).getTime();
+
+  // オフライン報酬は「最後にページを離れた時刻」だけを基準にする。
+  // savedAt は自動セーブでオンライン中にも更新されるため、報酬計算には使わない。
+  const leftAtRaw = Number(localStorage.getItem(OFFLINE_LEFT_AT_KEY) || 0);
+  if (!Number.isFinite(leftAtRaw) || leftAtRaw <= 0) return;
+
   const claimedUntil = Number(localStorage.getItem(OFFLINE_CLAIMED_UNTIL_KEY) || 0);
-  if (!Number.isFinite(savedTime)) return;
-  const baseTime = Math.max(savedTime, Number.isFinite(claimedUntil) ? claimedUntil : 0);
+  const baseTime = Math.max(leftAtRaw, Number.isFinite(claimedUntil) ? claimedUntil : 0);
   const elapsedMs = Date.now() - baseTime;
   if (elapsedMs < OFFLINE_MINIMUM_MS) return;
+
   const result = calculateOfflineReward(elapsedMs);
   if (result.rewardMinutes < 1 || result.reward <= 0) return;
-  pendingOfflineReward = { ...result, savedAt, claimed:false };
+  pendingOfflineReward = { ...result, leftAt:leftAtRaw, claimed:false };
   showOfflineRewardModal();
 }
 function showOfflineRewardModal() {
@@ -760,7 +767,10 @@ function claimOfflineReward() {
   state.lastSavedAt = nowIso;
   // 先に専用キーへ受け取り済み時刻を書き込む。ポイント加算や通常セーブが失敗しても、
   // 次回起動時はこの時刻を基準にするため、同じオフライン時間を再利用できない。
-  try { localStorage.setItem(OFFLINE_CLAIMED_UNTIL_KEY, String(now)); } catch (e) { console.error(e); }
+  try {
+    localStorage.setItem(OFFLINE_CLAIMED_UNTIL_KEY, String(now));
+    localStorage.setItem(OFFLINE_LEFT_AT_KEY, String(now));
+  } catch (e) { console.error(e); }
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(createSaveData({ savedAt:nowIso }))); } catch (e) { console.error(e); }
   addPoints(reward);
 
@@ -1076,6 +1086,27 @@ function handleKeydown(e) {
   debugProgress = key === DEBUG_COMMAND[0] ? key : "";
 }
 
+
+function markOfflineLeftAt() {
+  if (saveDisabled) return;
+  const now = Date.now();
+  try {
+    localStorage.setItem(OFFLINE_LEFT_AT_KEY, String(now));
+  } catch (e) { console.error(e); }
+  saveGame(false, { savedAt:new Date(now).toISOString() });
+}
+
+function clearFalseOfflineStart() {
+  // ページが表示中に自動保存された時間はオフライン報酬に使わない。
+  // ただし、未受け取り報酬が出ている場合は古い離脱時刻を残す。
+  if (pendingOfflineReward) return;
+  const now = Date.now();
+  const leftAt = Number(localStorage.getItem(OFFLINE_LEFT_AT_KEY) || 0);
+  if (Number.isFinite(leftAt) && now - leftAt < OFFLINE_MINIMUM_MS) {
+    try { localStorage.removeItem(OFFLINE_LEFT_AT_KEY); } catch (e) { console.error(e); }
+  }
+}
+
 function bindEvents() {
   els.potatoButton.addEventListener("click", () => gainManual(true));
   if (els.claimOfflineRewardButton) els.claimOfflineRewardButton.addEventListener("click", claimOfflineReward);
@@ -1114,7 +1145,12 @@ function bindEvents() {
   els.cancelDebugButton.addEventListener("click", closeDebugModal);
   els.applyDebugButton.addEventListener("click", applyDebugFields);
   document.addEventListener("keydown", handleKeydown);
-  window.addEventListener("beforeunload", () => saveGame(false));
+  window.addEventListener("pagehide", markOfflineLeftAt);
+  window.addEventListener("beforeunload", markOfflineLeftAt);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") markOfflineLeftAt();
+    else if (document.visibilityState === "visible") clearFalseOfflineStart();
+  });
 }
 
-buildAutoBasicRows(); buildDebugFields(); buildSkinList(); resetBasicUpgrades(); loadGame(); checkAchievements({silent:true}); bindEvents(); restartLoops(); startAutoBasicLoop(); updateScreen(); setInterval(() => saveGame(false), AUTO_SAVE_INTERVAL);
+buildAutoBasicRows(); buildDebugFields(); buildSkinList(); resetBasicUpgrades(); loadGame(); clearFalseOfflineStart(); checkAchievements({silent:true}); bindEvents(); restartLoops(); startAutoBasicLoop(); updateScreen(); setInterval(() => saveGame(false), AUTO_SAVE_INTERVAL);
