@@ -31,7 +31,7 @@ const PRESTIGE_LABELS = { enhancedAuto:"強化オートクリック解放", enha
 const SKIN_CONFIG = [
   { id:"default", name:"通常ジャガイモ", file:"potato.png", cost:0, multiplier:1 },
   { id:"haruka10", name:"はるか", file:"haruka 10.avif", cost:10_000, multiplier:1.2 },
-  { id:"guraundopetika9", name:"グラウンドペチカ（デストロイヤー）", file:"guraundopetika (desutoroiya-) 9.avif", cost:40_000, multiplier:1.4 },
+  { id:"guraundopetika9", name:"グラウンドペチカ（デストロイヤー）", file:"guraundopetika (desutoroiya-) 9.jpg", cost:40_000, multiplier:1.4 },
   { id:"tawarayo8", name:"タワラヨーデル", file:"tawarayo-deru 8.avif", cost:150_000, multiplier:1.7 },
   { id:"sinsia7", name:"シンシア", file:"sinsia 7.avif", cost:500_000, multiplier:2.1 },
   { id:"nozanrubi6", name:"ノーザンルビー", file:"no-zanrubi- 6.avif", cost:1_500_000, multiplier:2.6 },
