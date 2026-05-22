@@ -34,17 +34,7 @@ const SKIN_CONFIG = [
   {
     id:"guraundopetika9",
     name:"グラウンドペチカ（デストロイヤー）",
-    file:"guraundopetika (desutoroiya-) 9.jpg",
-    fileCandidates:[
-      "guraundopetika (desutoroiya-) 9.jpg",
-      "guraundopetika (desutoroiya-) 9.JPG",
-      "guraundopetika (desutoroiya-) 9.jpeg",
-      "guraundopetika (desutoroiya-) 9.JPEG",
-      "guraundopotika (desutoroiya-) 9.jpg",
-      "guraundopotika (desutoroiya-) 9.JPG",
-      "guraundopotika (desutoroiya-) 9.jpeg",
-      "guraundopotika (desutoroiya-) 9.JPEG"
-    ],
+    file:"9.jpg",
     cost:40_000,
     multiplier:1.4
   },
@@ -1044,7 +1034,6 @@ function buildSkinList() {
         <h3>${skin.name}</h3>
         <p>コスト: <strong>${skin.cost === 0 ? "初期所持" : `${fmt(skin.cost)} ポイント`}</strong></p>
         <p>基本ポイント倍率: <strong>${fmtMult(skin.multiplier)}倍</strong></p>
-        <p class="skin-file-note">画像候補: ${getSkinImageCandidates(skin).join(" / ")}</p>
         <button class="skin-action-button" type="button"></button>
       </div>`;
     card.prepend(preview);
