@@ -264,3 +264,8 @@ body {
 @media (max-width: 560px) {
   .achievement-toast-container { top: 74px; right: 10px; }
 }
+.skin-file-note {
+  color: rgba(255, 248, 231, 0.62);
+  font-size: 12px !important;
+  word-break: break-all;
+}

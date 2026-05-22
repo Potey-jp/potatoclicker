@@ -44,11 +44,46 @@ const SKIN_CONFIG = [
 
 
 
-const SKIN_ASSET_VERSION = "groundpetika-jpg-v2";
 function getSkinImageSrc(skin) {
   if (!skin || !skin.file) return "potato.png";
-  // 同じ名前の画像を差し替えた時、ブラウザが古い画像をキャッシュして表示し続けることを防ぐ。
-  return `${skin.file}?v=${SKIN_ASSET_VERSION}`;
+  return skin.file;
+}
+
+function getSkinImageCandidates(skin) {
+  const primary = getSkinImageSrc(skin);
+  if (!skin) return ["potato.png"];
+
+  // グラウンドペチカは拡張子変更の影響を受けやすいので、
+  // 新しい jpg を最優先し、大文字拡張子なども試す。
+  // 古い avif には戻さない。失敗時に古い画像が表示され続ける原因になるため。
+  if (skin.id === "guraundopetika9") {
+    return [
+      "guraundopetika (desutoroiya-) 9.jpg",
+      "guraundopetika (desutoroiya-) 9.JPG",
+      "guraundopetika (desutoroiya-) 9.jpeg",
+      "guraundopetika (desutoroiya-) 9.JPEG"
+    ];
+  }
+
+  return [primary];
+}
+
+function setImageWithCandidates(img, candidates) {
+  if (!img || !Array.isArray(candidates) || candidates.length === 0) return;
+  let index = 0;
+  const apply = () => {
+    img.onerror = () => {
+      index += 1;
+      if (index < candidates.length) {
+        apply();
+      } else {
+        img.onerror = null;
+        console.warn("画像を読み込めませんでした:", candidates);
+      }
+    };
+    img.src = candidates[index];
+  };
+  apply();
 }
 
 const ACHIEVEMENTS = [
@@ -194,7 +229,10 @@ function assignState(data) {
   });
   PRESTIGE_TYPES.forEach((k) => { state.prestigePurchaseCounts[k] = Math.max(0, Math.floor(num(state.prestigePurchaseCounts?.[k], 0))); });
   const validSkinIds = SKIN_CONFIG.map((skin) => skin.id);
-  const loadedSkins = Array.isArray(state.unlockedSkins) ? state.unlockedSkins : ["default"];
+  const normalizeSkinId = (id) => id === "guraundopotika9" ? "guraundopetika9" : id;
+  const loadedSkins = Array.isArray(state.unlockedSkins) ? state.unlockedSkins.map(normalizeSkinId) : ["default"];
+  state.equippedSkin = normalizeSkinId(state.equippedSkin);
+  state.autoSkinTargetId = normalizeSkinId(state.autoSkinTargetId);
   state.unlockedSkins = Array.from(new Set(["default", ...loadedSkins.filter((id) => validSkinIds.includes(id))]));
   if (!validSkinIds.includes(state.equippedSkin) || !state.unlockedSkins.includes(state.equippedSkin)) state.equippedSkin = "default";
   if (!validSkinIds.includes(state.autoSkinTargetId)) state.autoSkinTargetId = "default";
@@ -966,14 +1004,19 @@ function buildSkinList() {
     const card = document.createElement("section");
     card.className = "skin-card";
     card.dataset.skinId = skin.id;
+    const preview = document.createElement("img");
+    preview.className = "skin-preview";
+    preview.alt = skin.name;
+    setImageWithCandidates(preview, getSkinImageCandidates(skin));
     card.innerHTML = `
-      <img class="skin-preview" src="${getSkinImageSrc(skin)}" alt="${skin.name}" />
       <div class="skin-info">
         <h3>${skin.name}</h3>
         <p>コスト: <strong>${skin.cost === 0 ? "初期所持" : `${fmt(skin.cost)} ポイント`}</strong></p>
         <p>基本ポイント倍率: <strong>${fmtMult(skin.multiplier)}倍</strong></p>
+        <p class="skin-file-note">画像: ${getSkinImageSrc(skin)}</p>
         <button class="skin-action-button" type="button"></button>
       </div>`;
+    card.prepend(preview);
     const button = card.querySelector("button");
     button.addEventListener("click", () => buyOrEquipSkin(skin.id));
     els.skinList.append(card);
@@ -985,7 +1028,11 @@ function updateSkinDisplay() {
   if (els.currentSkinMultiplierText) els.currentSkinMultiplierText.textContent = `${fmtMult(equipped.multiplier)}倍`;
   if (els.potatoImage) {
     const equippedSrc = getSkinImageSrc(equipped);
-    if (els.potatoImage.getAttribute("src") !== equippedSrc) els.potatoImage.src = equippedSrc;
+    if (els.potatoImage.dataset.skinId !== equipped.id || els.potatoImage.dataset.skinSrc !== equippedSrc) {
+      els.potatoImage.dataset.skinId = equipped.id;
+      els.potatoImage.dataset.skinSrc = equippedSrc;
+      setImageWithCandidates(els.potatoImage, getSkinImageCandidates(equipped));
+    }
   }
   if (!els.skinList) return;
   els.skinList.querySelectorAll(".skin-card").forEach((card) => {
