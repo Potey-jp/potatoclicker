@@ -34,10 +34,10 @@ const SKIN_CONFIG = [
   {
     id:"guraundopetika9",
     name:"グラウンドペチカ（デストロイヤー）",
-    file:"9.png",
+    file:"9.avif",
     // ZIPを展開したフォルダ構成によって画像だけ1階層上に残ることがあるため、複数パスを自動で試します。
     // スキン画面にはこのファイル名一覧は表示しません。
-    fileCandidates:["9.png", "./9.png", "../9.png", "assets/9.png", "./assets/9.png", "images/9.png", "./images/9.png", "skins/9.png", "./skins/9.png", "9.PNG"],
+    fileCandidates:["9.avif", "./9.avif", "../9.avif", "assets/9.avif", "./assets/9.avif", "images/9.avif", "./images/9.avif", "skins/9.avif", "./skins/9.avif", "9.AVIF"],
     cost:40_000,
     multiplier:1.4
   },
