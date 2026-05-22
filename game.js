@@ -35,6 +35,9 @@ const SKIN_CONFIG = [
     id:"guraundopetika9",
     name:"グラウンドペチカ（デストロイヤー）",
     file:"9.jpg",
+    // ZIPを展開したフォルダ構成によって画像だけ1階層上に残ることがあるため、複数パスを自動で試します。
+    // スキン画面にはこのファイル名一覧は表示しません。
+    fileCandidates:["9.jpg", "./9.jpg", "../9.jpg", "assets/9.jpg", "./assets/9.jpg", "images/9.jpg", "./images/9.jpg", "skins/9.jpg", "./skins/9.jpg", "9.JPG", "9.jpeg", "9.JPEG"],
     cost:40_000,
     multiplier:1.4
   },
@@ -57,13 +60,21 @@ function getSkinImageSrc(skin) {
 
 function uniqueImageCandidates(candidates) {
   const result = [];
+  const add = (value) => {
+    if (value && !result.includes(value)) result.push(value);
+  };
   candidates.forEach((candidate) => {
     if (!candidate) return;
-    const raw = String(candidate);
-    const encoded = encodeURI(raw);
-    [raw, encoded].forEach((value) => {
-      if (!result.includes(value)) result.push(value);
-    });
+    const raw = String(candidate).trim();
+    if (!raw) return;
+    add(raw);
+    add(encodeURI(raw));
+    try {
+      // file:// 直開きやZIP展開後の相対パス解決を安定させるため、絶対URLも候補にします。
+      add(new URL(raw, window.location.href).href);
+    } catch (e) {
+      // URL化できない候補はそのまま無視します。
+    }
   });
   return result;
 }
@@ -93,7 +104,7 @@ function setImageWithCandidates(img, candidates) {
         img.onerror = null;
         img.dataset.imageLoadFailed = "true";
         img.dataset.failedCandidates = list.join(" | ");
-        console.warn("画像を読み込めませんでした:", list);
+        console.warn("画像を読み込めませんでした。対象画像を game.html と同じフォルダ、または1階層上、assets/images/skins フォルダに置いてください。", list);
       }
     };
     img.onload = () => {
