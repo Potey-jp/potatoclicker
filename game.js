@@ -31,7 +31,23 @@ const PRESTIGE_LABELS = { enhancedAuto:"強化オートクリック解放", enha
 const SKIN_CONFIG = [
   { id:"default", name:"通常ジャガイモ", file:"potato.png", cost:0, multiplier:1 },
   { id:"haruka10", name:"はるか", file:"haruka 10.avif", cost:10_000, multiplier:1.2 },
-  { id:"guraundopetika9", name:"グラウンドペチカ（デストロイヤー）", file:"guraundopetika (desutoroiya-) 9.jpg", cost:40_000, multiplier:1.4 },
+  {
+    id:"guraundopetika9",
+    name:"グラウンドペチカ（デストロイヤー）",
+    file:"guraundopetika (desutoroiya-) 9.jpg",
+    fileCandidates:[
+      "guraundopetika (desutoroiya-) 9.jpg",
+      "guraundopetika (desutoroiya-) 9.JPG",
+      "guraundopetika (desutoroiya-) 9.jpeg",
+      "guraundopetika (desutoroiya-) 9.JPEG",
+      "guraundopotika (desutoroiya-) 9.jpg",
+      "guraundopotika (desutoroiya-) 9.JPG",
+      "guraundopotika (desutoroiya-) 9.jpeg",
+      "guraundopotika (desutoroiya-) 9.JPEG"
+    ],
+    cost:40_000,
+    multiplier:1.4
+  },
   { id:"tawarayo8", name:"タワラヨーデル", file:"tawarayo-deru 8.avif", cost:150_000, multiplier:1.7 },
   { id:"sinsia7", name:"シンシア", file:"sinsia 7.avif", cost:500_000, multiplier:2.1 },
   { id:"nozanrubi6", name:"ノーザンルビー", file:"no-zanrubi- 6.avif", cost:1_500_000, multiplier:2.6 },
@@ -49,40 +65,55 @@ function getSkinImageSrc(skin) {
   return skin.file;
 }
 
+function uniqueImageCandidates(candidates) {
+  const result = [];
+  candidates.forEach((candidate) => {
+    if (!candidate) return;
+    const raw = String(candidate);
+    const encoded = encodeURI(raw);
+    [raw, encoded].forEach((value) => {
+      if (!result.includes(value)) result.push(value);
+    });
+  });
+  return result;
+}
+
 function getSkinImageCandidates(skin) {
-  const primary = getSkinImageSrc(skin);
   if (!skin) return ["potato.png"];
-
-  // グラウンドペチカは拡張子変更の影響を受けやすいので、
-  // 新しい jpg を最優先し、大文字拡張子なども試す。
-  // 古い avif には戻さない。失敗時に古い画像が表示され続ける原因になるため。
-  if (skin.id === "guraundopetika9") {
-    return [
-      "guraundopetika (desutoroiya-) 9.jpg",
-      "guraundopetika (desutoroiya-) 9.JPG",
-      "guraundopetika (desutoroiya-) 9.jpeg",
-      "guraundopetika (desutoroiya-) 9.JPEG"
-    ];
+  if (Array.isArray(skin.fileCandidates) && skin.fileCandidates.length > 0) {
+    return uniqueImageCandidates(skin.fileCandidates);
   }
-
-  return [primary];
+  return uniqueImageCandidates([getSkinImageSrc(skin)]);
 }
 
 function setImageWithCandidates(img, candidates) {
   if (!img || !Array.isArray(candidates) || candidates.length === 0) return;
+  const list = uniqueImageCandidates(candidates);
   let index = 0;
+
   const apply = () => {
+    const current = list[index];
+    img.dataset.imageCandidateIndex = String(index);
+    img.dataset.imageCandidate = current;
     img.onerror = () => {
       index += 1;
-      if (index < candidates.length) {
+      if (index < list.length) {
         apply();
       } else {
         img.onerror = null;
-        console.warn("画像を読み込めませんでした:", candidates);
+        img.dataset.imageLoadFailed = "true";
+        img.dataset.failedCandidates = list.join(" | ");
+        console.warn("画像を読み込めませんでした:", list);
       }
     };
-    img.src = candidates[index];
+    img.onload = () => {
+      img.onerror = null;
+      img.dataset.imageLoadFailed = "false";
+      img.dataset.loadedImage = current;
+    };
+    img.src = current;
   };
+
   apply();
 }
 
@@ -1013,7 +1044,7 @@ function buildSkinList() {
         <h3>${skin.name}</h3>
         <p>コスト: <strong>${skin.cost === 0 ? "初期所持" : `${fmt(skin.cost)} ポイント`}</strong></p>
         <p>基本ポイント倍率: <strong>${fmtMult(skin.multiplier)}倍</strong></p>
-        <p class="skin-file-note">画像: ${getSkinImageSrc(skin)}</p>
+        <p class="skin-file-note">画像候補: ${getSkinImageCandidates(skin).join(" / ")}</p>
         <button class="skin-action-button" type="button"></button>
       </div>`;
     card.prepend(preview);
@@ -1027,11 +1058,12 @@ function updateSkinDisplay() {
   if (els.currentSkinNameText) els.currentSkinNameText.textContent = equipped.name;
   if (els.currentSkinMultiplierText) els.currentSkinMultiplierText.textContent = `${fmtMult(equipped.multiplier)}倍`;
   if (els.potatoImage) {
-    const equippedSrc = getSkinImageSrc(equipped);
-    if (els.potatoImage.dataset.skinId !== equipped.id || els.potatoImage.dataset.skinSrc !== equippedSrc) {
+    const equippedCandidates = getSkinImageCandidates(equipped);
+    const signature = equippedCandidates.join("|");
+    if (els.potatoImage.dataset.skinId !== equipped.id || els.potatoImage.dataset.skinSrc !== signature || els.potatoImage.dataset.imageLoadFailed === "true") {
       els.potatoImage.dataset.skinId = equipped.id;
-      els.potatoImage.dataset.skinSrc = equippedSrc;
-      setImageWithCandidates(els.potatoImage, getSkinImageCandidates(equipped));
+      els.potatoImage.dataset.skinSrc = signature;
+      setImageWithCandidates(els.potatoImage, equippedCandidates);
     }
   }
   if (!els.skinList) return;
