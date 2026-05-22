@@ -43,6 +43,14 @@ const SKIN_CONFIG = [
 ];
 
 
+
+const SKIN_ASSET_VERSION = "groundpetika-jpg-v2";
+function getSkinImageSrc(skin) {
+  if (!skin || !skin.file) return "potato.png";
+  // 同じ名前の画像を差し替えた時、ブラウザが古い画像をキャッシュして表示し続けることを防ぐ。
+  return `${skin.file}?v=${SKIN_ASSET_VERSION}`;
+}
+
 const ACHIEVEMENTS = [
   { id:"firstClick", name:"初めてのじゃがいも", condition:"初めてじゃがいもをクリックする", reward:0.01 },
   { id:"click100", name:"じゃがいも餅", condition:"じゃがいもを100回クリックする", reward:0.01 },
@@ -959,7 +967,7 @@ function buildSkinList() {
     card.className = "skin-card";
     card.dataset.skinId = skin.id;
     card.innerHTML = `
-      <img class="skin-preview" src="${skin.file}" alt="${skin.name}" />
+      <img class="skin-preview" src="${getSkinImageSrc(skin)}" alt="${skin.name}" />
       <div class="skin-info">
         <h3>${skin.name}</h3>
         <p>コスト: <strong>${skin.cost === 0 ? "初期所持" : `${fmt(skin.cost)} ポイント`}</strong></p>
@@ -975,7 +983,10 @@ function updateSkinDisplay() {
   const equipped = getSkinConfig();
   if (els.currentSkinNameText) els.currentSkinNameText.textContent = equipped.name;
   if (els.currentSkinMultiplierText) els.currentSkinMultiplierText.textContent = `${fmtMult(equipped.multiplier)}倍`;
-  if (els.potatoImage && els.potatoImage.getAttribute("src") !== equipped.file) els.potatoImage.src = equipped.file;
+  if (els.potatoImage) {
+    const equippedSrc = getSkinImageSrc(equipped);
+    if (els.potatoImage.getAttribute("src") !== equippedSrc) els.potatoImage.src = equippedSrc;
+  }
   if (!els.skinList) return;
   els.skinList.querySelectorAll(".skin-card").forEach((card) => {
     const skin = getSkinConfig(card.dataset.skinId);
