@@ -264,23 +264,3 @@ body {
 @media (max-width: 560px) {
   .achievement-toast-container { top: 74px; right: 10px; }
 }
-.skin-file-note {
-  color: rgba(255, 248, 231, 0.62);
-  font-size: 12px !important;
-  word-break: break-all;
-}
-
-.skin-image-button {
-  margin-top: 8px;
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid rgba(255, 221, 142, 0.55);
-  border-radius: 12px;
-  color: #fff8e7;
-  background: rgba(255, 255, 255, 0.12);
-  font-weight: 700;
-  cursor: pointer;
-}
-.skin-image-button:hover {
-  background: rgba(255, 255, 255, 0.2);
-}

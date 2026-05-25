@@ -124,42 +124,16 @@ function buildPathCandidatesFromBase(base) {
   return candidates;
 }
 
-function getCustomSkinImageDataUrl(skinId) {
-  if (!skinId) return "";
-  try {
-    return localStorage.getItem(`${SAVE_KEY_BASE}_customSkinImage_${getStorageScopeKey()}_${skinId}`) || "";
-  } catch (e) {
-    return "";
-  }
-}
-
-function setCustomSkinImageDataUrl(skinId, dataUrl) {
-  if (!skinId || !dataUrl) return false;
-  try {
-    localStorage.setItem(`${SAVE_KEY_BASE}_customSkinImage_${getStorageScopeKey()}_${skinId}`, dataUrl);
-    return true;
-  } catch (e) {
-    alert("画像データの保存に失敗しました。画像サイズが大きすぎる可能性があります。");
-    return false;
-  }
-}
-
 function getSkinImageCandidates(skin) {
   if (!skin) return ["potato.png"];
   const candidates = [];
-  const customImage = getCustomSkinImageDataUrl(skin.id);
 
-  // グラウンドペチカはパスの問題を避けるため、添付の9.jpg候補を最優先します。
-  // 以前の「画像を読み込む」で保存された古いData URLがあっても、先に9.jpg/埋め込み画像を試します。
-  if (skin.id !== "guraundopetika9" && customImage) candidates.push(customImage);
-
+  // グラウンドペチカは添付の9.jpg候補と、JS内に埋め込んだバックアップ画像を優先します。
   if (Array.isArray(skin.fileCandidates) && skin.fileCandidates.length > 0) candidates.push(...skin.fileCandidates);
   if (Array.isArray(skin.fileBases) && skin.fileBases.length > 0) {
     skin.fileBases.forEach((base) => candidates.push(...buildPathCandidatesFromBase(base)));
   }
   candidates.push(...buildPathCandidatesFromBase(getSkinImageSrc(skin)));
-
-  if (skin.id === "guraundopetika9" && customImage) candidates.push(customImage);
 
   return uniqueImageCandidates(candidates);
 }
@@ -1141,49 +1115,20 @@ function buildSkinList() {
     preview.className = "skin-preview";
     preview.alt = skin.name;
     setImageWithCandidates(preview, getSkinImageCandidates(skin));
-    const imageButtonHtml = skin.id === "guraundopetika9"
-      ? `<button class="skin-image-button" type="button">画像を読み込む</button>`
-      : "";
     card.innerHTML = `
       <div class="skin-info">
         <h3>${skin.name}</h3>
         <p>コスト: <strong>${skin.cost === 0 ? "初期所持" : `${fmt(skin.cost)} ポイント`}</strong></p>
         <p>基本ポイント倍率: <strong>${fmtMult(skin.multiplier)}倍</strong></p>
         <button class="skin-action-button" type="button"></button>
-        ${imageButtonHtml}
       </div>`;
     card.prepend(preview);
     const button = card.querySelector(".skin-action-button");
     button.addEventListener("click", () => buyOrEquipSkin(skin.id));
-    const imageButton = card.querySelector(".skin-image-button");
-    if (imageButton) imageButton.addEventListener("click", () => openSkinImagePicker(skin.id));
     els.skinList.append(card);
   });
 }
 
-function openSkinImagePicker(skinId) {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/avif,image/png,image/jpeg,image/webp,image/*";
-  input.addEventListener("change", () => {
-    const file = input.files && input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.addEventListener("load", () => {
-      if (typeof reader.result !== "string") return;
-      if (!setCustomSkinImageDataUrl(skinId, reader.result)) return;
-      document.querySelectorAll(`[data-skin-id="${skinId}"] img`).forEach((img) => {
-        img.dataset.imageLoadFailed = "true";
-      });
-      if (state.equippedSkin === skinId && els.potatoImage) els.potatoImage.dataset.imageLoadFailed = "true";
-      buildSkinList();
-      updateScreen();
-      saveGame(true);
-    });
-    reader.readAsDataURL(file);
-  }, { once:true });
-  input.click();
-}
 function updateSkinDisplay() {
   const equipped = getSkinConfig();
   if (els.currentSkinNameText) els.currentSkinNameText.textContent = equipped.name;
