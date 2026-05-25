@@ -264,3 +264,11 @@ body {
 @media (max-width: 560px) {
   .achievement-toast-container { top: 74px; right: 10px; }
 }
+
+
+/* 旧版の「画像を読み込む」ボタンを確実に隠すための保険 */
+.skin-image-button,
+.skin-file-note {
+  display: none !important;
+  visibility: hidden !important;
+}

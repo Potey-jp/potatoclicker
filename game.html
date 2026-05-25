@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ジャガイモクリッカー</title>
-  <link rel="stylesheet" href="game.css" />
+  <link rel="stylesheet" href="game.css?v=no-image-loader-v2" />
 </head>
 <body>
   <header class="top-bar">
@@ -241,6 +241,51 @@
     </div>
   </div>
 
-  <script src="game.js"></script>
+
+  <style>
+    /* 古いJS/CSSがキャッシュされていても、グラウンドペチカ用の画像読み込みボタンを表示しない */
+    .skin-image-button,
+    .skin-file-note {
+      display: none !important;
+      visibility: hidden !important;
+    }
+  </style>
+  <script>
+    (function () {
+      function removeLegacySkinImageLoader() {
+        document.querySelectorAll(".skin-image-button, .skin-file-note").forEach(function (el) {
+          el.remove();
+        });
+        document.querySelectorAll("button").forEach(function (button) {
+          if ((button.textContent || "").trim() === "画像を読み込む") {
+            button.remove();
+          }
+        });
+      }
+
+      removeLegacySkinImageLoader();
+      document.addEventListener("DOMContentLoaded", removeLegacySkinImageLoader);
+      window.addEventListener("load", removeLegacySkinImageLoader);
+      window.__removeLegacySkinImageLoader = removeLegacySkinImageLoader;
+
+      var tries = 0;
+      var cleanupTimer = window.setInterval(function () {
+        removeLegacySkinImageLoader();
+        tries += 1;
+        if (tries >= 80) window.clearInterval(cleanupTimer);
+      }, 250);
+
+      function startObserver() {
+        if (!document.body) {
+          window.requestAnimationFrame(startObserver);
+          return;
+        }
+        var observer = new MutationObserver(removeLegacySkinImageLoader);
+        observer.observe(document.body, { childList: true, subtree: true });
+      }
+      startObserver();
+    })();
+  </script>
+  <script src="game.js?v=no-image-loader-v2"></script>
 </body>
 </html>

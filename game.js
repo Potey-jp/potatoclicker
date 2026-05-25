@@ -1104,6 +1104,13 @@ function buyBigBang(type) {
   updateScreen(); saveGame(true);
 }
 
+function removeLegacySkinImageLoaderElements() {
+  document.querySelectorAll(".skin-image-button, .skin-file-note").forEach((el) => el.remove());
+  document.querySelectorAll("button").forEach((button) => {
+    if ((button.textContent || "").trim() === "画像を読み込む") button.remove();
+  });
+}
+
 function buildSkinList() {
   if (!els.skinList) return;
   els.skinList.innerHTML = "";
@@ -1127,6 +1134,7 @@ function buildSkinList() {
     button.addEventListener("click", () => buyOrEquipSkin(skin.id));
     els.skinList.append(card);
   });
+  removeLegacySkinImageLoaderElements();
 }
 
 function updateSkinDisplay() {
@@ -1392,7 +1400,7 @@ function initialRender() {
   document.documentElement.classList.add("game-ready");
 }
 
-clearStaleGroundpetikaCustomImagesOnce(); buildAutoBasicRows(); buildDebugFields(); buildSkinList(); resetBasicUpgrades(); loadGame(); clearFalseOfflineStart(); checkAchievements({silent:true}); bindEvents(); restartLoops(); startAutoBasicLoop(); initialRender();
+clearStaleGroundpetikaCustomImagesOnce(); buildAutoBasicRows(); buildDebugFields(); buildSkinList(); removeLegacySkinImageLoaderElements(); resetBasicUpgrades(); loadGame(); clearFalseOfflineStart(); checkAchievements({silent:true}); bindEvents(); restartLoops(); startAutoBasicLoop(); initialRender(); removeLegacySkinImageLoaderElements();
 requestAnimationFrame(initialRender);
 setTimeout(initialRender, 0);
 setTimeout(initialRender, 50);
