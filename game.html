@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ジャガイモクリッカー</title>
-  <link rel="stylesheet" href="game.css?v=no-image-loader-v2" />
+  <link rel="stylesheet" href="game.css?v=bb-effects-v1" />
 </head>
 <body>
   <header class="top-bar">
@@ -23,6 +23,8 @@
       <span id="pointText" class="score-value">0</span>
       <span id="multiplierFormulaText" class="multiplier-formula">*1 *1</span>
     </div>
+
+    <button id="cookingTabButton" class="cooking-tab-button locked" type="button" aria-disabled="true" title="高級アップグレードで料理機能をアンロックしてください">🔒 調理</button>
   </header>
 
   <aside id="upgradePanel" class="side-panel upgrade-panel" aria-hidden="true">
@@ -32,6 +34,14 @@
     </div>
 
     <div class="upgrade-list">
+      <div class="buy-mode-control" role="group" aria-label="アップグレード購入数">
+        <span>購入数</span>
+        <button id="buyModeOneButton" class="mini-button buy-mode-button on" type="button">1</button>
+        <button id="buyModeTenButton" class="mini-button buy-mode-button" type="button">10</button>
+        <button id="buyModeHundredButton" class="mini-button buy-mode-button" type="button">100</button>
+        <button id="buyModeMaxButton" class="mini-button buy-mode-button" type="button">最大</button>
+      </div>
+
       <p class="upgrade-section-title">基本アップグレード</p>
 
       <section class="upgrade-card">
@@ -102,7 +112,7 @@
       <section class="upgrade-card premium-card">
         <h3>高級リセット</h3>
         <p><span id="prestigeCostText">100M</span> ポイントごとに1回分リセットできます。実行回数分だけ高級ポイントを獲得します。</p>
-        <p class="premium-note">リセット1回ごとに「高級全基本ポイント倍率」が +0.01 されます。</p>
+        <p class="premium-note">基本ポイントと基本アップグレードを初期化し、高級ポイントを獲得します。基本全ポイント倍率は高級アップグレードで強化できます。</p>
         <button id="prestigeResetButton" class="upgrade-button premium-button prestige-reset-button" type="button">高級リセットまで 100M ポイント</button>
       </section>
 
@@ -112,6 +122,7 @@
           <button id="prestigeEnhancedAutoButton" class="upgrade-button premium-button" type="button"></button>
           <button id="prestigeEnhancedBonusButton" class="upgrade-button premium-button" type="button"></button>
           <button id="prestigeInitialLevelButton" class="upgrade-button premium-button" type="button"></button>
+          <button id="prestigeBasicMultiplierButton" class="upgrade-button premium-button" type="button"></button>
           <button id="prestigeCostReductionButton" class="upgrade-button premium-button" type="button"></button>
           <button id="prestigePremiumAutoMultiplierButton" class="upgrade-button premium-button" type="button"></button>
           <button id="prestigeManualFinalMultiplierButton" class="upgrade-button premium-button" type="button"></button>
@@ -120,6 +131,7 @@
             <label>自動リセットON/OFF <button id="toggleAutoPrestigeButton" class="mini-button" type="button">OFF</button></label>
             <label>一度の合計リセット数 <input id="autoPrestigeTargetInput" type="number" min="1" step="1" value="1" /></label>
           </div>
+          <button id="prestigeCookingUnlockButton" class="upgrade-button premium-button" type="button"></button>
           <button id="prestigeAutoBasicUpgradeButton" class="upgrade-button premium-button" type="button"></button>
           <button id="prestigePointGainButton" class="upgrade-button premium-button" type="button"></button>
         </div>
@@ -149,6 +161,8 @@
           <button id="bigBangNormalMultiplierButton" class="upgrade-button big-bang-button" type="button"></button>
           <button id="bigBangPrestigeMultiplierButton" class="upgrade-button big-bang-button" type="button"></button>
           <button id="bigBangPointGainButton" class="upgrade-button big-bang-button" type="button"></button>
+          <button id="bigBangCookingRobotMk2Button" class="upgrade-button big-bang-button" type="button"></button>
+          <button id="bigBangInitialLevelButton" class="upgrade-button big-bang-button" type="button"></button>
         </div>
       </section>
 
@@ -159,6 +173,19 @@
         <button id="deleteSaveButton" class="upgrade-button danger-button" type="button">セーブデータ削除</button>
       </section>
     </div>
+  </aside>
+
+  <aside id="cookingUpgradePanel" class="side-panel cooking-upgrade-panel" aria-hidden="true">
+    <div class="panel-header">
+      <h2>料理アップグレード</h2>
+      <button id="closeCookingUpgradeButton" class="close-button" type="button">×</button>
+    </div>
+    <div class="cooking-summary-card">
+      <p>料理レベル: <strong id="cookingLevelText">1</strong></p>
+      <p>料理熟練度: <strong id="cookingMasteryText">0</strong></p>
+      <p>次のレベル: <strong id="cookingLevelProgressText">0 / 100</strong></p>
+    </div>
+    <div id="cookingUpgradeList" class="upgrade-list"></div>
   </aside>
 
   <aside id="statsPanel" class="side-panel stats-panel" aria-hidden="true">
@@ -195,6 +222,18 @@
     <div id="skinList" class="skin-list"></div>
   </aside>
 
+  <aside id="recipePanel" class="side-panel recipe-panel" aria-hidden="true">
+    <div class="panel-header">
+      <h2>レシピ</h2>
+      <button id="closeRecipeButton" class="close-button" type="button">×</button>
+    </div>
+    <div class="cooking-summary-card">
+      <p>選択中: <strong id="selectedRecipeNameText">バター焼きじゃが</strong></p>
+      <p>料理レベル: <strong id="recipePanelLevelText">1</strong></p>
+    </div>
+    <div id="recipeList" class="recipe-list"></div>
+  </aside>
+
   <div id="panelOverlay" class="panel-overlay"></div>
 
   <main class="game-area">
@@ -203,6 +242,90 @@
       <img id="potatoImage" src="potato.png" alt="ジャガイモ" class="potato-image" />
     </button>
   </main>
+
+  <main id="cookingArea" class="cooking-area" aria-hidden="true">
+    <section class="cooking-stage">
+      <div class="cooking-meta">
+        <p class="cooking-mode-label">調理</p>
+        <h2 id="cookingRecipeTitle">バター焼きじゃが</h2>
+        <div class="cooking-meter-grid">
+          <span>料理の質 <strong id="cookingQualityText">50%</strong></span>
+          <span>スコア <strong id="cookingScoreText">0</strong></span>
+          <span>コンボ <strong id="cookingComboText">0</strong></span>
+        </div>
+        <div class="cooking-quality-bar" aria-hidden="true">
+          <span id="cookingQualityFill"></span>
+        </div>
+      </div>
+
+      <div class="cooking-dish-frame">
+        <img id="cookingDishImage" class="cooking-dish-image" src="cooking-baked-potato.jpg" alt="バター焼きじゃが" />
+        <div id="cookingCountdownText" class="cooking-countdown hidden" aria-live="polite">3</div>
+      </div>
+
+      <div class="cooking-actions">
+        <button id="startCookingButton" class="upgrade-button cooking-start-button" type="button">調理開始</button>
+        <button id="returnGameButton" class="upgrade-button utility-button" type="button">通常画面へ戻る</button>
+      </div>
+
+      <div id="cookingResultCard" class="cooking-result-card hidden">
+        <h3 id="cookingResultTitle">完成</h3>
+        <p id="cookingResultText">結果</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="trial-peek" aria-hidden="true">
+    <span>試練</span>
+    <span>↓</span>
+  </div>
+
+  <section id="trialScreen" class="trial-screen" aria-hidden="true">
+    <div class="trial-content">
+      <button id="trialPrevButton" class="trial-nav-button trial-nav-prev" type="button" aria-label="前の試練">‹</button>
+      <button id="trialNextButton" class="trial-nav-button trial-nav-next" type="button" aria-label="次の試練">›</button>
+
+      <div id="trialCard" class="trial-card">
+        <div class="trial-header">
+          <p class="trial-label">試練 <span id="trialIndexText">1 / 2</span></p>
+          <h2 id="trialTitleText">設備充実</h2>
+          <span id="trialStatusText" class="trial-status">未挑戦</span>
+        </div>
+
+        <div class="trial-rule-grid">
+          <div>
+            <h3>制限</h3>
+            <p id="trialRestrictionText">基本アップグレードの通常強化が禁止されます。</p>
+          </div>
+          <div>
+            <h3>クリア条件</h3>
+            <p id="trialGoalText">高級ポイントを 100M まで到達させます。</p>
+          </div>
+          <div>
+            <h3>報酬</h3>
+            <p id="trialRewardText">ジャガイモビックバンを実行した時に、強化オートクリック解放・強化ボーナス解放・自動リセット解放・基本アップグレード自動強化解放がリセットされなくなります。</p>
+          </div>
+        </div>
+
+        <div class="trial-progress-block">
+          <div class="trial-progress-header">
+            <span>進行</span>
+            <strong id="trialProgressText">0 / 100M</strong>
+          </div>
+          <div class="trial-progress-bar" aria-hidden="true">
+            <span id="trialProgressFill"></span>
+          </div>
+        </div>
+
+        <div class="trial-actions">
+          <button id="startTrialButton" class="upgrade-button trial-start-button" type="button">挑戦開始</button>
+          <button id="abortTrialButton" class="upgrade-button danger-button hidden" type="button">中断</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="viewTransitionFade" class="view-transition-fade" aria-hidden="true"></div>
 
   <button id="skinButton" class="skin-floating-button" type="button" aria-label="スキンメニューを開く">🥔 スキン</button>
   <div id="achievementToastContainer" class="achievement-toast-container" aria-live="polite"></div>
@@ -241,51 +364,6 @@
     </div>
   </div>
 
-
-  <style>
-    /* 古いJS/CSSがキャッシュされていても、グラウンドペチカ用の画像読み込みボタンを表示しない */
-    .skin-image-button,
-    .skin-file-note {
-      display: none !important;
-      visibility: hidden !important;
-    }
-  </style>
-  <script>
-    (function () {
-      function removeLegacySkinImageLoader() {
-        document.querySelectorAll(".skin-image-button, .skin-file-note").forEach(function (el) {
-          el.remove();
-        });
-        document.querySelectorAll("button").forEach(function (button) {
-          if ((button.textContent || "").trim() === "画像を読み込む") {
-            button.remove();
-          }
-        });
-      }
-
-      removeLegacySkinImageLoader();
-      document.addEventListener("DOMContentLoaded", removeLegacySkinImageLoader);
-      window.addEventListener("load", removeLegacySkinImageLoader);
-      window.__removeLegacySkinImageLoader = removeLegacySkinImageLoader;
-
-      var tries = 0;
-      var cleanupTimer = window.setInterval(function () {
-        removeLegacySkinImageLoader();
-        tries += 1;
-        if (tries >= 80) window.clearInterval(cleanupTimer);
-      }, 250);
-
-      function startObserver() {
-        if (!document.body) {
-          window.requestAnimationFrame(startObserver);
-          return;
-        }
-        var observer = new MutationObserver(removeLegacySkinImageLoader);
-        observer.observe(document.body, { childList: true, subtree: true });
-      }
-      startObserver();
-    })();
-  </script>
-  <script src="game.js?v=no-image-loader-v2"></script>
+  <script src="game.js?v=bb-effects-v1"></script>
 </body>
 </html>
